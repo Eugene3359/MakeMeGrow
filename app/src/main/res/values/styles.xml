@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="DatePickerDialog" parent="ThemeOverlay.AppCompat.Dialog">
+        <item name="colorPrimary">@color/purple_200</item> <!-- Buttons OK and Cancel -->
+        <item name="colorSecondary">@color/dark_gray</item> <!-- Header and Selected Date Background-->
+        <item name="android:textColorPrimary">@color/light_blue</item> <!-- Year, Month and Dates -->
+        <item name="android:textColorSecondary">@color/purple_200</item> <!-- Mon-Sun -->
+        <item name="android:windowBackground">@color/purple</item> <!-- Background -->
+    </style>
+
+    <style name="TimePickerDialog" parent="ThemeOverlay.AppCompat.Dialog">
+        <item name="android:timePickerStyle">@style/TimePicker</item>
+        <item name="colorPrimary">@color/purple_200</item> <!-- Buttons -->
+        <item name="android:textColorSecondary">@color/light_blue</item> <!-- Buttons Change View -->
+        <item name="android:windowBackground">@color/purple</item> <!-- Background -->
+    </style>
+
+    <style name="TimePicker">
+        <item name="android:timePickerMode">clock</item>
+        <item name="android:headerBackground">@color/dark_gray</item> <!-- Header -->
+        <item name="android:numbersBackgroundColor">@color/dark_gray</item> <!-- Dial -->
+        <item name="android:numbersSelectorColor">@color/purple</item> <!-- Selector -->
+        <item name="android:numbersTextColor">@color/light_blue</item> <!-- Digits -->
+        <item name="android:numbersInnerTextColor">@color/light_blue</item> <!-- Digits -->
+    </style>
+</resources>

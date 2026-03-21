@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:paddingVertical="10dp"
+    android:background="@color/dark_gray"
+    android:gravity="center_vertical">
+
+    <CheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="50dp"
+        android:layout_height="40dp"
+        android:checked="true"
+        android:buttonTint="@color/light_gray"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_task"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/placeholder"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_medium"/>
+
+        <TextView
+            android:id="@+id/text_deadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/placeholder"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_small"/>
+
+    </LinearLayout>
+
+</LinearLayout>

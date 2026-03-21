@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".ui.activity.TaskActivity">
+
+    <LinearLayout
+        android:id="@+id/container_task"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/task"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_medium"/>
+
+        <EditText
+            android:id="@+id/input_task"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/light_gray"
+            android:hint="@string/enter_task_here"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:textColorHint="@color/light_gray"
+            android:textColor="@color/light_gray"
+            android:textSize="@dimen/text_medium"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/container_deadline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/container_task"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/deadline"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_medium"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/input_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/light_gray"
+                android:hint="@string/date_not_set"
+                android:importantForAutofill="no"
+                android:inputType="date"
+                android:textColorHint="@color/light_gray"
+                android:textColor="@color/light_gray"
+                android:textSize="@dimen/text_medium"
+                android:focusable="false"
+                android:clickable="true"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_clear_date"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/shape_round"
+                android:foreground="@drawable/ic_cross"/>
+
+        </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_time_selection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/input_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@color/light_gray"
+            android:hint="@string/time_not_set"
+            android:importantForAutofill="no"
+            android:inputType="time"
+            android:textColorHint="@color/light_gray"
+            android:textColor="@color/light_gray"
+            android:textSize="@dimen/text_medium"
+            android:focusable="false"
+            android:clickable="true"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_clear_time"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/shape_round"
+            android:foreground="@drawable/ic_cross"/>
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_confirm"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@drawable/shape_round"
+        android:foreground="@drawable/ic_check_mark"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
