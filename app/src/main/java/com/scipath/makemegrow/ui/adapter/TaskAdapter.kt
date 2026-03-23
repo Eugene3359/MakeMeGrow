@@ -65,10 +65,13 @@ class TaskAdapter(
                 context = context
             )
             holder.textDeadline.text = deadline
-            if (isDeadlineMissed(task)) {
-                holder.textDeadline.setTextColor(context.getColor(R.color.red))
-            }
-
+            holder.textDeadline.setTextColor(
+                if (isDeadlineMissed(task)) {
+                    context.getColor(R.color.red)
+                } else {
+                    context.getColor(R.color.light_gray)
+                }
+            )
         }
 
         // Completed
