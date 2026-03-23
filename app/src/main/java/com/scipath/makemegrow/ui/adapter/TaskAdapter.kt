@@ -10,6 +10,8 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
+import java.time.LocalDate
+import java.time.LocalTime
 
 class TaskAdapter(
     private var tasks: List<Task>,
@@ -57,19 +59,16 @@ class TaskAdapter(
         if (task.deadlineDate == 0L) {
             holder.textDeadline.visibility = View.GONE
         } else {
-            var deadline: String
-            if (task.deadlineTime < 0) {
-                deadline = DateAndTimeConverter.dateToString(
-                    DateAndTimeConverter.secondsToDate(task.deadlineDate)
-                )
-            } else {
-                deadline = DateAndTimeConverter.dateTimeToString(
-                    DateAndTimeConverter.secondsToDateTime(
-                        task.deadlineDate + task.deadlineTime
-                    )
-                )
-            }
+            val deadline: String = DateAndTimeConverter.dateAndTimeToString(
+                date = DateAndTimeConverter.secondsToDate(task.deadlineDate),
+                time = DateAndTimeConverter.secondsToTime(task.deadlineTime),
+                context = context
+            )
             holder.textDeadline.text = deadline
+            if (isDeadlineMissed(task)) {
+                holder.textDeadline.setTextColor(context.getColor(R.color.red))
+            }
+
         }
 
         // Completed
@@ -113,5 +112,20 @@ class TaskAdapter(
             notifyItemChanged(previous)
             onTaskSelect(null)
         }
+    }
+
+    private fun isDeadlineMissed(task: Task): Boolean {
+        val date: LocalDate? = DateAndTimeConverter.secondsToDate(task.deadlineDate)
+        val time: LocalTime? = DateAndTimeConverter.secondsToTime(task.deadlineTime)
+
+        if (date == null)
+            return false
+        if (date.isBefore(LocalDate.now()))
+            return true
+        if (time == null)
+            return false
+        if (date.isEqual(LocalDate.now()) && time.isBefore(LocalTime.now()))
+            return true
+        return false
     }
 }

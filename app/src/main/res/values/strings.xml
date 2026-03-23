@@ -1,11 +1,18 @@
 <resources>
     <string name="app_name">Make Me Grow</string>
-    <string name="plus">+</string>
     <string name="placeholder">Placeholder</string>
+
     <string name="task">Task</string>
     <string name="enter_task_here">Enter Task Here</string>
     <string name="deadline">Deadline</string>
     <string name="date_not_set">Date not set</string>
     <string name="time_not_set">Time not set</string>
     <string name="enter_task_first">Enter Task First</string>
+
+    <string name="yesterday">Yesterday</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="date_format">dd MMM yyyy</string>
+    <string name="time_format">HH:mm</string>
+    <string name="date_time_formatting">%s, %s</string>
 </resources>

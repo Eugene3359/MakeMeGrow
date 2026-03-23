@@ -1,5 +1,7 @@
 package com.scipath.makemegrow.data.converter
 
+import android.content.Context
+import com.scipath.makemegrow.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -25,7 +27,7 @@ class DateAndTimeConverter {
         }
 
         fun secondsToTime(secondOfDay: Int): LocalTime? {
-            if (secondOfDay < 0) return null
+            if (secondOfDay == -1) return null
             return LocalTime.ofSecondOfDay(secondOfDay.toLong())
         }
 
@@ -36,22 +38,33 @@ class DateAndTimeConverter {
                 .toLocalDateTime()
         }
 
-        fun dateToString(date: LocalDate?): String {
-            val formatter = DateTimeFormatter
-                .ofPattern("dd MMM yyyy", Locale.getDefault())
+        fun dateToString(date: LocalDate?, context: Context): String {
+            val currentDate: LocalDate = LocalDate.now()
+            if (date == currentDate.minusDays(1))
+                return context.getString(R.string.yesterday)
+            if (date == currentDate)
+                return context.getString(R.string.today)
+            if (date == currentDate.plusDays(1))
+                return context.getString(R.string.tomorrow)
+            val formatter = DateTimeFormatter.ofPattern(
+                context.getString(R.string.date_format),
+                Locale.getDefault())
             return date?.format(formatter) ?: ""
         }
 
-        fun timeToString(time: LocalTime?): String {
-            val formatter = DateTimeFormatter
-                .ofPattern("HH:mm", Locale.getDefault())
+        fun timeToString(time: LocalTime?, context: Context): String {
+            val formatter = DateTimeFormatter.ofPattern(
+                context.getString(R.string.time_format),
+                Locale.getDefault())
             return time?.format(formatter) ?: ""
         }
 
-        fun dateTimeToString(dateTime: LocalDateTime?): String {
-            val formatter = DateTimeFormatter
-                .ofPattern("dd MMM yyyy, HH:mm", Locale.getDefault())
-            return dateTime?.format(formatter) ?: ""
+        fun dateAndTimeToString(date: LocalDate?, time: LocalTime?, context: Context): String {
+            if (date == null) return ""
+            if (time == null) return dateToString(date, context)
+            return context.getString(R.string.date_time_formatting).format(
+                dateToString(date, context),
+                timeToString(time, context))
         }
     }
 }

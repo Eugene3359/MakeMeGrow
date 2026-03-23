@@ -53,10 +53,10 @@ class TaskActivity : AppCompatActivity() {
         if (task != null) {
             inputTask.setText(task!!.name)
             selectedDate = DateAndTimeConverter.secondsToDate(task!!.deadlineDate)
-            inputDate.setText(DateAndTimeConverter.dateToString(selectedDate))
+            inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
             if (!inputDate.text.isBlank()) {
                 selectedTime = DateAndTimeConverter.secondsToTime(task!!.deadlineTime)
-                inputTime.setText(DateAndTimeConverter.timeToString(selectedTime))
+                inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
                 layoutTimeSelection.visibility = View.VISIBLE
             }
         }
@@ -71,7 +71,7 @@ class TaskActivity : AppCompatActivity() {
                 /*R.style.DatePickerDialog*/
                 { _, year, month, day -> run {
                     selectedDate = LocalDate.of(year, month + 1, day)
-                    inputDate.setText(DateAndTimeConverter.dateToString(selectedDate))
+                    inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
                     layoutTimeSelection.visibility = View.VISIBLE
                 }},
                 year,
@@ -96,7 +96,7 @@ class TaskActivity : AppCompatActivity() {
                 /*R.style.TimePickerDialog,*/
                 { _, hour, minute -> run {
                     selectedTime = LocalTime.of(hour, minute)
-                    inputTime.setText(DateAndTimeConverter.timeToString(selectedTime))
+                    inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
                 }},
                 hourOfDay,
                 minute,

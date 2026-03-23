@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
-    @Query("SELECT * FROM tasks")
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "ORDER BY deadline_date ASC, " +
+            "deadline_time ASC")
     fun getAll(): Flow<List<Task>>
 
     @Query("SELECT * FROM tasks WHERE id IS (:id)")
