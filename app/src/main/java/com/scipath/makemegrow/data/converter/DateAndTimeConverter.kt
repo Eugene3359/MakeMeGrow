@@ -2,40 +2,34 @@ package com.scipath.makemegrow.data.converter
 
 import android.content.Context
 import com.scipath.makemegrow.R
-import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class DateAndTimeConverter {
     companion object {
+        const val SECONDS_IN_DAY = 86400
+        const val NO_DATE = Long.MAX_VALUE
+        const val NO_TIME = Int.MAX_VALUE
+
         fun dateToSeconds(date: LocalDate?): Long {
-            if (date == null) return 0L
-            return date.toEpochDay() * 86400 // Convert days to seconds
+            if (date == null) return NO_DATE
+            return date.toEpochDay() * SECONDS_IN_DAY // Convert days to seconds
         }
 
         fun timeToSeconds(time: LocalTime?): Int {
-            return time?.toSecondOfDay() ?: -1
+            return time?.toSecondOfDay() ?: NO_TIME
         }
 
         fun secondsToDate(seconds: Long): LocalDate? {
-            if (seconds == 0L) return null
-            return LocalDate.ofEpochDay(seconds / 86400)
+            if (seconds == NO_DATE) return null
+            return LocalDate.ofEpochDay(seconds / SECONDS_IN_DAY) // Convert seconds to days
         }
 
         fun secondsToTime(secondOfDay: Int): LocalTime? {
-            if (secondOfDay == -1) return null
+            if (secondOfDay == NO_TIME) return null
             return LocalTime.ofSecondOfDay(secondOfDay.toLong())
-        }
-
-        fun secondsToDateTime(seconds: Long): LocalDateTime {
-            return Instant
-                .ofEpochSecond(seconds)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime()
         }
 
         fun dateToString(date: LocalDate?, context: Context): String {
