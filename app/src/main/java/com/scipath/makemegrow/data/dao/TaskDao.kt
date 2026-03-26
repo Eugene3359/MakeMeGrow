@@ -29,16 +29,20 @@ interface TaskDao {
     @Query("SELECT * " +
             "FROM tasks " +
             "WHERE deadline_date < (:date) " +
+            "OR deadline_date IS (:date) " +
+            "AND deadline_time < (:time) " +
             "ORDER BY deadline_date ASC, " +
             "deadline_time ASC")
-    fun getBeforeDeadlineDate(date: Long): Flow<List<Task>>
+    fun getBeforeDeadline(date: Long, time: Int): Flow<List<Task>>
 
     @Query("SELECT * " +
             "FROM tasks " +
             "WHERE deadline_date > (:date) " +
+            "OR deadline_date IS (:date) " +
+            "AND deadline_time > (:time) " +
             "ORDER BY deadline_date ASC, " +
             "deadline_time ASC")
-    fun getAfterDeadlineDate(date: Long): Flow<List<Task>>
+    fun getAfterDeadline(date: Long, time: Int): Flow<List<Task>>
 
     @Query("SELECT * " +
             "FROM tasks " +

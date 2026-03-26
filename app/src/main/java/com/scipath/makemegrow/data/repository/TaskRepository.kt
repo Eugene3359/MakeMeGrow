@@ -5,14 +5,17 @@ import com.scipath.makemegrow.data.dao.TaskDao
 import com.scipath.makemegrow.data.model.Task
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
+import java.time.LocalTime
 
 class TaskRepository(private val taskDao: TaskDao) {
 
     val allTasks: Flow<List<Task>> = taskDao.getAll()
-    val overdueTasks: Flow<List<Task>> = taskDao.getBeforeDeadlineDate(
-        DateAndTimeConverter.dateToSeconds(LocalDate.now()))
-    val upcomingTasks: Flow<List<Task>> = taskDao.getAfterDeadlineDate(
-        DateAndTimeConverter.dateToSeconds(LocalDate.now().minusDays(1)))
+    val overdueTasks: Flow<List<Task>> = taskDao.getBeforeDeadline(
+        DateAndTimeConverter.dateToSeconds(LocalDate.now()),
+        DateAndTimeConverter.timeToSeconds(LocalTime.now()))
+    val upcomingTasks: Flow<List<Task>> = taskDao.getAfterDeadline(
+        DateAndTimeConverter.dateToSeconds(LocalDate.now()),
+        DateAndTimeConverter.timeToSeconds(LocalTime.now()))
 
     fun getById(id: Int): Task {
         return taskDao.getById(id);
