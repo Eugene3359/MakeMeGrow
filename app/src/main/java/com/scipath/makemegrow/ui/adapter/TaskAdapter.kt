@@ -59,6 +59,7 @@ class TaskAdapter(
         if (task.deadlineDate == DateAndTimeConverter.NO_DATE) {
             holder.textDeadline.visibility = View.GONE
         } else {
+            holder.textDeadline.visibility = View.VISIBLE
             val deadline: String = DateAndTimeConverter.dateAndTimeToString(
                 date = DateAndTimeConverter.secondsToDate(task.deadlineDate),
                 time = DateAndTimeConverter.secondsToTime(task.deadlineTime),
