@@ -13,6 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
@@ -66,7 +67,6 @@ class TaskActivity : AppCompatActivity() {
             if (!inputDate.text.isBlank()) {
                 selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
                 inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
-                layoutTimeSelection.visibility = View.VISIBLE
             }
 
             val buttonDelete: Button = findViewById(R.id.button_delete)
@@ -88,7 +88,6 @@ class TaskActivity : AppCompatActivity() {
                 { _, year, month, day -> run {
                     selectedDate = LocalDate.of(year, month + 1, day)
                     inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
-                    layoutTimeSelection.visibility = View.VISIBLE
                 }},
                 year,
                 month,
@@ -96,12 +95,24 @@ class TaskActivity : AppCompatActivity() {
             dialog.show()
         }
 
+        inputDate.doAfterTextChanged { text ->
+            text?.let {
+                if (it.isBlank()) {
+                    buttonClearDate.visibility = View.GONE
+                    layoutTimeSelection.visibility = View.GONE
+                    buttonClearTime.visibility = View.GONE
+                } else {
+                    buttonClearDate.visibility = View.VISIBLE
+                    layoutTimeSelection.visibility = View.VISIBLE
+                }
+            }
+        }
+
         buttonClearDate.setOnClickListener {
             selectedDate = null
             selectedTime = null
             inputDate.setText("")
             inputTime.setText("")
-            layoutTimeSelection.visibility = View.GONE
         }
 
         inputTime.setOnClickListener {
@@ -118,6 +129,16 @@ class TaskActivity : AppCompatActivity() {
                 minute,
                 true)
             dialog.show()
+        }
+
+        inputTime.doAfterTextChanged { text ->
+            text?.let {
+                if (it.isBlank()) {
+                    buttonClearTime.visibility = View.GONE
+                } else {
+                    buttonClearTime.visibility = View.VISIBLE
+                }
+            }
         }
 
         buttonClearTime.setOnClickListener {

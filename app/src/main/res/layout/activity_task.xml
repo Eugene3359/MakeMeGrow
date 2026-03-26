@@ -111,7 +111,8 @@
                 android:layout_height="25dp"
                 android:layout_marginStart="10dp"
                 android:background="@drawable/shape_round"
-                android:foreground="@drawable/ic_cross"/>
+                android:foreground="@drawable/ic_cross"
+                android:visibility="gone"/>
 
         </LinearLayout>
 
@@ -144,7 +145,8 @@
             android:layout_height="25dp"
             android:layout_marginStart="10dp"
             android:background="@drawable/shape_round"
-            android:foreground="@drawable/ic_cross"/>
+            android:foreground="@drawable/ic_cross"
+            android:visibility="gone"/>
 
     </LinearLayout>
 
