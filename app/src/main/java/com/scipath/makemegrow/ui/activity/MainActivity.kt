@@ -23,6 +23,10 @@ import com.scipath.makemegrow.ui.viewmodel.TaskViewModelFactory
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        private const val DEV_MODE = true
+    }
+
     private lateinit var buttonDeleteTask: Button
     private lateinit var taskViewModel: TaskViewModel
     private val adapters: MutableList<TaskAdapter> = mutableListOf()
@@ -49,6 +53,9 @@ class MainActivity : AppCompatActivity() {
         val repository = TaskRepository(dao)
         val factory = TaskViewModelFactory(repository)
         taskViewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
+        if (DEV_MODE) {
+            taskViewModel.seedDatabase()
+        }
 
         setupRecycleView(
             taskViewModel.overdueTasks,

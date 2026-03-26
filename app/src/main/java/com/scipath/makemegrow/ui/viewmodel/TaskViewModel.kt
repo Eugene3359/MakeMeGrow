@@ -5,6 +5,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.repository.TaskRepository
+import com.scipath.makemegrow.data.seeder.DatabaseSeeder
 import kotlinx.coroutines.launch
 
 class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
@@ -28,6 +29,13 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     fun deleteTask(task: Task) {
         viewModelScope.launch {
             repository.deleteTask(task);
+        }
+    }
+
+    fun seedDatabase() {
+        viewModelScope.launch {
+            repository.clear()
+            DatabaseSeeder.seed(repository)
         }
     }
 }
