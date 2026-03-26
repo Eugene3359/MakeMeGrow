@@ -4,10 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +23,10 @@ import com.scipath.makemegrow.ui.viewmodel.TaskViewModelFactory
 
 class MainActivity : AppCompatActivity() {
 
-    private var selectedTask: Task? = null
+    private lateinit var buttonDeleteTask: Button
+    private lateinit var taskViewModel: TaskViewModel
+    private val adapters: MutableList<TaskAdapter> = mutableListOf()
+    private var selectedTasks: MutableList<Task> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,15 +38,49 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val recyclerView: RecyclerView = findViewById(R.id.view_tasks)
-        val buttonDeleteTask: Button = findViewById(R.id.button_delete_task)
+        val layoutOverdueTasks: LinearLayout = findViewById(R.id.layout_overdue_tasks)
+        val layoutTasks: LinearLayout = findViewById(R.id.layout_tasks)
+        val overdueTasksRecyclerView: RecyclerView = findViewById(R.id.view_overdue_tasks)
+        val tasksRecyclerView: RecyclerView = findViewById(R.id.view_tasks)
+        buttonDeleteTask = findViewById(R.id.button_delete)
         val buttonNewTask: Button = findViewById(R.id.button_new_task)
 
         val dao = AppDatabase.getDatabase(applicationContext).taskDao()
         val repository = TaskRepository(dao)
         val factory = TaskViewModelFactory(repository)
-        val taskViewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
+        taskViewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
 
+        setupRecycleView(
+            taskViewModel.overdueTasks,
+            overdueTasksRecyclerView,
+            layoutOverdueTasks
+        )
+        setupRecycleView(
+            taskViewModel.upcomingTasks,
+            tasksRecyclerView,
+            layoutTasks
+        )
+
+        buttonDeleteTask.setOnClickListener {
+            selectedTasks.forEach { task ->
+                taskViewModel.deleteTask(task)
+            }
+            selectedTasks.clear()
+            buttonDeleteTask.visibility = View.GONE
+        }
+
+        buttonNewTask.setOnClickListener {
+            val intent = Intent(this, TaskActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun setupRecycleView(
+        observableData: LiveData<List<Task>>,
+        recycleView: RecyclerView,
+        parentLayout: LinearLayout
+    )
+    {
         val adapter = TaskAdapter(
             emptyList(),
             taskViewModel,
@@ -50,32 +89,25 @@ class MainActivity : AppCompatActivity() {
                 intent.putExtra("task", task)
                 startActivity(intent)
             },
-            onTaskSelect = { task ->
-                selectedTask = task
+            onTaskSelect = { task, isSelected ->
+                if (isSelected) {
+                    selectedTasks.add(task)
+                } else {
+                    selectedTasks.remove(task)
+                }
                 buttonDeleteTask.visibility =
-                    if (task == null) View.GONE else View.VISIBLE
+                    if (selectedTasks.isEmpty()) View.GONE else View.VISIBLE
             }
         )
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
+        adapters.add(adapter)
+        recycleView.layoutManager = LinearLayoutManager(this)
+        recycleView.adapter = adapter
 
-        taskViewModel.tasks.observe(this) { tasks ->
+        observableData.observe(this) { tasks ->
+            if(tasks.isEmpty()) parentLayout.visibility = View.GONE
+            else parentLayout.visibility = View.VISIBLE
             adapter.updateTasks(tasks)
-        }
-
-        buttonDeleteTask.setOnClickListener {
-            selectedTask?.let {
-                taskViewModel.deleteTask(it)
-                selectedTask = null
-                buttonDeleteTask.visibility = View.GONE
-                adapter.clearSelection()
-            }
-        }
-
-        buttonNewTask.setOnClickListener {
-            val intent = Intent(this, TaskActivity::class.java)
-            startActivity(intent)
         }
     }
 }

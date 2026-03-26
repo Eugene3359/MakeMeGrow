@@ -19,6 +19,35 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE id IS (:id)")
     fun getById(id: Int): Task
 
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "WHERE deadline_date IS (:date) " +
+            "ORDER BY deadline_date ASC, " +
+            "deadline_time ASC")
+    fun getByDeadlineDate(date: Long): Flow<List<Task>>
+
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "WHERE deadline_date < (:date) " +
+            "ORDER BY deadline_date ASC, " +
+            "deadline_time ASC")
+    fun getBeforeDeadlineDate(date: Long): Flow<List<Task>>
+
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "WHERE deadline_date > (:date) " +
+            "ORDER BY deadline_date ASC, " +
+            "deadline_time ASC")
+    fun getAfterDeadlineDate(date: Long): Flow<List<Task>>
+
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "WHERE deadline_date > (:date1) " +
+            "AND deadline_date < (:date2)" +
+            "ORDER BY deadline_date ASC, " +
+            "deadline_time ASC")
+    fun getBetweenDeadlineDates(date1: Long, date2: Long): Flow<List<Task>>
+
     @Insert
     suspend fun insert(task: Task)
 

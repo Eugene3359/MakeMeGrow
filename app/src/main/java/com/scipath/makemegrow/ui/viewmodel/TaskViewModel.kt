@@ -10,6 +10,8 @@ import kotlinx.coroutines.launch
 class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
 
     val tasks = repository.allTasks.asLiveData()
+    val overdueTasks = repository.overdueTasks.asLiveData()
+    val upcomingTasks = repository.upcomingTasks.asLiveData()
 
     fun addTask(task: Task) {
         viewModelScope.launch {

@@ -9,17 +9,65 @@
     android:background="@color/black"
     tools:context=".ui.activity.MainActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/view_tasks"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="10dp"
-        android:paddingTop="50dp"/>
+        android:paddingTop="45dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/layout_overdue_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:text="@string/overdue"
+                android:textColor="@color/red"
+                android:textSize="@dimen/text_medium"
+                android:textStyle="bold"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/view_overdue_tasks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/layout_overdue_tasks"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:text="@string/task"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_medium"
+                android:textStyle="bold"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/view_tasks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/layout_bar"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="55dp"
         app:layout_constraintTop_toTopOf="parent"
         android:paddingVertical="10dp"
         android:paddingHorizontal="20dp"
@@ -37,7 +85,7 @@
             android:textStyle="bold"/>
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/button_delete_task"
+            android:id="@+id/button_delete"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:background="@color/dark_gray"

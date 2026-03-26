@@ -16,11 +16,11 @@ import java.time.LocalTime
 class TaskAdapter(
     private var tasks: List<Task>,
     private val taskViewModel: TaskViewModel,
-    private val onTaskClick: (Task) -> Unit,
-    private val onTaskSelect: (Task?) -> Unit
+    private val onTaskClick: (task: Task) -> Unit,
+    private val onTaskSelect: (task: Task, isSelected: Boolean) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
-    var selectedPosition: Int = -1
+    private var selectedTasks: MutableList<Int> = mutableListOf()
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val checkbox: CheckBox = itemView.findViewById(R.id.checkbox)
@@ -46,7 +46,7 @@ class TaskAdapter(
 
         // Selection
         holder.itemView.setBackgroundColor(
-            if (position == selectedPosition)
+            if (selectedTasks.contains(position))
                 context.getColor(R.color.light_gray)
             else
                 context.getColor(R.color.dark_gray)
@@ -69,7 +69,7 @@ class TaskAdapter(
                 if (isDeadlineMissed(task)) {
                     context.getColor(R.color.red)
                 } else {
-                    context.getColor(R.color.light_gray)
+                    context.getColor(R.color.white)
                 }
             )
         }
@@ -89,11 +89,13 @@ class TaskAdapter(
 
         // OnLongClick
         holder.itemView.setOnLongClickListener {
-            val previous = selectedPosition
-            selectedPosition = if (selectedPosition == position) -1 else position
-            if (previous != -1) notifyItemChanged(previous)
-            if (selectedPosition != -1) notifyItemChanged(selectedPosition)
-            onTaskSelect(if (selectedPosition == -1) null else task)
+            if (selectedTasks.contains(position)) {
+                selectedTasks.remove(position)
+            } else {
+                selectedTasks.add(position)
+            }
+            notifyItemChanged(position)
+            onTaskSelect(task, selectedTasks.contains(position))
             return@setOnLongClickListener true
         }
     }
@@ -103,32 +105,15 @@ class TaskAdapter(
     }
 
     fun updateTasks(newTasks: List<Task>) {
-        clearSelection()
         tasks = newTasks
         notifyDataSetChanged()
     }
 
-    fun clearSelection() {
-        val previous = selectedPosition
-        selectedPosition = -1
-        if (previous != -1) {
-            notifyItemChanged(previous)
-            onTaskSelect(null)
-        }
-    }
-
     private fun isDeadlineMissed(task: Task): Boolean {
-        val date: LocalDate? = DateAndTimeConverter.secondsToDate(task.deadlineDate)
-        val time: LocalTime? = DateAndTimeConverter.secondsToTime(task.deadlineTime)
-
-        if (date == null)
-            return false
-        if (date.isBefore(LocalDate.now()))
-            return true
-        if (time == null)
-            return false
-        if (date.isEqual(LocalDate.now()) && time.isBefore(LocalTime.now()))
-            return true
-        return false
+        val currentDate: Long = DateAndTimeConverter.dateToSeconds(LocalDate.now())
+        val currentTime: Int = DateAndTimeConverter.timeToSeconds(LocalTime.now())
+        return  task.deadlineDate < currentDate ||
+                task.deadlineDate == currentDate &&
+                task.deadlineTime < currentTime
     }
 }
