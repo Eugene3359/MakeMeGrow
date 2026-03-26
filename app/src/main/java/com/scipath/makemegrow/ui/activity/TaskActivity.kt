@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -38,6 +39,7 @@ class TaskActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         if (intent.hasExtra("task")) {
             task = intent.getSerializableExtra("task") as Task
         }
@@ -50,14 +52,28 @@ class TaskActivity : AppCompatActivity() {
         val buttonClearTime: Button = findViewById(R.id.button_clear_time)
         val buttonConfirm: Button = findViewById(R.id.button_confirm)
 
-        if (task != null) {
-            inputTask.setText(task!!.name)
-            selectedDate = DateAndTimeConverter.secondsToDate(task!!.deadlineDate)
+        val dao = AppDatabase.getDatabase(applicationContext).taskDao()
+        val repository = TaskRepository(dao)
+        val factory = TaskViewModelFactory(repository)
+        val taskViewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
+
+        task?.let {
+            val textTitle: TextView = findViewById(R.id.text_title)
+            textTitle.text = it.name
+            inputTask.setText(it.name)
+            selectedDate = DateAndTimeConverter.secondsToDate(it.deadlineDate)
             inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
             if (!inputDate.text.isBlank()) {
-                selectedTime = DateAndTimeConverter.secondsToTime(task!!.deadlineTime)
+                selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
                 inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
                 layoutTimeSelection.visibility = View.VISIBLE
+            }
+
+            val buttonDelete: Button = findViewById(R.id.button_delete)
+            buttonDelete.visibility = View.VISIBLE
+            buttonDelete.setOnClickListener {
+                taskViewModel.deleteTask(task!!)
+                finish()
             }
         }
 
@@ -115,11 +131,6 @@ class TaskActivity : AppCompatActivity() {
                 Toast.makeText(this, getString(R.string.enter_task_first), Toast.LENGTH_LONG)
                     .show()
             } else {
-                val dao = AppDatabase.getDatabase(applicationContext).taskDao()
-                val repository = TaskRepository(dao)
-                val factory = TaskViewModelFactory(repository)
-                val taskViewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
-
                 val deadlineDate: Long = DateAndTimeConverter.dateToSeconds(selectedDate)
                 val deadlineTime: Int = DateAndTimeConverter.timeToSeconds(selectedTime)
                 if (task == null) {
