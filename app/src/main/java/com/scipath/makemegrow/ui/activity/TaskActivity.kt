@@ -58,25 +58,6 @@ class TaskActivity : AppCompatActivity() {
         val factory = TaskViewModelFactory(repository)
         val taskViewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
 
-        task?.let {
-            val textTitle: TextView = findViewById(R.id.text_title)
-            textTitle.text = it.name
-            inputTask.setText(it.name)
-            selectedDate = DateAndTimeConverter.secondsToDate(it.deadlineDate)
-            inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
-            if (!inputDate.text.isBlank()) {
-                selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
-                inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
-            }
-
-            val buttonDelete: Button = findViewById(R.id.button_delete)
-            buttonDelete.visibility = View.VISIBLE
-            buttonDelete.setOnClickListener {
-                taskViewModel.deleteTask(task!!)
-                finish()
-            }
-        }
-
         inputDate.setOnClickListener {
             val currentDate: LocalDate = LocalDate.now()
             val year: Int = selectedDate?.year ?: currentDate.year
@@ -165,6 +146,25 @@ class TaskActivity : AppCompatActivity() {
                         taskViewModel.updateTask(it)
                     }
                 }
+                finish()
+            }
+        }
+
+        task?.let {
+            val textTitle: TextView = findViewById(R.id.text_title)
+            textTitle.text = it.name
+            inputTask.setText(it.name)
+            selectedDate = DateAndTimeConverter.secondsToDate(it.deadlineDate)
+            inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
+            if (!inputDate.text.isBlank()) {
+                selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
+                inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
+            }
+
+            val buttonDelete: Button = findViewById(R.id.button_delete)
+            buttonDelete.visibility = View.VISIBLE
+            buttonDelete.setOnClickListener {
+                taskViewModel.deleteTask(task!!)
                 finish()
             }
         }
