@@ -9,60 +9,89 @@
     android:background="@color/black"
     tools:context=".ui.activity.MainActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp"
-        android:paddingTop="45dp"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/layout_overdue_tasks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="10dp"
+            android:paddingTop="45dp"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="10dp"
-                android:text="@string/overdue"
-                android:textColor="@color/red"
-                android:textSize="@dimen/text_medium"
-                android:textStyle="bold"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/view_overdue_tasks"
+            <LinearLayout
+                android:id="@+id/layout_overdue_tasks"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:text="@string/overdue"
+                    android:textColor="@color/red"
+                    android:textSize="@dimen/text_medium"
+                    android:textStyle="bold"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/view_overdue_tasks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_today_tasks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/layout_overdue_tasks"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:text="@string/today"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_medium"
+                    android:textStyle="bold"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/view_today_tasks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_other_tasks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/layout_overdue_tasks"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:text="@string/task"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_medium"
+                    android:textStyle="bold"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/view_other_tasks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/layout_tasks"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/layout_overdue_tasks"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="10dp"
-                android:text="@string/task"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_medium"
-                android:textStyle="bold"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/view_tasks"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:id="@+id/layout_bar"

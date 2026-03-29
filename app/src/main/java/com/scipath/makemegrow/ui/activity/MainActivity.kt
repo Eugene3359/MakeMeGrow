@@ -43,9 +43,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         val layoutOverdueTasks: LinearLayout = findViewById(R.id.layout_overdue_tasks)
-        val layoutTasks: LinearLayout = findViewById(R.id.layout_tasks)
+        val layoutTodayTasks: LinearLayout = findViewById(R.id.layout_today_tasks)
+        val layoutOtherTasks: LinearLayout = findViewById(R.id.layout_other_tasks)
         val overdueTasksRecyclerView: RecyclerView = findViewById(R.id.view_overdue_tasks)
-        val tasksRecyclerView: RecyclerView = findViewById(R.id.view_tasks)
+        val todayTasksRecyclerView: RecyclerView = findViewById(R.id.view_today_tasks)
+        val otherTasksRecyclerView: RecyclerView = findViewById(R.id.view_other_tasks)
         buttonDeleteTask = findViewById(R.id.button_delete)
         val buttonNewTask: Button = findViewById(R.id.button_new_task)
 
@@ -63,9 +65,14 @@ class MainActivity : AppCompatActivity() {
             layoutOverdueTasks
         )
         setupRecycleView(
-            taskViewModel.upcomingTasks,
-            tasksRecyclerView,
-            layoutTasks
+            taskViewModel.otherUpcomingTasks,
+            otherTasksRecyclerView,
+            layoutOtherTasks
+        )
+        setupRecycleView(
+            taskViewModel.todayTasks,
+            todayTasksRecyclerView,
+            layoutTodayTasks
         )
 
         buttonDeleteTask.setOnClickListener {
