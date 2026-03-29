@@ -107,6 +107,11 @@ class TaskAdapter(
 
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
+        clearSelection()
+    }
+
+    fun clearSelection() {
+        selectedTasks.clear()
         notifyDataSetChanged()
     }
 

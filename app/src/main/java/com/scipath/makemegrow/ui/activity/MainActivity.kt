@@ -81,6 +81,9 @@ class MainActivity : AppCompatActivity() {
             }
             selectedTasks.clear()
             buttonDeleteTask.visibility = View.GONE
+            adapters.forEach { adapter ->
+                adapter.clearSelection()
+            }
         }
 
         buttonNewTask.setOnClickListener {
