@@ -13,7 +13,8 @@ interface TaskDao {
     @Query("SELECT * " +
             "FROM tasks " +
             "ORDER BY deadline_date ASC, " +
-            "deadline_time ASC")
+            "deadline_time ASC, " +
+            "name ASC")
     fun getAll(): Flow<List<Task>>
 
     @Query("SELECT * FROM tasks WHERE id IS (:id)")
@@ -23,7 +24,8 @@ interface TaskDao {
             "FROM tasks " +
             "WHERE deadline_date IS (:date) " +
             "ORDER BY deadline_date ASC, " +
-            "deadline_time ASC")
+            "deadline_time ASC, " +
+            "name ASC")
     fun getByDeadlineDate(date: Long): Flow<List<Task>>
 
     @Query("SELECT * " +
@@ -32,7 +34,8 @@ interface TaskDao {
             "OR deadline_date IS (:date) " +
             "AND deadline_time < (:time) " +
             "ORDER BY deadline_date ASC, " +
-            "deadline_time ASC")
+            "deadline_time ASC, " +
+            "name ASC")
     fun getBeforeDeadline(date: Long, time: Int): Flow<List<Task>>
 
     @Query("SELECT * " +
@@ -41,16 +44,22 @@ interface TaskDao {
             "OR deadline_date IS (:date) " +
             "AND deadline_time > (:time) " +
             "ORDER BY deadline_date ASC, " +
-            "deadline_time ASC")
+            "deadline_time ASC, " +
+            "name ASC")
     fun getAfterDeadline(date: Long, time: Int): Flow<List<Task>>
 
     @Query("SELECT * " +
             "FROM tasks " +
-            "WHERE deadline_date > (:date1) " +
-            "AND deadline_date < (:date2)" +
+            "WHERE (deadline_date > (:startDate) " +
+            "OR deadline_date IS (:startDate) " +
+            "AND deadline_time > (:startTime)) " +
+            "AND (deadline_date < (:endDate) " +
+            "OR deadline_date IS (:endDate) " +
+            "AND deadline_time < (:endTime)) " +
             "ORDER BY deadline_date ASC, " +
-            "deadline_time ASC")
-    fun getBetweenDeadlineDates(date1: Long, date2: Long): Flow<List<Task>>
+            "deadline_time ASC, " +
+            "name ASC")
+    fun getBetweenDeadlines(startDate: Long, startTime: Int, endDate: Long, endTime: Int): Flow<List<Task>>
 
     @Insert
     suspend fun insert(task: Task)
