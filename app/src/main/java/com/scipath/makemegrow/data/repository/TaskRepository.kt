@@ -15,11 +15,13 @@ class TaskRepository(private val taskDao: TaskDao) {
         DateAndTimeConverter.timeToSeconds(LocalTime.now()))
     val todayTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
         DateAndTimeConverter.dateToSeconds(LocalDate.now()),
-        DateAndTimeConverter.timeToSeconds(LocalTime.now()),
+        DateAndTimeConverter.timeToSeconds(LocalTime.now().minusSeconds(1)),
         DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(1)),
         DateAndTimeConverter.NO_TIME)
+    val tomorrowTasks: Flow<List<Task>> = taskDao.getByDeadlineDate(
+        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(1)))
     val otherUpcomingTasks: Flow<List<Task>> = taskDao.getAfterDeadline(
-        DateAndTimeConverter.dateToSeconds(LocalDate.now()),
+        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(1)),
         DateAndTimeConverter.NO_TIME)
 
     fun getById(id: Int): Task {

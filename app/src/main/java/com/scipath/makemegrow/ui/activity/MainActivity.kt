@@ -42,15 +42,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val layoutOverdueTasks: LinearLayout = findViewById(R.id.layout_overdue_tasks)
-        val layoutTodayTasks: LinearLayout = findViewById(R.id.layout_today_tasks)
-        val layoutOtherTasks: LinearLayout = findViewById(R.id.layout_other_tasks)
-        val overdueTasksRecyclerView: RecyclerView = findViewById(R.id.view_overdue_tasks)
-        val todayTasksRecyclerView: RecyclerView = findViewById(R.id.view_today_tasks)
-        val otherTasksRecyclerView: RecyclerView = findViewById(R.id.view_other_tasks)
-        buttonDeleteTask = findViewById(R.id.button_delete)
-        val buttonNewTask: Button = findViewById(R.id.button_new_task)
-
         val dao = AppDatabase.getDatabase(applicationContext).taskDao()
         val repository = TaskRepository(dao)
         val factory = TaskViewModelFactory(repository)
@@ -59,20 +50,36 @@ class MainActivity : AppCompatActivity() {
             taskViewModel.seedDatabase()
         }
 
+        val layoutOverdueTasks: LinearLayout = findViewById(R.id.layout_overdue_tasks)
+        val layoutTodayTasks: LinearLayout = findViewById(R.id.layout_today_tasks)
+        val layoutTomorrowTasks: LinearLayout = findViewById(R.id.layout_tomorrow_tasks)
+        val layoutOtherTasks: LinearLayout = findViewById(R.id.layout_other_tasks)
+        val overdueTasksRecyclerView: RecyclerView = findViewById(R.id.view_overdue_tasks)
+        val todayTasksRecyclerView: RecyclerView = findViewById(R.id.view_today_tasks)
+        val tomorrowTasksRecyclerView: RecyclerView = findViewById(R.id.view_tomorrow_tasks)
+        val otherTasksRecyclerView: RecyclerView = findViewById(R.id.view_other_tasks)
+        buttonDeleteTask = findViewById(R.id.button_delete)
+        val buttonNewTask: Button = findViewById(R.id.button_new_task)
+
         setupRecycleView(
             taskViewModel.overdueTasks,
             overdueTasksRecyclerView,
             layoutOverdueTasks
         )
         setupRecycleView(
-            taskViewModel.otherUpcomingTasks,
-            otherTasksRecyclerView,
-            layoutOtherTasks
-        )
-        setupRecycleView(
             taskViewModel.todayTasks,
             todayTasksRecyclerView,
             layoutTodayTasks
+        )
+        setupRecycleView(
+            taskViewModel.tomorrowTasks,
+            tomorrowTasksRecyclerView,
+            layoutTomorrowTasks
+        )
+        setupRecycleView(
+            taskViewModel.otherUpcomingTasks,
+            otherTasksRecyclerView,
+            layoutOtherTasks
         )
 
         buttonDeleteTask.setOnClickListener {

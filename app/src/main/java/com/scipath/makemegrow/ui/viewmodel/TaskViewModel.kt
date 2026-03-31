@@ -13,6 +13,7 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     val allTasks = repository.allTasks.asLiveData()
     val overdueTasks = repository.overdueTasks.asLiveData()
     val todayTasks = repository.todayTasks.asLiveData()
+    val tomorrowTasks = repository.tomorrowTasks.asLiveData()
     val otherUpcomingTasks = repository.otherUpcomingTasks.asLiveData()
 
     fun addTask(task: Task) {
