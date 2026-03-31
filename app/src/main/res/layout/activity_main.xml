@@ -113,7 +113,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/layout_other_tasks"
+                android:id="@+id/layout_next_week_tasks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/layout_overdue_tasks"
@@ -123,13 +123,36 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="10dp"
-                    android:text="@string/task"
+                    android:text="@string/next_week"
                     android:textColor="@color/white"
                     android:textSize="@dimen/text_medium"
                     android:textStyle="bold"/>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/view_other_tasks"
+                    android:id="@+id/view_next_week_tasks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_later_tasks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/layout_overdue_tasks"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="10dp"
+                    android:text="@string/later"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_medium"
+                    android:textStyle="bold"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/view_later_tasks"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 

@@ -104,13 +104,22 @@ class MainActivity : AppCompatActivity() {
             layoutThisWeekTasks
         )
 
-        // Other
-        val layoutOtherTasks: LinearLayout = findViewById(R.id.layout_other_tasks)
-        val otherTasksRecyclerView: RecyclerView = findViewById(R.id.view_other_tasks)
+        // Next Week
+        val layoutNextWeekTasks: LinearLayout = findViewById(R.id.layout_next_week_tasks)
+        val nextWeekTasksRecyclerView: RecyclerView = findViewById(R.id.view_next_week_tasks)
         setupRecycleView(
-            taskViewModel.otherUpcomingTasks,
-            otherTasksRecyclerView,
-            layoutOtherTasks
+            taskViewModel.nextWeekTasks,
+            nextWeekTasksRecyclerView,
+            layoutNextWeekTasks
+        )
+
+        // Later
+        val layoutLaterTasks: LinearLayout = findViewById(R.id.layout_later_tasks)
+        val laterTasksRecyclerView: RecyclerView = findViewById(R.id.view_later_tasks)
+        setupRecycleView(
+            taskViewModel.laterTasks,
+            laterTasksRecyclerView,
+            layoutLaterTasks
         )
     }
 

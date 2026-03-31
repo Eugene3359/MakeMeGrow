@@ -15,7 +15,8 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     val todayTasks = repository.todayTasks.asLiveData()
     val tomorrowTasks = repository.tomorrowTasks.asLiveData()
     val thisWeekTasks = repository.thisWeekTasks.asLiveData()
-    val otherUpcomingTasks = repository.otherUpcomingTasks.asLiveData()
+    val nextWeekTasks = repository.nextWeekTasks.asLiveData()
+    val laterTasks = repository.laterTasks.asLiveData()
 
     fun addTask(task: Task) {
         viewModelScope.launch {
