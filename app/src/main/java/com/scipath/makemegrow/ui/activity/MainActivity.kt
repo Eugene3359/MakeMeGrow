@@ -50,38 +50,7 @@ class MainActivity : AppCompatActivity() {
             taskViewModel.seedDatabase()
         }
 
-        val layoutOverdueTasks: LinearLayout = findViewById(R.id.layout_overdue_tasks)
-        val layoutTodayTasks: LinearLayout = findViewById(R.id.layout_today_tasks)
-        val layoutTomorrowTasks: LinearLayout = findViewById(R.id.layout_tomorrow_tasks)
-        val layoutOtherTasks: LinearLayout = findViewById(R.id.layout_other_tasks)
-        val overdueTasksRecyclerView: RecyclerView = findViewById(R.id.view_overdue_tasks)
-        val todayTasksRecyclerView: RecyclerView = findViewById(R.id.view_today_tasks)
-        val tomorrowTasksRecyclerView: RecyclerView = findViewById(R.id.view_tomorrow_tasks)
-        val otherTasksRecyclerView: RecyclerView = findViewById(R.id.view_other_tasks)
         buttonDeleteTask = findViewById(R.id.button_delete)
-        val buttonNewTask: Button = findViewById(R.id.button_new_task)
-
-        setupRecycleView(
-            taskViewModel.overdueTasks,
-            overdueTasksRecyclerView,
-            layoutOverdueTasks
-        )
-        setupRecycleView(
-            taskViewModel.todayTasks,
-            todayTasksRecyclerView,
-            layoutTodayTasks
-        )
-        setupRecycleView(
-            taskViewModel.tomorrowTasks,
-            tomorrowTasksRecyclerView,
-            layoutTomorrowTasks
-        )
-        setupRecycleView(
-            taskViewModel.otherUpcomingTasks,
-            otherTasksRecyclerView,
-            layoutOtherTasks
-        )
-
         buttonDeleteTask.setOnClickListener {
             selectedTasks.forEach { task ->
                 taskViewModel.deleteTask(task)
@@ -93,10 +62,56 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val buttonNewTask: Button = findViewById(R.id.button_new_task)
         buttonNewTask.setOnClickListener {
             val intent = Intent(this, TaskActivity::class.java)
             startActivity(intent)
         }
+
+        // Overdue
+        val layoutOverdueTasks: LinearLayout = findViewById(R.id.layout_overdue_tasks)
+        val overdueTasksRecyclerView: RecyclerView = findViewById(R.id.view_overdue_tasks)
+        setupRecycleView(
+            taskViewModel.overdueTasks,
+            overdueTasksRecyclerView,
+            layoutOverdueTasks
+        )
+
+        // Today
+        val layoutTodayTasks: LinearLayout = findViewById(R.id.layout_today_tasks)
+        val todayTasksRecyclerView: RecyclerView = findViewById(R.id.view_today_tasks)
+        setupRecycleView(
+            taskViewModel.todayTasks,
+            todayTasksRecyclerView,
+            layoutTodayTasks
+        )
+
+        // Tomorrow
+        val layoutTomorrowTasks: LinearLayout = findViewById(R.id.layout_tomorrow_tasks)
+        val tomorrowTasksRecyclerView: RecyclerView = findViewById(R.id.view_tomorrow_tasks)
+        setupRecycleView(
+            taskViewModel.tomorrowTasks,
+            tomorrowTasksRecyclerView,
+            layoutTomorrowTasks
+        )
+
+        // This Week
+        val layoutThisWeekTasks: LinearLayout = findViewById(R.id.layout_this_week_tasks)
+        val thisWeekTasksRecyclerView: RecyclerView = findViewById(R.id.view_this_week_tasks)
+        setupRecycleView(
+            taskViewModel.thisWeekTasks,
+            thisWeekTasksRecyclerView,
+            layoutThisWeekTasks
+        )
+
+        // Other
+        val layoutOtherTasks: LinearLayout = findViewById(R.id.layout_other_tasks)
+        val otherTasksRecyclerView: RecyclerView = findViewById(R.id.view_other_tasks)
+        setupRecycleView(
+            taskViewModel.otherUpcomingTasks,
+            otherTasksRecyclerView,
+            layoutOtherTasks
+        )
     }
 
     private fun setupRecycleView(

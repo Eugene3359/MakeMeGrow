@@ -4,6 +4,7 @@ import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.dao.TaskDao
 import com.scipath.makemegrow.data.model.Task
 import kotlinx.coroutines.flow.Flow
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -16,12 +17,21 @@ class TaskRepository(private val taskDao: TaskDao) {
     val todayTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
         DateAndTimeConverter.dateToSeconds(LocalDate.now()),
         DateAndTimeConverter.timeToSeconds(LocalTime.now().minusSeconds(1)),
-        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(1)),
+        DateAndTimeConverter.dateToSeconds(LocalDate.now()),
         DateAndTimeConverter.NO_TIME)
     val tomorrowTasks: Flow<List<Task>> = taskDao.getByDeadlineDate(
         DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(1)))
-    val otherUpcomingTasks: Flow<List<Task>> = taskDao.getAfterDeadline(
+    val thisWeekTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
         DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(1)),
+        DateAndTimeConverter.NO_TIME,
+        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(
+            (DayOfWeek.SUNDAY.value - LocalDate.now().dayOfWeek.value).toLong()
+        )),
+        DateAndTimeConverter.NO_TIME)
+    val otherUpcomingTasks: Flow<List<Task>> = taskDao.getAfterDeadline(
+        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(
+            (DayOfWeek.SUNDAY.value - LocalDate.now().dayOfWeek.value).toLong()
+        )),
         DateAndTimeConverter.NO_TIME)
 
     fun getById(id: Int): Task {

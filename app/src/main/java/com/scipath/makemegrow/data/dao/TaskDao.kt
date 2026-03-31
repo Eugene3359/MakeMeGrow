@@ -55,7 +55,7 @@ interface TaskDao {
             "AND deadline_time > (:startTime)) " +
             "AND (deadline_date < (:endDate) " +
             "OR deadline_date IS (:endDate) " +
-            "AND deadline_time < (:endTime)) " +
+            "AND deadline_time <= (:endTime)) " +
             "ORDER BY deadline_date ASC, " +
             "deadline_time ASC, " +
             "name ASC")

@@ -21,4 +21,5 @@
 
     <!-- Task Groups -->
     <string name="overdue">Overdue</string>
+    <string name="this_week">This Week</string>
 </resources>
