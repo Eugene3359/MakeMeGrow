@@ -12,34 +12,36 @@ class TaskRepository(private val taskDao: TaskDao) {
 
     val allTasks: Flow<List<Task>> = taskDao.getAll()
     val overdueTasks: Flow<List<Task>> = taskDao.getBeforeDeadline(
-        DateAndTimeConverter.dateToSeconds(LocalDate.now()),
-        DateAndTimeConverter.timeToSeconds(LocalTime.now()))
+        DateAndTimeConverter.dateToSeconds(currentDate()),
+        DateAndTimeConverter.timeToSeconds(currentTime()))
     val todayTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
-        DateAndTimeConverter.dateToSeconds(LocalDate.now()),
-        DateAndTimeConverter.timeToSeconds(LocalTime.now().minusSeconds(1)),
-        DateAndTimeConverter.dateToSeconds(LocalDate.now()),
+        DateAndTimeConverter.dateToSeconds(currentDate()),
+        DateAndTimeConverter.timeToSeconds(currentTime().minusSeconds(1)),
+        DateAndTimeConverter.dateToSeconds(currentDate()),
         DateAndTimeConverter.NO_TIME)
     val tomorrowTasks: Flow<List<Task>> = taskDao.getByDeadlineDate(
-        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(1)))
+        DateAndTimeConverter.dateToSeconds(tomorrowDate()))
     val thisWeekTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
-        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(1)),
+        DateAndTimeConverter.dateToSeconds(tomorrowDate()),
         DateAndTimeConverter.NO_TIME,
-        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(
-            (DayOfWeek.SUNDAY.value - LocalDate.now().dayOfWeek.value).toLong()
-        )),
+        DateAndTimeConverter.dateToSeconds(endOfThisWeek()),
         DateAndTimeConverter.NO_TIME)
     val nextWeekTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
-        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(
-            (DayOfWeek.SUNDAY.value - LocalDate.now().dayOfWeek.value).toLong())),
+        DateAndTimeConverter.dateToSeconds(endOfThisWeek()),
         DateAndTimeConverter.NO_TIME,
-        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(
-            (DayOfWeek.SUNDAY.value - LocalDate.now().dayOfWeek.value + 7).toLong()
-        )),
+        DateAndTimeConverter.dateToSeconds(endOfNextWeek()),
+        DateAndTimeConverter.NO_TIME)
+    val thisMonthTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
+        DateAndTimeConverter.dateToSeconds(endOfNextWeek()),
+        DateAndTimeConverter.NO_TIME,
+        DateAndTimeConverter.dateToSeconds(endOfThisMonth()),
         DateAndTimeConverter.NO_TIME)
     val laterTasks: Flow<List<Task>> = taskDao.getAfterDeadline(
-        DateAndTimeConverter.dateToSeconds(LocalDate.now().plusDays(
-            (DayOfWeek.SUNDAY.value - LocalDate.now().dayOfWeek.value + 7).toLong()
-        )),
+        DateAndTimeConverter.dateToSeconds(
+            if (endOfThisMonth().isAfter(endOfNextWeek()))
+                endOfThisMonth()
+            else
+                endOfNextWeek()),
         DateAndTimeConverter.NO_TIME)
 
     fun getById(id: Int): Task {
@@ -60,5 +62,32 @@ class TaskRepository(private val taskDao: TaskDao) {
 
     suspend fun clear() {
         taskDao.clear()
+    }
+
+    private fun currentDate(): LocalDate {
+        return LocalDate.now()
+    }
+
+    private fun currentTime(): LocalTime {
+        return LocalTime.now()
+    }
+
+    private fun tomorrowDate(): LocalDate {
+        return currentDate().plusDays(1)
+    }
+
+    private fun endOfThisWeek(): LocalDate {
+        return currentDate().plusDays(
+            (DayOfWeek.SUNDAY.value - currentDate().dayOfWeek.value).toLong()
+        )
+    }
+
+    private fun endOfNextWeek(): LocalDate {
+        return endOfThisWeek().plusDays(7)
+    }
+
+    private fun endOfThisMonth(): LocalDate {
+        return currentDate().plusDays(
+            (currentDate().month.length(currentDate().isLeapYear) - currentDate().dayOfMonth).toLong())
     }
 }
