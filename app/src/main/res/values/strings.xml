@@ -24,5 +24,6 @@
     <string name="this_week">This Week</string>
     <string name="next_week">Next Week</string>
     <string name="this_month">This Month</string>
+    <string name="next_month">Next Month</string>
     <string name="later">Later</string>
 </resources>

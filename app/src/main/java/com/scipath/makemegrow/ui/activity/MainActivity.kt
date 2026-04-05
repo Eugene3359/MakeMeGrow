@@ -122,6 +122,15 @@ class MainActivity : AppCompatActivity() {
             layoutThisMonthTasks
         )
 
+        // Next Month
+        val layoutNextMonthTasks: LinearLayout = findViewById(R.id.layout_next_month_tasks)
+        val nextMonthTasksRecyclerView: RecyclerView = findViewById(R.id.view_next_month_tasks)
+        setupRecycleView(
+            taskViewModel.nextMonthTasks,
+            nextMonthTasksRecyclerView,
+            layoutNextMonthTasks
+        )
+
         // Later
         val layoutLaterTasks: LinearLayout = findViewById(R.id.layout_later_tasks)
         val laterTasksRecyclerView: RecyclerView = findViewById(R.id.view_later_tasks)

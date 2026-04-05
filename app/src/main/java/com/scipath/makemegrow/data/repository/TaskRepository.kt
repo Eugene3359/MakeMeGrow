@@ -36,12 +36,17 @@ class TaskRepository(private val taskDao: TaskDao) {
         DateAndTimeConverter.NO_TIME,
         DateAndTimeConverter.dateToSeconds(endOfThisMonth()),
         DateAndTimeConverter.NO_TIME)
-    val laterTasks: Flow<List<Task>> = taskDao.getAfterDeadline(
+    val nextMonthTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
         DateAndTimeConverter.dateToSeconds(
             if (endOfThisMonth().isAfter(endOfNextWeek()))
                 endOfThisMonth()
             else
                 endOfNextWeek()),
+        DateAndTimeConverter.NO_TIME,
+        DateAndTimeConverter.dateToSeconds(endOfNextMonth()),
+        DateAndTimeConverter.NO_TIME)
+    val laterTasks: Flow<List<Task>> = taskDao.getAfterDeadline(
+        DateAndTimeConverter.dateToSeconds(endOfNextMonth()),
         DateAndTimeConverter.NO_TIME)
 
     fun getById(id: Int): Task {
@@ -83,11 +88,17 @@ class TaskRepository(private val taskDao: TaskDao) {
     }
 
     private fun endOfNextWeek(): LocalDate {
-        return endOfThisWeek().plusDays(7)
+        return endOfThisWeek().plusWeeks(1)
     }
 
     private fun endOfThisMonth(): LocalDate {
-        return currentDate().plusDays(
-            (currentDate().month.length(currentDate().isLeapYear) - currentDate().dayOfMonth).toLong())
+        return currentDate()
+            .withDayOfMonth(currentDate().month.length(currentDate().isLeapYear))
+    }
+
+    private fun endOfNextMonth(): LocalDate {
+        val nextMonth: LocalDate = currentDate().plusMonths(1)
+        return nextMonth
+            .withDayOfMonth(nextMonth.month.length(nextMonth.isLeapYear))
     }
 }
