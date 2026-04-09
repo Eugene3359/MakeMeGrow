@@ -11,5 +11,16 @@ data class Task(
     @ColumnInfo(name = "name") var name: String,
     @ColumnInfo(name = "is_completed") var isCompleted: Boolean,
     @ColumnInfo(name = "deadline_date") var deadlineDate: Long,
-    @ColumnInfo(name = "deadline_time") var deadlineTime: Int
-) : Serializable
+    @ColumnInfo(name = "deadline_time") var deadlineTime: Int,
+    @ColumnInfo(name = "repeat") var repeat: RepeatType
+) : Serializable {
+    enum class RepeatType {
+        NO_REPEAT,
+        ONCE_A_DAY,
+        ON_WEEKDAYS,
+        ON_WEEKENDS,
+        ONCE_A_WEEK,
+        ONCE_A_MONTH,
+        ONCE_A_YEAR
+    }
+}

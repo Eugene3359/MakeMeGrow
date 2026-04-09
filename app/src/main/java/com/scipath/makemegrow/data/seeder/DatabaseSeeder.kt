@@ -17,7 +17,8 @@ object DatabaseSeeder {
                 "Yesterday Task",
                 false,
                 DateAndTimeConverter.dateToSeconds(currentDate.minusDays(1)),
-                DateAndTimeConverter.NO_TIME)
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.NO_REPEAT)
         )
 
         repository.addTask(
@@ -25,7 +26,8 @@ object DatabaseSeeder {
                 "Today Overdue Task",
                 false,
                 DateAndTimeConverter.dateToSeconds(currentDate),
-                DateAndTimeConverter.timeToSeconds(currentTime.minusSeconds(1)))
+                DateAndTimeConverter.timeToSeconds(currentTime.minusSeconds(1)),
+                Task.RepeatType.NO_REPEAT)
         )
 
         repository.addTask(
@@ -33,7 +35,8 @@ object DatabaseSeeder {
                 "Today Task",
                 false,
                 DateAndTimeConverter.dateToSeconds(currentDate),
-                DateAndTimeConverter.NO_TIME)
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.NO_REPEAT)
         )
 
         repository.addTask(
@@ -42,6 +45,8 @@ object DatabaseSeeder {
                 false,
                 DateAndTimeConverter.dateToSeconds(currentDate.plusDays(1)),
                 DateAndTimeConverter.NO_TIME)
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.NO_REPEAT)
         )
 
         repository.addTask(
@@ -49,7 +54,8 @@ object DatabaseSeeder {
                 "Task",
                 false,
                 DateAndTimeConverter.NO_DATE,
-                DateAndTimeConverter.NO_TIME)
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.NO_REPEAT)
         )
     }
 }

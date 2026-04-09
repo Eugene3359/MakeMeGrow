@@ -8,8 +8,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
+import com.scipath.makemegrow.data.handler.ErrorHandler
+import com.scipath.makemegrow.data.handler.ErrorHandlerToast
 import com.scipath.makemegrow.data.model.Task
+import com.scipath.makemegrow.data.model.Task.RepeatType.*
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
+import java.lang.Exception
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -21,6 +25,7 @@ class TaskAdapter(
 ) : RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
     private var selectedTasks: MutableList<Int> = mutableListOf()
+    private val errorHandler: ErrorHandler = ErrorHandlerToast
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val checkbox: CheckBox = itemView.findViewById(R.id.checkbox)
@@ -79,8 +84,50 @@ class TaskAdapter(
         holder.checkbox.setOnCheckedChangeListener(null)
         holder.checkbox.isChecked = task.isCompleted
         holder.checkbox.setOnCheckedChangeListener { _, isChecked ->
-            task.isCompleted = isChecked
-            taskViewModel.updateTask(task)
+            val deadlineDate: LocalDate? = DateAndTimeConverter.secondsToDate(task.deadlineDate)
+            try {
+                when (task.repeat) {
+                    NO_REPEAT -> task.isCompleted = isChecked
+                    ONCE_A_DAY -> {
+                        if (deadlineDate != null)
+                            task.deadlineDate = DateAndTimeConverter
+                                .dateToSeconds(deadlineDate.plusDays(1))
+                    }
+                    ON_WEEKDAYS -> {
+                        if (deadlineDate != null)
+                            task.deadlineDate = DateAndTimeConverter
+                                .dateToSeconds(deadlineDate.plusDays(
+                                    if (deadlineDate.dayOfWeek.value < 5) 1
+                                    else 8L - deadlineDate.dayOfWeek.value))
+                    }
+                    ON_WEEKENDS -> {
+                        if (deadlineDate != null)
+                            task.deadlineDate = DateAndTimeConverter
+                                .dateToSeconds(deadlineDate.plusDays(
+                                    if (deadlineDate.dayOfWeek.value == 6) 1
+                                    else if (deadlineDate.dayOfWeek.value == 7) 6
+                                    else 6L - deadlineDate.dayOfWeek.value))
+                    }
+                    ONCE_A_WEEK -> {
+                        if (deadlineDate != null)
+                            task.deadlineDate = DateAndTimeConverter
+                                .dateToSeconds(deadlineDate.plusWeeks(1))
+                    }
+                    ONCE_A_MONTH -> {
+                        if (deadlineDate != null)
+                            task.deadlineDate = DateAndTimeConverter
+                                .dateToSeconds(deadlineDate.plusMonths(1))
+                    }
+                    ONCE_A_YEAR -> {
+                        if (deadlineDate != null)
+                            task.deadlineDate = DateAndTimeConverter
+                                .dateToSeconds(deadlineDate.plusYears(1))
+                    }
+                }
+                taskViewModel.updateTask(task)
+            } catch (exception: Exception) {
+                errorHandler.handle(exception, context)
+            }
         }
 
         // OnClick

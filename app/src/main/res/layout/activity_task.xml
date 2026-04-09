@@ -116,39 +116,65 @@
 
         </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/layout_time_selection"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:visibility="gone">
-
-        <EditText
-            android:id="@+id/input_time"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/layout_time_selection"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:backgroundTint="@color/light_gray"
-            android:hint="@string/time_not_set"
-            android:importantForAutofill="no"
-            android:inputType="time"
-            android:textColorHint="@color/light_gray"
-            android:textColor="@color/light_gray"
-            android:textSize="@dimen/text_medium"
-            android:focusable="false"
-            android:clickable="true"/>
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:visibility="gone">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/button_clear_time"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginStart="10dp"
-            android:background="@drawable/shape_round"
-            android:foreground="@drawable/ic_cross"
-            android:visibility="gone"/>
+            <EditText
+                android:id="@+id/input_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/light_gray"
+                android:hint="@string/time_not_set"
+                android:importantForAutofill="no"
+                android:inputType="time"
+                android:textColorHint="@color/light_gray"
+                android:textColor="@color/light_gray"
+                android:textSize="@dimen/text_medium"
+                android:focusable="false"
+                android:clickable="true"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_clear_time"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/shape_round"
+                android:foreground="@drawable/ic_cross"
+                android:visibility="gone"/>
+
+        </LinearLayout>
 
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/container_repeat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/container_deadline"
+        android:layout_margin="10dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/repeat"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_medium"/>
+
+        <Spinner
+            android:id="@+id/spinner_repeat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:popupBackground="@color/dark_gray"
+            tools:listitem="@layout/layout_repeat_type"/>
 
     </LinearLayout>
 

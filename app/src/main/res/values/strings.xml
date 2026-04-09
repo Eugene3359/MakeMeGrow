@@ -26,4 +26,23 @@
     <string name="this_month">This Month</string>
     <string name="next_month">Next Month</string>
     <string name="later">Later</string>
+
+    <!-- Repeat Types -->
+    <string name="repeat">Repeat</string>
+    <string name="no_repeat">No Repeat</string>
+    <string name="once_a_day">Once a Day</string>
+    <string name="on_weekdays">Once a Day (Mon-Fri)</string>
+    <string name="on_weekends">Once a Day (Sat-Sun)</string>
+    <string name="once_a_week">Once a Week</string>
+    <string name="once_a_month">Once a Month</string>
+    <string name="once_a_year">Once a Year</string>
+    <string-array name="repeat_types">
+        <item>No Repeat</item>
+        <item>Once a Day</item>
+        <item>Once a Day (Mon-Fri)</item>
+        <item>Once a Day (Sat-Sun)</item>
+        <item>Once a Week</item>
+        <item>Once a Month</item>
+        <item>Once a Year</item>
+    </string-array>
 </resources>

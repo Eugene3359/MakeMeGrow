@@ -4,9 +4,12 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -30,6 +33,7 @@ class TaskActivity : AppCompatActivity() {
     private var task: Task? = null
     private var selectedDate: LocalDate? = null
     private var selectedTime: LocalTime? = null
+    private var repeatPosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +52,9 @@ class TaskActivity : AppCompatActivity() {
         val inputTask: EditText = findViewById(R.id.input_task)
         val inputDate: EditText = findViewById(R.id.input_date)
         val inputTime: EditText = findViewById(R.id.input_time)
+        val spinnerRepeat: Spinner = findViewById(R.id.spinner_repeat)
         val layoutTimeSelection: LinearLayout = findViewById(R.id.layout_time_selection)
+        val layoutRepeat: LinearLayout = findViewById(R.id.container_repeat)
         val buttonClearDate: Button = findViewById(R.id.button_clear_date)
         val buttonClearTime: Button = findViewById(R.id.button_clear_time)
         val buttonConfirm: Button = findViewById(R.id.button_confirm)
@@ -82,9 +88,11 @@ class TaskActivity : AppCompatActivity() {
                     buttonClearDate.visibility = View.GONE
                     layoutTimeSelection.visibility = View.GONE
                     buttonClearTime.visibility = View.GONE
+                    layoutRepeat.visibility = View.GONE
                 } else {
                     buttonClearDate.visibility = View.VISIBLE
                     layoutTimeSelection.visibility = View.VISIBLE
+                    layoutRepeat.visibility = View.VISIBLE
                 }
             }
         }
@@ -92,8 +100,10 @@ class TaskActivity : AppCompatActivity() {
         buttonClearDate.setOnClickListener {
             selectedDate = null
             selectedTime = null
+            repeatPosition = 0
             inputDate.setText("")
             inputTime.setText("")
+            spinnerRepeat.setSelection(0)
         }
 
         inputTime.setOnClickListener {
@@ -127,6 +137,18 @@ class TaskActivity : AppCompatActivity() {
             inputTime.setText("")
         }
 
+        // Repeat type spinner
+        val repeatTypes = resources.getStringArray(R.array.repeat_types)
+        val adapter = ArrayAdapter(this, R.layout.layout_repeat_type, repeatTypes)
+        spinnerRepeat.adapter = adapter
+        spinnerRepeat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                repeatPosition = position
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        // Add new task / Modify existing task
         buttonConfirm.setOnClickListener {
             val taskName: String = inputTask.text.toString()
             if (taskName.isBlank()) {
@@ -135,14 +157,19 @@ class TaskActivity : AppCompatActivity() {
             } else {
                 val deadlineDate: Long = DateAndTimeConverter.dateToSeconds(selectedDate)
                 val deadlineTime: Int = DateAndTimeConverter.timeToSeconds(selectedTime)
+                val repeat: Task.RepeatType = Task.RepeatType.entries[repeatPosition]
                 if (task == null) {
+                    // Add new task
                     taskViewModel.addTask(
-                        Task(0, taskName, false, deadlineDate, deadlineTime))
+                        Task(0, taskName, false,
+                            deadlineDate, deadlineTime, repeat))
                 } else {
+                    // Modify existing task
                     task?.let{
                         it.name = taskName
                         it.deadlineDate = deadlineDate
                         it.deadlineTime = deadlineTime
+                        it.repeat = repeat
                         taskViewModel.updateTask(it)
                     }
                 }
@@ -150,16 +177,17 @@ class TaskActivity : AppCompatActivity() {
             }
         }
 
+        // Setup values in case of task modification
         task?.let {
             val textTitle: TextView = findViewById(R.id.text_title)
             textTitle.text = it.name
             inputTask.setText(it.name)
             selectedDate = DateAndTimeConverter.secondsToDate(it.deadlineDate)
             inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
-            if (!inputDate.text.isBlank()) {
-                selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
-                inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
-            }
+            selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
+            inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
+            repeatPosition = it.repeat.ordinal
+            spinnerRepeat.setSelection(repeatPosition)
 
             val buttonDelete: Button = findViewById(R.id.button_delete)
             buttonDelete.visibility = View.VISIBLE

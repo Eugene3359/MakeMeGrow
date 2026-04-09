@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupRecycleView(
         observableData: LiveData<List<Task>>,
-        recycleView: RecyclerView,
+        recyclerView: RecyclerView,
         parentLayout: LinearLayout
     )
     {
@@ -167,8 +167,8 @@ class MainActivity : AppCompatActivity() {
         )
 
         adapters.add(adapter)
-        recycleView.layoutManager = LinearLayoutManager(this)
-        recycleView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
 
         observableData.observe(this) { tasks ->
             if(tasks.isEmpty()) parentLayout.visibility = View.GONE
