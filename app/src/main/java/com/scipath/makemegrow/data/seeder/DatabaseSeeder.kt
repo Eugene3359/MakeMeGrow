@@ -44,9 +44,89 @@ object DatabaseSeeder {
                 "Tomorrow Task",
                 false,
                 DateAndTimeConverter.dateToSeconds(currentDate.plusDays(1)),
-                DateAndTimeConverter.NO_TIME)
                 DateAndTimeConverter.NO_TIME,
                 Task.RepeatType.NO_REPEAT)
+        )
+
+        repository.addTask(
+            Task(0,
+                "Next Week Task",
+                false,
+                DateAndTimeConverter.dateToSeconds(currentDate.plusWeeks(1)),
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.NO_REPEAT)
+        )
+
+        repository.addTask(
+            Task(0,
+                "Next Month Task",
+                false,
+                DateAndTimeConverter.dateToSeconds(currentDate.plusMonths(1)),
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.NO_REPEAT)
+        )
+
+        repository.addTask(
+            Task(0,
+                "Next Year Task",
+                false,
+                DateAndTimeConverter.dateToSeconds(currentDate.plusYears(1)),
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.NO_REPEAT)
+        )
+
+        repository.addTask(
+            Task(0,
+                "Once a Day Task",
+                false,
+                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.ONCE_A_DAY)
+        )
+
+        repository.addTask(
+            Task(0,
+                "Mon-Fri Task",
+                false,
+                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.ON_WEEKDAYS)
+        )
+
+        repository.addTask(
+            Task(0,
+                "Sat-Sun Task",
+                false,
+                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.ON_WEEKENDS)
+        )
+
+        repository.addTask(
+            Task(0,
+                "Once a Week Task",
+                false,
+                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.ONCE_A_WEEK)
+        )
+
+        repository.addTask(
+            Task(0,
+                "Once a Month Task",
+                false,
+                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.ONCE_A_MONTH)
+        )
+
+        repository.addTask(
+            Task(0,
+                "Once a Year Task",
+                false,
+                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.NO_TIME,
+                Task.RepeatType.ONCE_A_YEAR)
         )
 
         repository.addTask(
