@@ -169,6 +169,7 @@ class MainActivity : AppCompatActivity() {
         adapters.add(adapter)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
+        recyclerView.isNestedScrollingEnabled = false
 
         observableData.observe(this) { tasks ->
             if(tasks.isEmpty()) parentLayout.visibility = View.GONE
