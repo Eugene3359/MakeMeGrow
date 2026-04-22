@@ -28,13 +28,29 @@
             android:textColor="@color/white"
             android:textSize="@dimen/text_medium"/>
 
-        <TextView
-            android:id="@+id/text_deadline"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/placeholder"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_small"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/text_deadline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/placeholder"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_small"/>
+
+            <ImageView
+                android:id="@+id/image_repeat"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="5dp"
+                android:src="@drawable/ic_repeat"
+                android:contentDescription="@string/repeat"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

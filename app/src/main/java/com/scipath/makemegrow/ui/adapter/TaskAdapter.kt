@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
@@ -31,6 +32,7 @@ class TaskAdapter(
         val checkbox: CheckBox = itemView.findViewById(R.id.checkbox)
         val textTask: TextView = itemView.findViewById(R.id.text_task)
         val textDeadline: TextView = itemView.findViewById(R.id.text_deadline)
+        val imageRepeat: ImageView = itemView.findViewById(R.id.image_repeat)
     }
 
     override fun onCreateViewHolder(
@@ -78,6 +80,13 @@ class TaskAdapter(
                     context.getColor(R.color.white)
                 }
             )
+        }
+
+        // Repeat
+        if (task.repeat == Task.RepeatType.NO_REPEAT) {
+           holder.imageRepeat.visibility = View.GONE
+        } else {
+            holder.imageRepeat.visibility = View.VISIBLE
         }
 
         // Completed
