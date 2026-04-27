@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
+
     @Query("SELECT * " +
             "FROM tasks " +
             "ORDER BY deadline_date ASC, " +

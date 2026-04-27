@@ -22,7 +22,10 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.local.AppDatabase
 import com.scipath.makemegrow.data.model.Task
+import com.scipath.makemegrow.data.repository.TaskCategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
+import com.scipath.makemegrow.ui.viewmodel.TaskCategoryViewModel
+import com.scipath.makemegrow.ui.viewmodel.TaskCategoryViewModelFactory
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModelFactory
 import java.time.LocalDate
@@ -34,6 +37,7 @@ class TaskActivity : AppCompatActivity() {
     private var selectedDate: LocalDate? = null
     private var selectedTime: LocalTime? = null
     private var repeatPosition = 0
+    private var selectedCategoryId: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,16 +57,21 @@ class TaskActivity : AppCompatActivity() {
         val inputDate: EditText = findViewById(R.id.input_date)
         val inputTime: EditText = findViewById(R.id.input_time)
         val spinnerRepeat: Spinner = findViewById(R.id.spinner_repeat)
+        val spinnerCategory: Spinner = findViewById(R.id.spinner_category)
         val layoutTimeSelection: LinearLayout = findViewById(R.id.layout_time_selection)
         val layoutRepeat: LinearLayout = findViewById(R.id.container_repeat)
         val buttonClearDate: Button = findViewById(R.id.button_clear_date)
         val buttonClearTime: Button = findViewById(R.id.button_clear_time)
         val buttonConfirm: Button = findViewById(R.id.button_confirm)
 
-        val dao = AppDatabase.getDatabase(applicationContext).taskDao()
-        val repository = TaskRepository(dao)
-        val factory = TaskViewModelFactory(repository)
-        val taskViewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
+        val taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
+        val taskRepository = TaskRepository(taskDao)
+        val taskViewModelFactory = TaskViewModelFactory(taskRepository)
+        val taskViewModel = ViewModelProvider(this, taskViewModelFactory)[TaskViewModel::class.java]
+        val categoryDao = AppDatabase.getDatabase(applicationContext).taskCategoryDao()
+        val categoryRepository = TaskCategoryRepository(categoryDao)
+        val categoryFactory = TaskCategoryViewModelFactory(categoryRepository)
+        val categoryViewModel = ViewModelProvider(this, categoryFactory)[TaskCategoryViewModel::class.java]
 
         inputDate.setOnClickListener {
             val currentDate: LocalDate = LocalDate.now()
@@ -139,13 +148,40 @@ class TaskActivity : AppCompatActivity() {
 
         // Repeat type spinner
         val repeatTypes = resources.getStringArray(R.array.repeat_types)
-        val adapter = ArrayAdapter(this, R.layout.layout_repeat_type, repeatTypes)
+        val adapter = ArrayAdapter(this, R.layout.layout_item_small, repeatTypes)
         spinnerRepeat.adapter = adapter
         spinnerRepeat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 repeatPosition = position
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        // Category spinner
+        categoryViewModel.allTaskCategories.observe(this) { categories ->
+            val categoryNames = listOf(getString(R.string.default_category)) + categories.map { it.name }
+            spinnerCategory.adapter = ArrayAdapter(
+                this,
+                R.layout.layout_item_small,
+                categoryNames
+            )
+
+            spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                    selectedCategoryId =
+                        if (position == 0) null
+                        else categories[position - 1].id
+                }
+                override fun onNothingSelected(parent: AdapterView<*>) {}
+            }
+
+            task?.let {
+                selectedCategoryId = it.categoryId
+                selectedCategoryId?.let { id ->
+                    val index = categories.indexOfFirst { it.id == id }
+                    spinnerCategory.setSelection(index + 1)
+                }
+            }
         }
 
         // Add new task / Modify existing task
@@ -162,7 +198,7 @@ class TaskActivity : AppCompatActivity() {
                     // Add new task
                     taskViewModel.addTask(
                         Task(0, taskName, false,
-                            deadlineDate, deadlineTime, repeat))
+                            deadlineDate, deadlineTime, repeat, selectedCategoryId))
                 } else {
                     // Modify existing task
                     task?.let{
@@ -170,6 +206,7 @@ class TaskActivity : AppCompatActivity() {
                         it.deadlineDate = deadlineDate
                         it.deadlineTime = deadlineTime
                         it.repeat = repeat
+                        it.categoryId = selectedCategoryId
                         taskViewModel.updateTask(it)
                     }
                 }

@@ -34,14 +34,14 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
 
     fun deleteTask(task: Task) {
         viewModelScope.launch {
-            repository.deleteTask(task);
+            repository.deleteTask(task)
         }
     }
 
     fun seedDatabase() {
         viewModelScope.launch {
             repository.clear()
-            DatabaseSeeder.seed(repository)
+            DatabaseSeeder.seedTasks(repository)
         }
     }
 }

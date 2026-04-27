@@ -174,7 +174,32 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="5dp"
             android:popupBackground="@color/dark_gray"
-            tools:listitem="@layout/layout_repeat_type"/>
+            tools:listitem="@layout/layout_item_small"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/container_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/container_repeat"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/category"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_medium"/>
+
+        <Spinner
+            android:id="@+id/spinner_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="5dp"
+            android:popupBackground="@color/dark_gray"
+            tools:listitem="@layout/layout_item_small"/>
 
     </LinearLayout>
 

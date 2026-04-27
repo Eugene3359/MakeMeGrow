@@ -5,16 +5,19 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.scipath.makemegrow.data.dao.TaskDao
+import com.scipath.makemegrow.data.dao.TaskCategoryDao
 import com.scipath.makemegrow.data.model.Task
+import com.scipath.makemegrow.data.model.TaskCategory
 
 @Database(
-    entities = [Task::class],
+    entities = [Task::class, TaskCategory::class],
     version = 1,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao
+    abstract fun taskCategoryDao(): TaskCategoryDao
 
     companion object {
         @Volatile
