@@ -4,6 +4,7 @@ import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.dao.TaskDao
 import com.scipath.makemegrow.data.model.Task
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -50,7 +51,7 @@ class TaskRepository(private val taskDao: TaskDao) {
         DateAndTimeConverter.NO_TIME)
 
     fun getById(id: Int): Task {
-        return taskDao.getById(id);
+        return taskDao.getById(id)
     }
 
     suspend fun addTask(task: Task) {
@@ -67,6 +68,12 @@ class TaskRepository(private val taskDao: TaskDao) {
 
     suspend fun clear() {
         taskDao.clear()
+    }
+
+    fun filterByCompletion(tasks: Flow<List<Task>>, isCompleted: Boolean): Flow<List<Task>> {
+        return tasks.map { list ->
+            list.filter { it.isCompleted == isCompleted }
+        }
     }
 
     private fun currentDate(): LocalDate {

@@ -26,6 +26,7 @@
     <string name="this_month">This Month</string>
     <string name="next_month">Next Month</string>
     <string name="later">Later</string>
+    <string name="completed">Completed</string>
 
     <!-- Repeat Types -->
     <string name="repeat">Repeat</string>

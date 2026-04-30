@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.Spinner
 import androidx.activity.enableEdgeToEdge
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var taskViewModel: TaskViewModel
     private val taskSections: MutableList<TaskSection> = mutableListOf()
     private var selectedTasks: MutableList<Task> = mutableListOf()
+    private var isCompleted: Boolean = false
     private var selectedCategoryPosition: Int = -2
     private var selectedCategory: TaskCategory? = null
     private lateinit var buttonDeleteTask: Button
@@ -72,25 +74,16 @@ class MainActivity : AppCompatActivity() {
             taskViewModel.seedDatabase()
         }
 
-        buttonDeleteTask = findViewById(R.id.button_delete)
-        buttonDeleteTask.setOnClickListener {
-            selectedTasks.forEach { task ->
-                taskViewModel.deleteTask(task)
-            }
-            selectedTasks.clear()
-            buttonDeleteTask.visibility = View.GONE
-            taskSections.forEach {
-                it.adapter?.clearSelection()
-            }
-        }
-
-        val buttonNewTask: Button = findViewById(R.id.button_new_task)
-        buttonNewTask.setOnClickListener {
-            val intent = Intent(this, TaskActivity::class.java)
-            startActivity(intent)
-        }
-
         setupAllRecycleViews()
+
+        // Checkbox completed
+        val checkboxCompleted: CheckBox = findViewById(R.id.checkbox_completed)
+        checkboxCompleted.setOnCheckedChangeListener { _, isChecked ->
+            isCompleted = isChecked
+            taskSections.forEach {
+                updateViews(it)
+            }
+        }
 
         // Category selection
         val spinnerCategory: Spinner = findViewById(R.id.spinner_category)
@@ -126,6 +119,25 @@ class MainActivity : AppCompatActivity() {
                 override fun onNothingSelected(parent: AdapterView<*>) {}
             }
         }
+
+        val buttonNewTask: Button = findViewById(R.id.button_new_task)
+        buttonNewTask.setOnClickListener {
+            val intent = Intent(this, TaskActivity::class.java)
+            startActivity(intent)
+        }
+
+        buttonDeleteTask = findViewById(R.id.button_delete)
+        buttonDeleteTask.setOnClickListener {
+            selectedTasks.forEach { task ->
+                taskViewModel.deleteTask(task)
+            }
+            selectedTasks.clear()
+            buttonDeleteTask.visibility = View.GONE
+            taskSections.forEach {
+                it.adapter?.clearSelection()
+            }
+        }
+
     }
 
     private fun setupAllRecycleViews() {
@@ -193,6 +205,14 @@ class MainActivity : AppCompatActivity() {
             null
         ))
 
+        // Completed
+        taskSections.add(TaskSection(
+            taskViewModel.completedTasks,
+            findViewById(R.id.layout_completed_tasks),
+            findViewById(R.id.view_completed_tasks),
+            null
+        ))
+
         taskSections.forEach {
             setupRecycleView(it)
         }
@@ -233,7 +253,9 @@ class MainActivity : AppCompatActivity() {
     ) {
         val filteredTasks = filterTasks(taskSelection.liveData.value ?: listOf())
         taskSelection.parentLayout.visibility =
-            if (filteredTasks.isEmpty()) View.GONE
+            if (filteredTasks.isEmpty() ||
+                filteredTasks.first().isCompleted != isCompleted)
+                View.GONE
             else View.VISIBLE
         taskSelection.adapter?.updateTasks(filteredTasks)
     }
