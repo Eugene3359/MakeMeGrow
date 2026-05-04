@@ -2,16 +2,16 @@ package com.scipath.makemegrow.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.scipath.makemegrow.data.repository.TaskCategoryRepository
+import com.scipath.makemegrow.data.repository.CategoryRepository
 
-class TaskCategoryViewModelFactory(
-    private val repository: TaskCategoryRepository
+class CategoryViewModelFactory(
+    private val repository: CategoryRepository
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(TaskCategoryViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(CategoryViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return TaskCategoryViewModel(repository) as T
+            return CategoryViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

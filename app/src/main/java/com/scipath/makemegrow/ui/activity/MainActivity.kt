@@ -20,12 +20,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.local.AppDatabase
 import com.scipath.makemegrow.data.model.Task
-import com.scipath.makemegrow.data.model.TaskCategory
-import com.scipath.makemegrow.data.repository.TaskCategoryRepository
+import com.scipath.makemegrow.data.model.Category
+import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
 import com.scipath.makemegrow.ui.adapter.TaskAdapter
-import com.scipath.makemegrow.ui.viewmodel.TaskCategoryViewModel
-import com.scipath.makemegrow.ui.viewmodel.TaskCategoryViewModelFactory
+import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
+import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
+import com.scipath.makemegrow.ui.viewmodel.CategoryViewModelFactory
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModelFactory
 
@@ -43,11 +44,12 @@ class MainActivity : AppCompatActivity() {
     )
 
     private lateinit var taskViewModel: TaskViewModel
+    private lateinit var categoryViewModel: CategoryViewModel
     private val taskSections: MutableList<TaskSection> = mutableListOf()
     private var selectedTasks: MutableList<Task> = mutableListOf()
     private var isCompleted: Boolean = false
     private var selectedCategoryPosition: Int = -2
-    private var selectedCategory: TaskCategory? = null
+    private var selectedCategory: Category? = null
     private lateinit var buttonDeleteTask: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,10 +66,10 @@ class MainActivity : AppCompatActivity() {
         val taskRepository = TaskRepository(taskDao)
         val taskFactory = TaskViewModelFactory(taskRepository)
         taskViewModel = ViewModelProvider(this, taskFactory)[TaskViewModel::class.java]
-        val categoryDao = AppDatabase.getDatabase(applicationContext).taskCategoryDao()
-        val categoryRepository = TaskCategoryRepository(categoryDao)
-        val categoryFactory = TaskCategoryViewModelFactory(categoryRepository)
-        val categoryViewModel = ViewModelProvider(this, categoryFactory)[TaskCategoryViewModel::class.java]
+        val categoryDao = AppDatabase.getDatabase(applicationContext).categoryDao()
+        val categoryRepository = CategoryRepository(categoryDao)
+        val categoryFactory = CategoryViewModelFactory(categoryRepository)
+        categoryViewModel = ViewModelProvider(this, categoryFactory)[CategoryViewModel::class.java]
 
         if (DEV_MODE) {
             categoryViewModel.seedDatabase()
@@ -87,7 +89,7 @@ class MainActivity : AppCompatActivity() {
 
         // Category selection
         val spinnerCategory: Spinner = findViewById(R.id.spinner_category)
-        categoryViewModel.allTaskCategories.observe(this) { categories ->
+        categoryViewModel.allCategories.observe(this) { categories ->
             val categoryNames = listOf(
                 getString(R.string.all_tasks),
                 getString(R.string.default_category)
@@ -103,8 +105,8 @@ class MainActivity : AppCompatActivity() {
                 override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                     if (position == categoryNames.lastIndex) {
                         // Add Category
-                        spinnerCategory.setSelection(selectedCategoryPosition + 2)
-                        startAddCategoryDialogue()
+                        spinnerCategory.setSelection(selectedCategoryPosition + 2, false)
+                        AddCategoryDialog().show(supportFragmentManager, "AddCategoryDialog")
                     } else {
                         // Change Category
                         selectedCategoryPosition = position - 2
@@ -116,7 +118,19 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
+
                 override fun onNothingSelected(parent: AdapterView<*>) {}
+            }
+        }
+
+        // Add Category
+        supportFragmentManager.setFragmentResultListener(
+            AddCategoryDialog.REQUEST_KEY,
+            this
+        ) { _, bundle ->
+            val name = bundle.getString(AddCategoryDialog.RESULT_KEY_NAME)
+            name?.let {
+                categoryViewModel.addCategory(Category(name = it))
             }
         }
 

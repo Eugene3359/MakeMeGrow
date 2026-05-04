@@ -52,4 +52,11 @@
     <string name="all_tasks">All Tasks</string>
     <string name="default_category">Default</string>
     <string name="add_category">Add Category</string>
+
+    <!-- Dialog Add Category -->
+    <string name="new_category">New Category</string>
+    <string name="enter_category_name">Enter Category Name</string>
+    <string name="cancel">Cancel</string>
+    <string name="add">Add</string>
+
 </resources>

@@ -3,28 +3,28 @@ package com.scipath.makemegrow.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.scipath.makemegrow.data.model.TaskCategory
-import com.scipath.makemegrow.data.repository.TaskCategoryRepository
+import com.scipath.makemegrow.data.model.Category
+import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.seeder.DatabaseSeeder
 import kotlinx.coroutines.launch
 
-class TaskCategoryViewModel(private val repository: TaskCategoryRepository) : ViewModel() {
+class CategoryViewModel(private val repository: CategoryRepository) : ViewModel() {
 
-    val allTaskCategories = repository.allTaskCategories.asLiveData()
+    val allCategories = repository.allCategories.asLiveData()
 
-    fun addCategory(category: TaskCategory) {
+    fun addCategory(category: Category) {
         viewModelScope.launch {
             repository.addCategory(category)
         }
     }
 
-    fun updateCategory(category: TaskCategory) {
+    fun updateCategory(category: Category) {
         viewModelScope.launch {
             repository.updateCategory(category)
         }
     }
 
-    fun deleteCategory(category: TaskCategory) {
+    fun deleteCategory(category: Category) {
         viewModelScope.launch {
             repository.deleteCategory(category)
         }

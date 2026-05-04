@@ -22,10 +22,10 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.local.AppDatabase
 import com.scipath.makemegrow.data.model.Task
-import com.scipath.makemegrow.data.repository.TaskCategoryRepository
+import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
-import com.scipath.makemegrow.ui.viewmodel.TaskCategoryViewModel
-import com.scipath.makemegrow.ui.viewmodel.TaskCategoryViewModelFactory
+import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
+import com.scipath.makemegrow.ui.viewmodel.CategoryViewModelFactory
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModelFactory
 import java.time.LocalDate
@@ -67,10 +67,10 @@ class TaskActivity : AppCompatActivity() {
         val taskRepository = TaskRepository(taskDao)
         val taskViewModelFactory = TaskViewModelFactory(taskRepository)
         val taskViewModel = ViewModelProvider(this, taskViewModelFactory)[TaskViewModel::class.java]
-        val categoryDao = AppDatabase.getDatabase(applicationContext).taskCategoryDao()
-        val categoryRepository = TaskCategoryRepository(categoryDao)
-        val categoryFactory = TaskCategoryViewModelFactory(categoryRepository)
-        val categoryViewModel = ViewModelProvider(this, categoryFactory)[TaskCategoryViewModel::class.java]
+        val categoryDao = AppDatabase.getDatabase(applicationContext).categoryDao()
+        val categoryRepository = CategoryRepository(categoryDao)
+        val categoryFactory = CategoryViewModelFactory(categoryRepository)
+        val categoryViewModel = ViewModelProvider(this, categoryFactory)[CategoryViewModel::class.java]
 
         // Input Date
         inputDate.setOnClickListener {
@@ -161,7 +161,7 @@ class TaskActivity : AppCompatActivity() {
         }
 
         // Category spinner
-        categoryViewModel.allTaskCategories.observe(this) { categories ->
+        categoryViewModel.allCategories.observe(this) { categories ->
             val categoryNames = listOf(getString(R.string.default_category)) + categories.map { it.name }
             spinnerCategory.adapter = ArrayAdapter(
                 this,

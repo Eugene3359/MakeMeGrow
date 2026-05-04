@@ -2,8 +2,8 @@ package com.scipath.makemegrow.data.seeder
 
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.model.Task
-import com.scipath.makemegrow.data.model.TaskCategory
-import com.scipath.makemegrow.data.repository.TaskCategoryRepository
+import com.scipath.makemegrow.data.model.Category
+import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
 import java.time.LocalDate
 import java.time.LocalTime
@@ -155,9 +155,9 @@ object DatabaseSeeder {
         )
     }
 
-    suspend fun seedCategories(repository: TaskCategoryRepository) {
+    suspend fun seedCategories(repository: CategoryRepository) {
         repository.addCategory(
-            TaskCategory(0,
+            Category(0,
                 "Work Category")
         )
     }

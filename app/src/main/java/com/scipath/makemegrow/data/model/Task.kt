@@ -11,7 +11,7 @@ import java.io.Serializable
     tableName = "tasks",
     foreignKeys = [
         ForeignKey(
-            entity = TaskCategory::class,
+            entity = Category::class,
             parentColumns = ["id"],
             childColumns = ["categoryId"],
             onDelete = ForeignKey.SET_NULL
