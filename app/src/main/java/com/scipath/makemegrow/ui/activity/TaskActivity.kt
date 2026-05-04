@@ -151,7 +151,7 @@ class TaskActivity : AppCompatActivity() {
         val repeatTypes = resources.getStringArray(R.array.repeat_types)
         spinnerRepeat.adapter = ArrayAdapter(
             this,
-            R.layout.layout_item_small,
+            R.layout.spinner_item_small,
             repeatTypes)
         spinnerRepeat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -165,7 +165,7 @@ class TaskActivity : AppCompatActivity() {
             val categoryNames = listOf(getString(R.string.default_category)) + categories.map { it.name }
             spinnerCategory.adapter = ArrayAdapter(
                 this,
-                R.layout.layout_item_small,
+                R.layout.spinner_item_small,
                 categoryNames
             )
 

@@ -247,7 +247,7 @@
             android:layout_weight="1"
             android:layout_marginHorizontal="10dp"
             android:popupBackground="@color/dark_gray"
-            tools:listitem="@layout/layout_item_large"/>
+            tools:listitem="@layout/spinner_item_large"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_delete"

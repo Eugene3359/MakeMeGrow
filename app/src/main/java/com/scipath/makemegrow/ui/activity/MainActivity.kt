@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.LinearLayout
@@ -23,6 +22,7 @@ import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
+import com.scipath.makemegrow.ui.adapter.CategoryArrayAdapter
 import com.scipath.makemegrow.ui.adapter.TaskAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
@@ -98,11 +98,8 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.default_category)
             ) + categories.map { it.name } + getString(R.string.add_category)
 
-            spinnerCategory.adapter = ArrayAdapter(
-                this,
-                R.layout.layout_item_large,
-                categoryNames
-            )
+            val adapter = CategoryArrayAdapter(this, categoryNames)
+            spinnerCategory.adapter = adapter
 
             spinnerCategory.setSelection(selectedCategoryPosition + 2, false)
 
@@ -114,6 +111,8 @@ class MainActivity : AppCompatActivity() {
                         AddCategoryDialog().show(supportFragmentManager, "AddCategoryDialog")
                     } else {
                         // Change Category
+                        adapter.selectedPosition = position
+                        adapter.notifyDataSetChanged()
                         selectedCategoryPosition = position - 2
                         selectedCategory =
                             if (selectedCategoryPosition >= 0) categories[selectedCategoryPosition]
