@@ -62,6 +62,9 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        isCompleted = savedInstanceState?.getBoolean("is_completed") ?: false
+        selectedCategoryPosition = savedInstanceState?.getInt("category_position") ?: -2
+
         val taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
         val taskRepository = TaskRepository(taskDao)
         val taskFactory = TaskViewModelFactory(taskRepository)
@@ -71,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         val categoryFactory = CategoryViewModelFactory(categoryRepository)
         categoryViewModel = ViewModelProvider(this, categoryFactory)[CategoryViewModel::class.java]
 
-        if (DEV_MODE) {
+        if (DEV_MODE && savedInstanceState == null) {
             categoryViewModel.seedDatabase()
             taskViewModel.seedDatabase()
         }
@@ -100,6 +103,8 @@ class MainActivity : AppCompatActivity() {
                 R.layout.layout_item_large,
                 categoryNames
             )
+
+            spinnerCategory.setSelection(selectedCategoryPosition + 2, false)
 
             spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -155,6 +160,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupAllRecycleViews() {
+        if (!taskSections.isEmpty())
+            taskSections.clear()
+
         // Overdue
         taskSections.add(TaskSection(
             taskViewModel.overdueTasks,
@@ -282,7 +290,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun startAddCategoryDialogue() {
-        // TODO: Implement
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("is_completed", isCompleted)
+        outState.putInt("category_position", selectedCategoryPosition)
+        super.onSaveInstanceState(outState)
     }
 }
