@@ -137,8 +137,13 @@ class MainActivity : AppCompatActivity() {
             this
         ) { _, bundle ->
             val name = bundle.getString(AddCategoryDialog.RESULT_KEY_NAME)
-            name?.let {
-                categoryViewModel.addCategory(Category(name = it))
+            name?.let { newCategoryName ->
+                selectedCategory?.let {
+                    if (newCategoryName < it.name) {
+                        selectedCategoryPosition++
+                    }
+                }
+                categoryViewModel.addCategory(Category(name = newCategoryName))
             }
         }
 
