@@ -2,12 +2,16 @@ package com.scipath.makemegrow.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.ContextThemeWrapper
+import android.view.Gravity
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.LinearLayout
+import android.widget.PopupMenu
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -137,6 +141,9 @@ class MainActivity : AppCompatActivity() {
                 categoryViewModel.addCategory(Category(name = it))
             }
         }
+
+        val buttonMenu: Button = findViewById(R.id.button_menu)
+        buttonMenu.setOnClickListener { showMenu(it) }
 
         val buttonNewTask: Button = findViewById(R.id.button_new_task)
         buttonNewTask.setOnClickListener {
@@ -286,6 +293,27 @@ class MainActivity : AppCompatActivity() {
             -2 -> tasks
             -1 -> tasks.filter { it.categoryId == null }
             else -> tasks.filter { it.categoryId == selectedCategory?.id }
+        }
+    }
+
+    private fun showMenu(anchor: View) {
+        PopupMenu(ContextThemeWrapper(this, R.style.PopupMenu), anchor).apply {
+            gravity = Gravity.END
+            inflate(R.menu.popup_menu)
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.item_task_categories -> {
+                        Toast.makeText(
+                            applicationContext,
+                            R.string.in_development,
+                            Toast.LENGTH_LONG
+                        ).show()
+                        true
+                    }
+                    else -> false
+                }
+            }
+            show()
         }
     }
 

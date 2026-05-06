@@ -246,6 +246,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginHorizontal="10dp"
+            android:backgroundTint="@color/white"
             android:popupBackground="@color/dark_gray"
             tools:listitem="@layout/spinner_item_large"/>
 
@@ -253,9 +254,17 @@
             android:id="@+id/button_delete"
             android:layout_width="25dp"
             android:layout_height="25dp"
+            android:layout_marginEnd="15dp"
             android:background="@color/dark_gray"
             android:foreground="@drawable/ic_bin"
             android:visibility="gone"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_menu"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@color/dark_gray"
+            android:foreground="@drawable/ic_menu"/>
 
     </LinearLayout>
 
