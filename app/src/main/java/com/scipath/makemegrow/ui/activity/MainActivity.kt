@@ -11,7 +11,6 @@ import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.Spinner
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -282,15 +281,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateViews(taskSelection: TaskSection
+    private fun updateViews(taskSection: TaskSection
     ) {
-        val filteredTasks = filterTasks(taskSelection.liveData.value ?: listOf())
-        taskSelection.parentLayout.visibility =
+        val filteredTasks = filterTasks(taskSection.liveData.value ?: listOf())
+        taskSection.parentLayout.visibility =
             if (filteredTasks.isEmpty() ||
                 filteredTasks.first().isCompleted != isCompleted)
                 View.GONE
             else View.VISIBLE
-        taskSelection.adapter?.updateTasks(filteredTasks)
+        taskSection.adapter?.updateTasks(filteredTasks)
     }
 
     private fun filterTasks(tasks: List<Task>) : List<Task> {
@@ -308,11 +307,9 @@ class MainActivity : AppCompatActivity() {
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.item_task_categories -> {
-                        Toast.makeText(
+                        startActivity(Intent(
                             applicationContext,
-                            R.string.in_development,
-                            Toast.LENGTH_LONG
-                        ).show()
+                            CategoryActivity::class.java))
                         true
                     }
                     else -> false
