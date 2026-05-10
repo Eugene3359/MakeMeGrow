@@ -135,14 +135,17 @@ class MainActivity : AppCompatActivity() {
             AddCategoryDialog.REQUEST_KEY,
             this
         ) { _, bundle ->
-            val name = bundle.getString(AddCategoryDialog.RESULT_KEY_NAME)
-            name?.let { newCategoryName ->
+            val name = bundle.getString(AddCategoryDialog.RESULT_KEY_NAME) ?:
+                return@setFragmentResultListener
+            categoryViewModel.addCategory(
+                Category(name = name)
+            ) { isSuccessful ->
+                if (!isSuccessful) return@addCategory
                 selectedCategory?.let {
-                    if (newCategoryName < it.name) {
+                    if (name < it.name) {
                         selectedCategoryPosition++
                     }
                 }
-                categoryViewModel.addCategory(Category(name = newCategoryName))
             }
         }
 

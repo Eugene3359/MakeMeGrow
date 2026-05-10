@@ -16,8 +16,8 @@ class CategoryRepository(private val categoryDao: CategoryDao) {
         return categoryDao.getCount()
     }
 
-    suspend fun addCategory(category: Category) {
-        categoryDao.insert(category)
+    suspend fun addCategory(category: Category): Boolean {
+        return categoryDao.insert(category) != -1L
     }
 
     suspend fun updateCategory(category: Category) {

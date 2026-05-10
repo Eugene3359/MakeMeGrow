@@ -53,7 +53,7 @@ class CategoryActivity : AppCompatActivity() {
             this
         ) { _, bundle ->
             val name = bundle.getString(AddCategoryDialog.RESULT_KEY_NAME)
-            name?.let { categoryViewModel.addCategory(Category(name = it)) }
+            name?.let { categoryViewModel.addCategory(Category(name = it), null) }
         }
 
         // Button Back

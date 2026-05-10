@@ -3,6 +3,7 @@ package com.scipath.makemegrow.data.dao
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.scipath.makemegrow.data.model.Category
@@ -22,8 +23,8 @@ interface CategoryDao {
     @Query("SELECT COUNT(*) FROM categories")
     suspend fun getCount(): Int
 
-    @Insert
-    suspend fun insert(category: Category)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(category: Category): Long
 
     @Update
     suspend fun updateTask(category: Category)
