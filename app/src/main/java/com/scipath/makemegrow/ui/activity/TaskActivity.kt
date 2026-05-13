@@ -24,6 +24,7 @@ import com.scipath.makemegrow.data.local.AppDatabase
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
+import com.scipath.makemegrow.ui.dialog.DeleteTaskDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModelFactory
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
@@ -202,8 +203,18 @@ class TaskActivity : AppCompatActivity() {
             val buttonDelete: Button = findViewById(R.id.button_delete)
             buttonDelete.visibility = View.VISIBLE
             buttonDelete.setOnClickListener {
-                taskViewModel.deleteTask(task!!)
-                finish()
+                DeleteTaskDialog().show(supportFragmentManager, "DeleteTaskDialog")
+            }
+
+            supportFragmentManager.setFragmentResultListener(
+                DeleteTaskDialog.REQUEST_KEY,
+                this
+            ) { _, bundle ->
+                val isConfirmed = bundle.getBoolean(DeleteTaskDialog.RESULT_KEY_NAME)
+                if (isConfirmed) {
+                    taskViewModel.deleteTask(task!!)
+                    finish()
+                }
             }
         }
 

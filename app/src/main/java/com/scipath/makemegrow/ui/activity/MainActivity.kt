@@ -28,6 +28,7 @@ import com.scipath.makemegrow.data.repository.TaskRepository
 import com.scipath.makemegrow.ui.adapter.CategoryArrayAdapter
 import com.scipath.makemegrow.ui.adapter.TaskAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
+import com.scipath.makemegrow.ui.dialog.DeleteTasksDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModelFactory
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
@@ -160,16 +161,25 @@ class MainActivity : AppCompatActivity() {
 
         buttonDeleteTask = findViewById(R.id.button_delete)
         buttonDeleteTask.setOnClickListener {
-            selectedTasks.forEach { task ->
-                taskViewModel.deleteTask(task)
-            }
-            selectedTasks.clear()
-            buttonDeleteTask.visibility = View.GONE
-            taskSections.forEach {
-                it.adapter?.clearSelection()
-            }
+            DeleteTasksDialog().show(supportFragmentManager, "DeleteTasksDialog")
         }
 
+        supportFragmentManager.setFragmentResultListener(
+            DeleteTasksDialog.REQUEST_KEY,
+            this
+        ) { _, bundle ->
+            val isConfirmed = bundle.getBoolean(DeleteTasksDialog.RESULT_KEY_NAME)
+            if (isConfirmed) {
+                selectedTasks.forEach { task ->
+                    taskViewModel.deleteTask(task)
+                }
+                selectedTasks.clear()
+                buttonDeleteTask.visibility = View.GONE
+                taskSections.forEach {
+                    it.adapter?.clearSelection()
+                }
+            }
+        }
     }
 
     private fun setupAllRecycleViews() {

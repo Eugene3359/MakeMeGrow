@@ -56,11 +56,21 @@
     <!-- Category layout -->
     <string name="task_number">Tasks: %d</string>
     <string name="overdue_task_number">(%d overdue)</string>
-    <!-- Dialog Category -->
-    <string name="new_category">New Category</string>
-    <string name="enter_category_name">Enter Category Name</string>
+
+    <!-- Dialog -->
     <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
     <string name="add">Add</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <!-- Task Related Dialog -->
+    <string name="delete_task">Delete Task</string>
+    <string name="delete_task_message">Are you sure you want to delete this task?</string>
+    <string name="delete_tasks">Delete Tasks</string>
+    <string name="delete_tasks_message">Are you sure you want to delete the selected tasks?</string>
+    <!-- Category Related Dialog -->
+    <string name="new_category">New Category</string>
+    <string name="new_category_hint">Enter Category Name</string>
 
     <!-- Menu -->
     <string name="task_categories">Task Categories</string>

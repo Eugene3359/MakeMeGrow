@@ -10,20 +10,31 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/text_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/new_category"
+        android:layout_marginBottom="10dp"
+        android:text="@string/placeholder"
         android:textColor="@color/white"
         android:textSize="@dimen/text_large"
         android:textStyle="bold"/>
 
+    <TextView
+        android:id="@+id/text_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:text="@string/placeholder"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_medium"/>
+
     <EditText
-        android:id="@+id/input_category_name"
+        android:id="@+id/input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
+        android:layout_marginBottom="10dp"
         android:backgroundTint="@color/light_gray"
-        android:hint="@string/enter_category_name"
+        android:hint="@string/placeholder"
         android:importantForAutofill="no"
         android:inputType="text"
         android:textColorHint="@color/light_gray"
@@ -46,11 +57,11 @@
             style="?android:attr/buttonBarButtonStyle"/>
 
         <Button
-            android:id="@+id/button_add"
+            android:id="@+id/button_confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:text="@string/add"
+            android:text="@string/confirm"
             android:textColor="@color/purple_200"
             style="?android:attr/buttonBarButtonStyle"/>
 
