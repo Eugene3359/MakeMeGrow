@@ -1,8 +1,10 @@
 package com.scipath.makemegrow.ui.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.repository.TaskRepository
 import com.scipath.makemegrow.data.seeder.DatabaseSeeder
@@ -10,6 +12,7 @@ import kotlinx.coroutines.launch
 
 class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
 
+    val allTasks = repository.filterByCompletion(repository.allTasks, false).asLiveData()
     val overdueTasks = repository.filterByCompletion(repository.overdueTasks, false).asLiveData()
     val todayTasks = repository.filterByCompletion(repository.todayTasks, false).asLiveData()
     val tomorrowTasks = repository.filterByCompletion(repository.tomorrowTasks, false).asLiveData()
@@ -36,6 +39,13 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
         viewModelScope.launch {
             repository.deleteTask(task)
         }
+    }
+
+    fun filterTasksByCategory(tasks: LiveData<List<Task>>, category: Category?) : List<Task> {
+        val result = tasks.value?.filter {
+            it.categoryId == category?.id
+        } ?: emptyList()
+        return result
     }
 
     fun seedDatabase() {

@@ -13,9 +13,13 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.local.AppDatabase
 import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.data.repository.CategoryRepository
+import com.scipath.makemegrow.data.repository.TaskRepository
+import com.scipath.makemegrow.ui.adapter.CategoryAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModelFactory
+import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
+import com.scipath.makemegrow.ui.viewmodel.TaskViewModelFactory
 
 class CategoryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,12 +37,24 @@ class CategoryActivity : AppCompatActivity() {
         val categoryFactory = CategoryViewModelFactory(categoryRepository)
         val categoryViewModel = ViewModelProvider(this, categoryFactory)[CategoryViewModel::class.java]
 
+        val taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
+        val taskRepository = TaskRepository(taskDao)
+        val taskFactory = TaskViewModelFactory(taskRepository)
+        val taskViewModel = ViewModelProvider(this, taskFactory)[TaskViewModel::class.java]
+        taskViewModel.allTasks.observe(this) { return@observe }
+        taskViewModel.overdueTasks.observe(this) { return@observe }
+
         val viewCategories: RecyclerView = findViewById(R.id.view_categories)
         viewCategories.layoutManager = LinearLayoutManager(this)
-        // viewCategories.adapter = TODO: RecyclerView Adapter
+        val adapter = CategoryAdapter(
+            emptyList(),
+            categoryViewModel,
+            taskViewModel
+        )
+        viewCategories.adapter = adapter
 
-        categoryViewModel.allCategories.observe(this) {
-            // TODO: Notify viewCategories.adapter that dataset has changed
+        categoryViewModel.allCategories.observe(this) { categories ->
+            adapter.updateCategories(categories)
         }
 
         // Button New Category

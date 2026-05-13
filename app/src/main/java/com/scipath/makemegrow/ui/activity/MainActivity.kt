@@ -286,7 +286,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateViews(taskSection: TaskSection
     ) {
-        val filteredTasks = filterTasks(taskSection.liveData.value ?: listOf())
+        val filteredTasks = filterTasks(taskSection.liveData)
         taskSection.parentLayout.visibility =
             if (filteredTasks.isEmpty() ||
                 filteredTasks.first().isCompleted != isCompleted)
@@ -295,11 +295,10 @@ class MainActivity : AppCompatActivity() {
         taskSection.adapter?.updateTasks(filteredTasks)
     }
 
-    private fun filterTasks(tasks: List<Task>) : List<Task> {
+    private fun filterTasks(tasks: LiveData<List<Task>>) : List<Task> {
         return when (selectedCategoryPosition) {
-            -2 -> tasks
-            -1 -> tasks.filter { it.categoryId == null }
-            else -> tasks.filter { it.categoryId == selectedCategory?.id }
+            -2 -> tasks.value ?: emptyList()
+            else -> taskViewModel.filterTasksByCategory(tasks, selectedCategory)
         }
     }
 
