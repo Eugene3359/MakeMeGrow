@@ -16,6 +16,7 @@ import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
 import com.scipath.makemegrow.ui.adapter.CategoryAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
+import com.scipath.makemegrow.ui.dialog.RenameCategoryDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModelFactory
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
@@ -48,8 +49,20 @@ class CategoryActivity : AppCompatActivity() {
         viewCategories.layoutManager = LinearLayoutManager(this)
         val adapter = CategoryAdapter(
             emptyList(),
-            categoryViewModel,
-            taskViewModel
+            taskViewModel,
+            onEdit = { category ->
+                RenameCategoryDialog().show(supportFragmentManager, "RenameCategoryDialog")
+                supportFragmentManager.setFragmentResultListener(
+                    RenameCategoryDialog.REQUEST_KEY,
+                    this
+                ) { _, bundle ->
+                    val name = bundle.getString(RenameCategoryDialog.RESULT_KEY) ?:
+                    return@setFragmentResultListener
+                    category.name = name
+                    categoryViewModel.updateCategory(category)
+                }
+            },
+            onDelete = { }
         )
         viewCategories.adapter = adapter
 
@@ -68,7 +81,7 @@ class CategoryActivity : AppCompatActivity() {
             AddCategoryDialog.REQUEST_KEY,
             this
         ) { _, bundle ->
-            val name = bundle.getString(AddCategoryDialog.RESULT_KEY_NAME)
+            val name = bundle.getString(AddCategoryDialog.RESULT_KEY)
             name?.let { categoryViewModel.addCategory(Category(name = it), null) }
         }
 

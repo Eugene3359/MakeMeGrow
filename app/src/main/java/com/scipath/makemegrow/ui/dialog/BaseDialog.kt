@@ -24,6 +24,9 @@ abstract class BaseDialog : DialogFragment() {
     @get:StringRes
     abstract val cancelButtonTextId: Int?
 
+    abstract val requestKey: String
+    abstract val resultKey: String
+
     protected lateinit var title: TextView
     protected lateinit var message: TextView
     protected lateinit var input: EditText

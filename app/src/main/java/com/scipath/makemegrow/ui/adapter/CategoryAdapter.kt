@@ -8,13 +8,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.model.Category
-import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 
 class CategoryAdapter(
     private var categories: List<Category>,
-    private val categoryViewModel: CategoryViewModel,
-    private val taskViewModel: TaskViewModel
+    private val taskViewModel: TaskViewModel,
+    private val onEdit: (Category) -> Unit,
+    private val onDelete: (Category) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -62,12 +62,12 @@ class CategoryAdapter(
 
         // Button Edit
         holder.buttonEdit.setOnClickListener {
-
+            onEdit.invoke(category)
         }
 
         // Button Delete
         holder.buttonDelete.setOnClickListener {
-
+            onDelete.invoke(category)
         }
     }
 

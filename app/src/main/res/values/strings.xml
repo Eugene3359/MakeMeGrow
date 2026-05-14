@@ -2,6 +2,7 @@
     <string name="app_name">Make Me Grow</string>
     <string name="placeholder">Placeholder</string>
     <string name="in_development">This part is in development</string>
+    <string name="empty_string" />
 
     <!-- Task Groups -->
     <string name="overdue">Overdue</string>
@@ -71,6 +72,8 @@
     <!-- Category Related Dialog -->
     <string name="new_category">New Category</string>
     <string name="new_category_hint">Enter Category Name</string>
+    <string name="rename_category">Rename Category</string>
+    <string name="rename_category_hint">Enter New Name</string>
 
     <!-- Menu -->
     <string name="task_categories">Task Categories</string>

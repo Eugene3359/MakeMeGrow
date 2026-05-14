@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity() {
             AddCategoryDialog.REQUEST_KEY,
             this
         ) { _, bundle ->
-            val name = bundle.getString(AddCategoryDialog.RESULT_KEY_NAME) ?:
+            val name = bundle.getString(AddCategoryDialog.RESULT_KEY) ?:
                 return@setFragmentResultListener
             categoryViewModel.addCategory(
                 Category(name = name)
@@ -168,7 +168,7 @@ class MainActivity : AppCompatActivity() {
             DeleteTasksDialog.REQUEST_KEY,
             this
         ) { _, bundle ->
-            val isConfirmed = bundle.getBoolean(DeleteTasksDialog.RESULT_KEY_NAME)
+            val isConfirmed = bundle.getBoolean(DeleteTasksDialog.RESULT_KEY)
             if (isConfirmed) {
                 selectedTasks.forEach { task ->
                     taskViewModel.deleteTask(task)

@@ -210,7 +210,7 @@ class TaskActivity : AppCompatActivity() {
                 DeleteTaskDialog.REQUEST_KEY,
                 this
             ) { _, bundle ->
-                val isConfirmed = bundle.getBoolean(DeleteTaskDialog.RESULT_KEY_NAME)
+                val isConfirmed = bundle.getBoolean(DeleteTaskDialog.RESULT_KEY)
                 if (isConfirmed) {
                     taskViewModel.deleteTask(task!!)
                     finish()
