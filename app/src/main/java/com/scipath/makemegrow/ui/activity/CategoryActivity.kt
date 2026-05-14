@@ -16,6 +16,7 @@ import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
 import com.scipath.makemegrow.ui.adapter.CategoryAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
+import com.scipath.makemegrow.ui.dialog.DeleteCategoryDialog
 import com.scipath.makemegrow.ui.dialog.RenameCategoryDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModelFactory
@@ -62,7 +63,18 @@ class CategoryActivity : AppCompatActivity() {
                     categoryViewModel.updateCategory(category)
                 }
             },
-            onDelete = { }
+            onDelete = { category ->
+                DeleteCategoryDialog().show(supportFragmentManager, "DeleteCategoryDialog")
+                supportFragmentManager.setFragmentResultListener(
+                    DeleteCategoryDialog.REQUEST_KEY,
+                    this
+                ) { _, bundle ->
+                    val isConfirmed = bundle.getBoolean(DeleteCategoryDialog.RESULT_KEY)
+                    if (isConfirmed) {
+                        categoryViewModel.deleteCategory(category)
+                    }
+                }
+            }
         )
         viewCategories.adapter = adapter
 
