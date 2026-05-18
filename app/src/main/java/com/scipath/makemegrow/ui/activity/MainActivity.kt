@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
     private var isCompleted: Boolean = false
     private var selectedCategoryPosition: Int = -2
     private var selectedCategory: Category? = null
-    private lateinit var buttonDeleteTask: Button
+    private lateinit var buttonDeleteTasks: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +83,15 @@ class MainActivity : AppCompatActivity() {
             taskViewModel.seedDatabase()
         }
 
+        // Tasks
         setupAllRecycleViews()
+
+        // Button New Task
+        val buttonNewTask: Button = findViewById(R.id.button_new_task)
+        buttonNewTask.setOnClickListener {
+            val intent = Intent(this, TaskActivity::class.java)
+            startActivity(intent)
+        }
 
         // Checkbox completed
         val checkboxCompleted: CheckBox = findViewById(R.id.checkbox_completed)
@@ -150,20 +158,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val buttonMenu: Button = findViewById(R.id.button_menu)
-        buttonMenu.setOnClickListener { showMenu(it) }
-
-        val buttonNewTask: Button = findViewById(R.id.button_new_task)
-        buttonNewTask.setOnClickListener {
-            val intent = Intent(this, TaskActivity::class.java)
-            startActivity(intent)
-        }
-
-        buttonDeleteTask = findViewById(R.id.button_delete)
-        buttonDeleteTask.setOnClickListener {
+        // Button Delete Tasks
+        buttonDeleteTasks = findViewById(R.id.button_delete)
+        buttonDeleteTasks.setOnClickListener {
             DeleteTasksDialog().show(supportFragmentManager, "DeleteTasksDialog")
         }
 
+        // Delete Tasks
         supportFragmentManager.setFragmentResultListener(
             DeleteTasksDialog.REQUEST_KEY,
             this
@@ -174,12 +175,13 @@ class MainActivity : AppCompatActivity() {
                     taskViewModel.deleteTask(task)
                 }
                 selectedTasks.clear()
-                buttonDeleteTask.visibility = View.GONE
-                taskSections.forEach {
-                    it.adapter?.clearSelection()
-                }
+                buttonDeleteTasks.visibility = View.GONE
             }
         }
+
+        // Button Menu
+        val buttonMenu: Button = findViewById(R.id.button_menu)
+        buttonMenu.setOnClickListener { showMenu(it) }
     }
 
     private fun setupAllRecycleViews() {
@@ -279,7 +281,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     selectedTasks.remove(task)
                 }
-                buttonDeleteTask.visibility =
+                buttonDeleteTasks.visibility =
                     if (selectedTasks.isEmpty()) View.GONE else View.VISIBLE
             }
         )

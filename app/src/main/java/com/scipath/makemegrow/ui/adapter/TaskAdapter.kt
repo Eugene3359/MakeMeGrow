@@ -51,15 +51,7 @@ class TaskAdapter(
         val context = holder.itemView.context
         val task = tasks[position]
 
-        // Selection
-        holder.itemView.setBackgroundColor(
-            if (selectedTasks.contains(position))
-                context.getColor(R.color.light_gray)
-            else
-                context.getColor(R.color.dark_gray)
-        )
-
-        // Text
+        // Name
         holder.textTask.text = task.name
 
         // Deadline
@@ -139,6 +131,14 @@ class TaskAdapter(
             }
         }
 
+        // Selection
+        holder.itemView.setBackgroundColor(
+            if (selectedTasks.contains(position))
+                context.getColor(R.color.light_gray)
+            else
+                context.getColor(R.color.dark_gray)
+        )
+
         // OnClick
         holder.itemView.setOnClickListener {
             onTaskClick(task)
@@ -163,10 +163,6 @@ class TaskAdapter(
 
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
-        clearSelection()
-    }
-
-    fun clearSelection() {
         selectedTasks.clear()
         notifyDataSetChanged()
     }

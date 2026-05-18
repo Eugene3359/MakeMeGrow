@@ -1,6 +1,7 @@
 package com.scipath.makemegrow.ui.activity
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
 import com.scipath.makemegrow.ui.adapter.CategoryAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
+import com.scipath.makemegrow.ui.dialog.DeleteCategoriesDialog
 import com.scipath.makemegrow.ui.dialog.DeleteCategoryDialog
 import com.scipath.makemegrow.ui.dialog.RenameCategoryDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
@@ -24,6 +26,11 @@ import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModelFactory
 
 class CategoryActivity : AppCompatActivity() {
+
+    private var selectedCategories: MutableList<Category> = mutableListOf()
+    private lateinit var buttonDeleteCategories: Button
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -46,6 +53,7 @@ class CategoryActivity : AppCompatActivity() {
         taskViewModel.allTasks.observe(this) { return@observe }
         taskViewModel.overdueTasks.observe(this) { return@observe }
 
+        // Categories
         val viewCategories: RecyclerView = findViewById(R.id.view_categories)
         viewCategories.layoutManager = LinearLayoutManager(this)
         val adapter = CategoryAdapter(
@@ -74,6 +82,18 @@ class CategoryActivity : AppCompatActivity() {
                         categoryViewModel.deleteCategory(category)
                     }
                 }
+            },
+            onCategoryClick = {
+                // TODO: Change Active Category in MainActivity
+            },
+            onCategorySelect = { category, isSelected ->
+                if (isSelected) {
+                    selectedCategories.add(category)
+                } else {
+                    selectedCategories.remove(category)
+                }
+                buttonDeleteCategories.visibility =
+                    if (selectedCategories.isEmpty()) View.GONE else View.VISIBLE
             }
         )
         viewCategories.adapter = adapter
@@ -95,6 +115,27 @@ class CategoryActivity : AppCompatActivity() {
         ) { _, bundle ->
             val name = bundle.getString(AddCategoryDialog.RESULT_KEY)
             name?.let { categoryViewModel.addCategory(Category(name = it), null) }
+        }
+
+        // Button Delete Category
+        buttonDeleteCategories = findViewById(R.id.button_delete)
+        buttonDeleteCategories.setOnClickListener {
+            DeleteCategoriesDialog().show(supportFragmentManager, "DeleteCategoriesDialog")
+        }
+
+        // Delete Categories
+        supportFragmentManager.setFragmentResultListener(
+            DeleteCategoriesDialog.REQUEST_KEY,
+            this
+        ) { _, bundle ->
+            val isConfirmed = bundle.getBoolean(DeleteCategoriesDialog.RESULT_KEY)
+            if (isConfirmed) {
+                selectedCategories.forEach { category ->
+                    categoryViewModel.deleteCategory(category)
+                }
+                selectedCategories.clear()
+                buttonDeleteCategories.visibility = View.GONE
+            }
         }
 
         // Button Back

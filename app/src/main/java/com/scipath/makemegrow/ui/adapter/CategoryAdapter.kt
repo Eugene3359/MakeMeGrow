@@ -14,8 +14,12 @@ class CategoryAdapter(
     private var categories: List<Category>,
     private val taskViewModel: TaskViewModel,
     private val onEdit: (Category) -> Unit,
-    private val onDelete: (Category) -> Unit
+    private val onDelete: (Category) -> Unit,
+    private val onCategoryClick: (category: Category) -> Unit,
+    private val onCategorySelect: (category: Category, isSelected: Boolean) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
+
+    private var selectedCategories: MutableList<Int> = mutableListOf()
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textCategory: TextView = itemView.findViewById(R.id.text_category)
@@ -60,6 +64,14 @@ class CategoryAdapter(
             holder.textOverdueTasks.visibility = View.GONE
         }
 
+        // Selection
+        holder.itemView.setBackgroundColor(
+            if (selectedCategories.contains(position))
+                context.getColor(R.color.light_gray)
+            else
+                context.getColor(R.color.dark_gray)
+        )
+
         // Button Edit
         holder.buttonEdit.setOnClickListener {
             onEdit.invoke(category)
@@ -69,6 +81,23 @@ class CategoryAdapter(
         holder.buttonDelete.setOnClickListener {
             onDelete.invoke(category)
         }
+
+        // OnClick
+        holder.itemView.setOnClickListener {
+            onCategoryClick(category)
+        }
+
+        // OnLongClick
+        holder.itemView.setOnLongClickListener {
+            if (selectedCategories.contains(position)) {
+                selectedCategories.remove(position)
+            } else {
+                selectedCategories.add(position)
+            }
+            notifyItemChanged(position)
+            onCategorySelect(category, selectedCategories.contains(position))
+            return@setOnLongClickListener true
+        }
     }
 
     override fun getItemCount(): Int {
@@ -77,6 +106,7 @@ class CategoryAdapter(
 
     fun updateCategories(newCategories: List<Category>) {
         categories = newCategories
+        selectedCategories.clear()
         notifyDataSetChanged()
     }
 }

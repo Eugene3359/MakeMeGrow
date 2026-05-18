@@ -255,7 +255,7 @@
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_marginEnd="15dp"
-            android:background="@color/dark_gray"
+            android:background="@android:color/transparent"
             android:foreground="@drawable/ic_bin"
             android:visibility="gone"/>
 
@@ -263,7 +263,7 @@
             android:id="@+id/button_menu"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:background="@color/dark_gray"
+            android:background="@android:color/transparent"
             android:foreground="@drawable/ic_menu"/>
 
     </LinearLayout>
