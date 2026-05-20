@@ -12,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.Spinner
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -38,6 +39,9 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val DEV_MODE = true
+        private const val ALL_CATEGORIES_ID = -2
+        private const val DEFAULT_CATEGORY_ID = -1
+        private const val SPINNER_SKIP = 2
     }
 
     data class TaskSection(
@@ -52,8 +56,8 @@ class MainActivity : AppCompatActivity() {
     private val taskSections: MutableList<TaskSection> = mutableListOf()
     private var selectedTasks: MutableList<Task> = mutableListOf()
     private var isCompleted: Boolean = false
-    private var selectedCategoryPosition: Int = -2
-    private var selectedCategory: Category? = null
+    private var selectedCategoryId: Int = ALL_CATEGORIES_ID
+    private lateinit var spinnerCategory: Spinner
     private lateinit var buttonDeleteTasks: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,13 +70,17 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        isCompleted = savedInstanceState?.getBoolean("is_completed") ?: false
-        selectedCategoryPosition = savedInstanceState?.getInt("category_position") ?: -2
+        // Load Instance State
+        savedInstanceState?.let {
+            isCompleted = it.getBoolean("is_completed")
+            selectedCategoryId = it.getInt("selected_category_id")
+        }
 
         val taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
         val taskRepository = TaskRepository(taskDao)
         val taskFactory = TaskViewModelFactory(taskRepository)
         taskViewModel = ViewModelProvider(this, taskFactory)[TaskViewModel::class.java]
+
         val categoryDao = AppDatabase.getDatabase(applicationContext).categoryDao()
         val categoryRepository = CategoryRepository(categoryDao)
         val categoryFactory = CategoryViewModelFactory(categoryRepository)
@@ -89,49 +97,50 @@ class MainActivity : AppCompatActivity() {
         // Button New Task
         val buttonNewTask: Button = findViewById(R.id.button_new_task)
         buttonNewTask.setOnClickListener {
-            val intent = Intent(this, TaskActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, TaskActivity::class.java))
         }
 
+        // Taskbar Elements
         // Checkbox completed
         val checkboxCompleted: CheckBox = findViewById(R.id.checkbox_completed)
         checkboxCompleted.setOnCheckedChangeListener { _, isChecked ->
             isCompleted = isChecked
-            taskSections.forEach {
-                updateViews(it)
-            }
+            taskSections.forEach(::updateTaskSection)
         }
 
         // Category selection
-        val spinnerCategory: Spinner = findViewById(R.id.spinner_category)
+        spinnerCategory = findViewById(R.id.spinner_category)
         categoryViewModel.allCategories.observe(this) { categories ->
-            val categoryNames = listOf(
-                getString(R.string.all_tasks),
-                getString(R.string.default_category)
-            ) + categories.map { it.name } + getString(R.string.add_category)
+            if (categories.find { it.id == selectedCategoryId} == null)
+                selectedCategoryId = ALL_CATEGORIES_ID
+
+            val categoryNames = buildList {
+                add(getString(R.string.all_tasks))
+                add(getString(R.string.default_category))
+                addAll(categories.map { it.name })
+                add(getString(R.string.add_category))
+            }
 
             val adapter = CategoryArrayAdapter(this, categoryNames)
             spinnerCategory.adapter = adapter
-
-            spinnerCategory.setSelection(selectedCategoryPosition + 2, false)
+            updateSpinner()
 
             spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                     if (position == categoryNames.lastIndex) {
                         // Add Category
-                        spinnerCategory.setSelection(selectedCategoryPosition + 2, false)
+                        updateSpinner()
                         AddCategoryDialog().show(supportFragmentManager, "AddCategoryDialog")
                     } else {
                         // Change Category
                         adapter.selectedPosition = position
                         adapter.notifyDataSetChanged()
-                        selectedCategoryPosition = position - 2
-                        selectedCategory =
-                            if (selectedCategoryPosition >= 0) categories[selectedCategoryPosition]
-                            else null
-                        taskSections.forEach {
-                            updateViews(it)
+                        selectedCategoryId = when (position) {
+                            0 -> ALL_CATEGORIES_ID
+                            1 -> DEFAULT_CATEGORY_ID
+                            else -> categories[position - SPINNER_SKIP].id
                         }
+                        taskSections.forEach(::updateTaskSection)
                     }
                 }
 
@@ -142,21 +151,17 @@ class MainActivity : AppCompatActivity() {
         // Add Category
         supportFragmentManager.setFragmentResultListener(
             AddCategoryDialog.REQUEST_KEY,
-            this
-        ) { _, bundle ->
-            val name = bundle.getString(AddCategoryDialog.RESULT_KEY) ?:
+            this,
+            { _, bundle ->
+                val name = bundle.getString(AddCategoryDialog.RESULT_KEY) ?:
                 return@setFragmentResultListener
-            categoryViewModel.addCategory(
-                Category(name = name)
-            ) { isSuccessful ->
-                if (!isSuccessful) return@addCategory
-                selectedCategory?.let {
-                    if (name < it.name) {
-                        selectedCategoryPosition++
-                    }
+                categoryViewModel.addCategory(
+                    Category(name = name)
+                ) { isSuccessful ->
+                    if (!isSuccessful) return@addCategory
                 }
             }
-        }
+        )
 
         // Button Delete Tasks
         buttonDeleteTasks = findViewById(R.id.button_delete)
@@ -167,17 +172,18 @@ class MainActivity : AppCompatActivity() {
         // Delete Tasks
         supportFragmentManager.setFragmentResultListener(
             DeleteTasksDialog.REQUEST_KEY,
-            this
-        ) { _, bundle ->
-            val isConfirmed = bundle.getBoolean(DeleteTasksDialog.RESULT_KEY)
-            if (isConfirmed) {
-                selectedTasks.forEach { task ->
-                    taskViewModel.deleteTask(task)
+            this,
+            { _, bundle ->
+                val isConfirmed = bundle.getBoolean(DeleteTasksDialog.RESULT_KEY)
+                if (isConfirmed) {
+                    selectedTasks.forEach { task ->
+                        taskViewModel.deleteTask(task)
+                    }
+                    selectedTasks.clear()
+                    buttonDeleteTasks.visibility = View.GONE
                 }
-                selectedTasks.clear()
-                buttonDeleteTasks.visibility = View.GONE
             }
-        }
+        )
 
         // Button Menu
         val buttonMenu: Button = findViewById(R.id.button_menu)
@@ -265,8 +271,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupRecycleView(taskSection: TaskSection)
-    {
+    private fun setupRecycleView(taskSection: TaskSection) {
         val adapter = TaskAdapter(
             emptyList(),
             taskViewModel,
@@ -292,12 +297,11 @@ class MainActivity : AppCompatActivity() {
         taskSection.recyclerView.isNestedScrollingEnabled = false
 
         taskSection.liveData.observe(this) {
-            updateViews(taskSection)
+            updateTaskSection(taskSection)
         }
     }
 
-    private fun updateViews(taskSection: TaskSection
-    ) {
+    private fun updateTaskSection(taskSection: TaskSection) {
         val filteredTasks = filterTasks(taskSection.liveData)
         taskSection.parentLayout.visibility =
             if (filteredTasks.isEmpty() ||
@@ -308,9 +312,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun filterTasks(tasks: LiveData<List<Task>>) : List<Task> {
-        return when (selectedCategoryPosition) {
-            -2 -> tasks.value ?: emptyList()
-            else -> taskViewModel.filterTasksByCategory(tasks, selectedCategory)
+        return when (selectedCategoryId) {
+            ALL_CATEGORIES_ID -> tasks.value ?: emptyList()
+            DEFAULT_CATEGORY_ID -> taskViewModel.filterTasksByCategory(tasks, null)
+            else -> taskViewModel.filterTasksByCategory(
+                tasks,
+                categoryViewModel.allCategories.value?.find { it.id == selectedCategoryId }
+            )
+        }
+    }
+
+    private fun updateSpinner() {
+        if (selectedCategoryId == ALL_CATEGORIES_ID) {
+            spinnerCategory.setSelection(0)
+        }
+        else if (selectedCategoryId == DEFAULT_CATEGORY_ID) {
+            spinnerCategory.setSelection(1)
+        } else {
+            val categoryIndex: Int? = categoryViewModel.allCategories.value?.indexOfFirst {
+                it.id == selectedCategoryId
+            }
+            if (categoryIndex == null || categoryIndex == -1) {
+                spinnerCategory.setSelection(0)
+            } else {
+                spinnerCategory.setSelection(categoryIndex + SPINNER_SKIP)
+            }
         }
     }
 
@@ -321,7 +347,7 @@ class MainActivity : AppCompatActivity() {
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.item_task_categories -> {
-                        startActivity(Intent(
+                        categoryActivityLauncher.launch(Intent(
                             applicationContext,
                             CategoryActivity::class.java))
                         true
@@ -333,9 +359,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val categoryActivityLauncher = registerForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        callback = { result ->
+            if (result.resultCode == RESULT_OK) {
+                selectedCategoryId = result.data?.getIntExtra(
+                    "selected_category_id",
+                    ALL_CATEGORIES_ID
+                ) ?: ALL_CATEGORIES_ID
+                updateSpinner()
+            }
+        }
+    )
+
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("is_completed", isCompleted)
-        outState.putInt("category_position", selectedCategoryPosition)
+        outState.putInt("selected_category_id", selectedCategoryId)
         super.onSaveInstanceState(outState)
     }
 }

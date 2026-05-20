@@ -1,5 +1,6 @@
 package com.scipath.makemegrow.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -29,7 +30,6 @@ class CategoryActivity : AppCompatActivity() {
 
     private var selectedCategories: MutableList<Category> = mutableListOf()
     private lateinit var buttonDeleteCategories: Button
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,8 +83,12 @@ class CategoryActivity : AppCompatActivity() {
                     }
                 }
             },
-            onCategoryClick = {
-                // TODO: Change Active Category in MainActivity
+            onCategoryClick = { category ->
+                val resultIntent = Intent().apply {
+                    putExtra("selected_category_id", category.id)
+                }
+                setResult(RESULT_OK, resultIntent)
+                finish()
             },
             onCategorySelect = { category, isSelected ->
                 if (isSelected) {
@@ -111,12 +115,14 @@ class CategoryActivity : AppCompatActivity() {
         // Add Category
         supportFragmentManager.setFragmentResultListener(
             AddCategoryDialog.REQUEST_KEY,
-            this
-        ) { _, bundle ->
-            val name = bundle.getString(AddCategoryDialog.RESULT_KEY)
-            name?.let { categoryViewModel.addCategory(Category(name = it), null) }
-        }
+            this,
+            { _, bundle ->
+                val name = bundle.getString(AddCategoryDialog.RESULT_KEY)
+                name?.let { categoryViewModel.addCategory(Category(name = it), null) }
+            }
+        )
 
+        // Taskbar Elements
         // Button Delete Category
         buttonDeleteCategories = findViewById(R.id.button_delete)
         buttonDeleteCategories.setOnClickListener {
@@ -126,17 +132,18 @@ class CategoryActivity : AppCompatActivity() {
         // Delete Categories
         supportFragmentManager.setFragmentResultListener(
             DeleteCategoriesDialog.REQUEST_KEY,
-            this
-        ) { _, bundle ->
-            val isConfirmed = bundle.getBoolean(DeleteCategoriesDialog.RESULT_KEY)
-            if (isConfirmed) {
-                selectedCategories.forEach { category ->
-                    categoryViewModel.deleteCategory(category)
+            this,
+            { _, bundle ->
+                val isConfirmed = bundle.getBoolean(DeleteCategoriesDialog.RESULT_KEY)
+                if (isConfirmed) {
+                    selectedCategories.forEach { category ->
+                        categoryViewModel.deleteCategory(category)
+                    }
+                    selectedCategories.clear()
+                    buttonDeleteCategories.visibility = View.GONE
                 }
-                selectedCategories.clear()
-                buttonDeleteCategories.visibility = View.GONE
             }
-        }
+        )
 
         // Button Back
         val buttonBack: Button = findViewById(R.id.button_back)

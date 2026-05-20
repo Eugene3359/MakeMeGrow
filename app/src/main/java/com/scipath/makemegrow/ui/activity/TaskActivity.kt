@@ -50,28 +50,30 @@ class TaskActivity : AppCompatActivity() {
             insets
         }
 
+        // Load Data
         if (intent.hasExtra("task")) {
             task = intent.getSerializableExtra("task") as Task
         }
-
-        val inputTask: EditText = findViewById(R.id.input_task)
-        val inputDate: EditText = findViewById(R.id.input_date)
-        val inputTime: EditText = findViewById(R.id.input_time)
-        val spinnerRepeat: Spinner = findViewById(R.id.spinner_repeat)
-        val spinnerCategory: Spinner = findViewById(R.id.spinner_category)
-        val layoutTimeSelection: LinearLayout = findViewById(R.id.layout_time_selection)
-        val layoutRepeat: LinearLayout = findViewById(R.id.container_repeat)
-        val buttonClearDate: Button = findViewById(R.id.button_clear_date)
-        val buttonClearTime: Button = findViewById(R.id.button_clear_time)
 
         val taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
         val taskRepository = TaskRepository(taskDao)
         val taskViewModelFactory = TaskViewModelFactory(taskRepository)
         val taskViewModel = ViewModelProvider(this, taskViewModelFactory)[TaskViewModel::class.java]
+
         val categoryDao = AppDatabase.getDatabase(applicationContext).categoryDao()
         val categoryRepository = CategoryRepository(categoryDao)
         val categoryFactory = CategoryViewModelFactory(categoryRepository)
         val categoryViewModel = ViewModelProvider(this, categoryFactory)[CategoryViewModel::class.java]
+
+        val inputTask: EditText = findViewById(R.id.input_task)
+        val inputDate: EditText = findViewById(R.id.input_date)
+        val buttonClearDate: Button = findViewById(R.id.button_clear_date)
+        val layoutTimeSelection: LinearLayout = findViewById(R.id.layout_time_selection)
+        val inputTime: EditText = findViewById(R.id.input_time)
+        val buttonClearTime: Button = findViewById(R.id.button_clear_time)
+        val layoutRepeat: LinearLayout = findViewById(R.id.container_repeat)
+        val spinnerRepeat: Spinner = findViewById(R.id.spinner_repeat)
+        val spinnerCategory: Spinner = findViewById(R.id.spinner_category)
 
         // Input Date
         inputDate.setOnClickListener {
@@ -107,6 +109,7 @@ class TaskActivity : AppCompatActivity() {
             }
         }
 
+        // Button Clear Date
         buttonClearDate.setOnClickListener {
             selectedDate = null
             selectedTime = null
@@ -143,12 +146,13 @@ class TaskActivity : AppCompatActivity() {
             }
         }
 
+        // Button Clear Time
         buttonClearTime.setOnClickListener {
             selectedTime = null
             inputTime.setText("")
         }
 
-        // Repeat type spinner
+        // Repeat Type Spinner
         val repeatTypes = resources.getStringArray(R.array.repeat_types)
         spinnerRepeat.adapter = ArrayAdapter(
             this,
@@ -161,9 +165,13 @@ class TaskActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        // Category spinner
+        // Category Spinner
         categoryViewModel.allCategories.observe(this) { categories ->
-            val categoryNames = listOf(getString(R.string.default_category)) + categories.map { it.name }
+            val categoryNames = buildList {
+                add(getString(R.string.default_category))
+                addAll(categories.map { it.name })
+            }
+
             spinnerCategory.adapter = ArrayAdapter(
                 this,
                 R.layout.spinner_item_small,
@@ -188,7 +196,7 @@ class TaskActivity : AppCompatActivity() {
             }
         }
 
-        // Setup values in case of task modification
+        // Setup Loaded Data
         task?.let {
             val textTitle: TextView = findViewById(R.id.text_title)
             textTitle.text = it.name
@@ -200,6 +208,7 @@ class TaskActivity : AppCompatActivity() {
             repeatPosition = it.repeat.ordinal
             spinnerRepeat.setSelection(repeatPosition)
 
+            // Botton Delete
             val buttonDelete: Button = findViewById(R.id.button_delete)
             buttonDelete.visibility = View.VISIBLE
             buttonDelete.setOnClickListener {
@@ -208,14 +217,15 @@ class TaskActivity : AppCompatActivity() {
 
             supportFragmentManager.setFragmentResultListener(
                 DeleteTaskDialog.REQUEST_KEY,
-                this
-            ) { _, bundle ->
-                val isConfirmed = bundle.getBoolean(DeleteTaskDialog.RESULT_KEY)
-                if (isConfirmed) {
-                    taskViewModel.deleteTask(task!!)
-                    finish()
+                this,
+                { _, bundle ->
+                    val isConfirmed = bundle.getBoolean(DeleteTaskDialog.RESULT_KEY)
+                    if (isConfirmed) {
+                        taskViewModel.deleteTask(it)
+                        finish()
+                    }
                 }
-            }
+            )
         }
 
         // Button Confirm
@@ -223,8 +233,11 @@ class TaskActivity : AppCompatActivity() {
         buttonConfirm.setOnClickListener {
             val taskName: String = inputTask.text.toString()
             if (taskName.isBlank()) {
-                Toast.makeText(this, getString(R.string.enter_task_first), Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(
+                    this,
+                    getString(R.string.enter_task_first),
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
                 val deadlineDate: Long = DateAndTimeConverter.dateToSeconds(selectedDate)
                 val deadlineTime: Int = DateAndTimeConverter.timeToSeconds(selectedTime)
@@ -232,8 +245,8 @@ class TaskActivity : AppCompatActivity() {
                 if (task == null) {
                     // Add new task
                     taskViewModel.addTask(
-                        Task(0, taskName, false,
-                            deadlineDate, deadlineTime, repeat, selectedCategoryId))
+                        Task(0, taskName, false, deadlineDate,
+                            deadlineTime, repeat, selectedCategoryId))
                 } else {
                     // Modify existing task
                     task?.let{
@@ -249,6 +262,7 @@ class TaskActivity : AppCompatActivity() {
             }
         }
 
+        // Taskbar Elements
         // Button Back
         val buttonBack: Button = findViewById(R.id.button_back)
         buttonBack.setOnClickListener {
