@@ -21,19 +21,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
-import com.scipath.makemegrow.data.local.AppDatabase
+import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.model.Category
-import com.scipath.makemegrow.data.repository.CategoryRepository
-import com.scipath.makemegrow.data.repository.TaskRepository
 import com.scipath.makemegrow.ui.adapter.CategoryArrayAdapter
 import com.scipath.makemegrow.ui.adapter.TaskAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
 import com.scipath.makemegrow.ui.dialog.DeleteTasksDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
-import com.scipath.makemegrow.ui.viewmodel.CategoryViewModelFactory
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
-import com.scipath.makemegrow.ui.viewmodel.TaskViewModelFactory
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,9 +51,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var categoryViewModel: CategoryViewModel
     private val taskSections: MutableList<TaskSection> = mutableListOf()
     private var selectedTasks: MutableList<Task> = mutableListOf()
-    private var isCompleted: Boolean = false
+    private var categoriesList: List<Category> = mutableListOf()
+    private var categoryNames: List<String> = mutableListOf()
     private var selectedCategoryId: Int = ALL_CATEGORIES_ID
+    private var isCompleted: Boolean = false
     private lateinit var spinnerCategory: Spinner
+    private lateinit var categoryAdapter: CategoryArrayAdapter
     private lateinit var buttonDeleteTasks: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,129 +69,144 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Load Instance State
-        savedInstanceState?.let {
-            isCompleted = it.getBoolean("is_completed")
-            selectedCategoryId = it.getInt("selected_category_id")
-        }
+        val app = application as MakeMeGrowApp
+        taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java]
+        categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
 
-        val taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
-        val taskRepository = TaskRepository(taskDao)
-        val taskFactory = TaskViewModelFactory(taskRepository)
-        taskViewModel = ViewModelProvider(this, taskFactory)[TaskViewModel::class.java]
-
-        val categoryDao = AppDatabase.getDatabase(applicationContext).categoryDao()
-        val categoryRepository = CategoryRepository(categoryDao)
-        val categoryFactory = CategoryViewModelFactory(categoryRepository)
-        categoryViewModel = ViewModelProvider(this, categoryFactory)[CategoryViewModel::class.java]
-
+        // Seed Database
         if (DEV_MODE && savedInstanceState == null) {
             categoryViewModel.seedDatabase()
             taskViewModel.seedDatabase()
         }
 
-        // Tasks
-        setupAllRecycleViews()
+        setupTaskbar()
+        setupAllTaskSections()
 
-        // Button New Task
         val buttonNewTask: Button = findViewById(R.id.button_new_task)
         buttonNewTask.setOnClickListener {
             startActivity(Intent(this, TaskActivity::class.java))
         }
+    }
 
-        // Taskbar Elements
-        // Checkbox completed
+    private fun setupTaskbar() {
         val checkboxCompleted: CheckBox = findViewById(R.id.checkbox_completed)
         checkboxCompleted.setOnCheckedChangeListener { _, isChecked ->
             isCompleted = isChecked
             taskSections.forEach(::updateTaskSection)
         }
 
-        // Category selection
-        spinnerCategory = findViewById(R.id.spinner_category)
-        categoryViewModel.allCategories.observe(this) { categories ->
-            if (categories.find { it.id == selectedCategoryId} == null)
-                selectedCategoryId = ALL_CATEGORIES_ID
+        setupCategorySpinner()
 
-            val categoryNames = buildList {
+        buttonDeleteTasks = findViewById(R.id.button_delete)
+        buttonDeleteTasks.setOnClickListener {
+            DeleteTasksDialog().show(supportFragmentManager, "DeleteTasksDialog")
+        }
+
+        // Button Menu
+        val buttonMenu: Button = findViewById(R.id.button_menu)
+        buttonMenu.setOnClickListener { showMenu(it) }
+
+        setupDialogListeners()
+    }
+
+    private fun setupCategorySpinner() {
+        categoryViewModel.allCategories.observe(this) { categories ->
+            categoriesList = categories
+
+            categoryNames = buildList {
                 add(getString(R.string.all_tasks))
                 add(getString(R.string.default_category))
                 addAll(categories.map { it.name })
                 add(getString(R.string.add_category))
             }
 
-            val adapter = CategoryArrayAdapter(this, categoryNames)
-            spinnerCategory.adapter = adapter
-            updateSpinner()
+            categoryAdapter.clear()
+            categoryAdapter.addAll(categoryNames)
+            categoryAdapter.notifyDataSetChanged()
 
-            spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                    if (position == categoryNames.lastIndex) {
-                        // Add Category
-                        updateSpinner()
-                        AddCategoryDialog().show(supportFragmentManager, "AddCategoryDialog")
-                    } else {
-                        // Change Category
-                        adapter.selectedPosition = position
-                        adapter.notifyDataSetChanged()
-                        selectedCategoryId = when (position) {
-                            0 -> ALL_CATEGORIES_ID
-                            1 -> DEFAULT_CATEGORY_ID
-                            else -> categories[position - SPINNER_SKIP].id
-                        }
-                        taskSections.forEach(::updateTaskSection)
-                    }
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>) {}
+            if (selectedCategoryId != DEFAULT_CATEGORY_ID &&
+                categories.none { it.id == selectedCategoryId}){
+                selectedCategoryId = ALL_CATEGORIES_ID
             }
+
+            updateCategorySpinner()
         }
 
-        // Add Category
-        supportFragmentManager.setFragmentResultListener(
-            AddCategoryDialog.REQUEST_KEY,
-            this,
-            { _, bundle ->
-                val name = bundle.getString(AddCategoryDialog.RESULT_KEY) ?:
-                return@setFragmentResultListener
-                categoryViewModel.addCategory(
-                    Category(name = name)
-                ) { isSuccessful ->
-                    if (!isSuccessful) return@addCategory
-                }
-            }
-        )
-
-        // Button Delete Tasks
-        buttonDeleteTasks = findViewById(R.id.button_delete)
-        buttonDeleteTasks.setOnClickListener {
-            DeleteTasksDialog().show(supportFragmentManager, "DeleteTasksDialog")
-        }
-
-        // Delete Tasks
-        supportFragmentManager.setFragmentResultListener(
-            DeleteTasksDialog.REQUEST_KEY,
-            this,
-            { _, bundle ->
-                val isConfirmed = bundle.getBoolean(DeleteTasksDialog.RESULT_KEY)
-                if (isConfirmed) {
-                    selectedTasks.forEach { task ->
-                        taskViewModel.deleteTask(task)
+        categoryAdapter = CategoryArrayAdapter(this, mutableListOf())
+        spinnerCategory = findViewById(R.id.spinner_category)
+        spinnerCategory.adapter = categoryAdapter
+        spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                if (position == categoryNames.lastIndex) {
+                    // Add Category
+                    updateCategorySpinner()
+                    AddCategoryDialog().show(supportFragmentManager, "AddCategoryDialog")
+                } else {
+                    // Change Category
+                    categoryAdapter.selectedPosition = position
+                    categoryAdapter.notifyDataSetChanged()
+                    selectedCategoryId = when (position) {
+                        0 -> ALL_CATEGORIES_ID
+                        1 -> DEFAULT_CATEGORY_ID
+                        else -> categoriesList[position - SPINNER_SKIP].id
                     }
-                    selectedTasks.clear()
-                    buttonDeleteTasks.visibility = View.GONE
+                    taskSections.forEach(::updateTaskSection)
                 }
             }
-        )
 
-        // Button Menu
-        val buttonMenu: Button = findViewById(R.id.button_menu)
-        buttonMenu.setOnClickListener { showMenu(it) }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
     }
 
-    private fun setupAllRecycleViews() {
-        if (!taskSections.isEmpty())
-            taskSections.clear()
+    private fun updateCategorySpinner() {
+        when (selectedCategoryId) {
+            ALL_CATEGORIES_ID -> {
+                spinnerCategory.setSelection(0)
+            }
+            DEFAULT_CATEGORY_ID -> {
+                spinnerCategory.setSelection(1)
+            }
+            else -> {
+                val categoryIndex: Int = categoriesList.indexOfFirst { it.id == selectedCategoryId }
+                spinnerCategory.setSelection(categoryIndex + SPINNER_SKIP)
+            }
+        }
+    }
+
+    private fun showMenu(anchor: View) {
+        PopupMenu(ContextThemeWrapper(this, R.style.PopupMenu), anchor).apply {
+            gravity = Gravity.END
+            inflate(R.menu.popup_menu)
+            setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.item_task_categories -> {
+                        categoryActivityLauncher.launch(Intent(
+                            applicationContext,
+                            CategoryActivity::class.java))
+                        true
+                    }
+                    else -> false
+                }
+            }
+            show()
+        }
+    }
+
+    private val categoryActivityLauncher = registerForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        callback = { result ->
+            if (result.resultCode == RESULT_OK) {
+                selectedCategoryId = result.data?.getIntExtra(
+                    "selected_category_id",
+                    ALL_CATEGORIES_ID
+                ) ?: selectedCategoryId
+                updateCategorySpinner()
+            }
+        }
+    )
+
+    private fun setupAllTaskSections() {
+        taskSections.clear()
 
         // Overdue
         taskSections.add(TaskSection(
@@ -266,12 +280,15 @@ class MainActivity : AppCompatActivity() {
             null
         ))
 
-        taskSections.forEach {
-            setupRecycleView(it)
+        taskSections.forEach { taskSection ->
+            setupTaskSectionAdapter(taskSection)
+            taskSection.liveData.observe(this) {
+                updateTaskSection(taskSection)
+            }
         }
     }
 
-    private fun setupRecycleView(taskSection: TaskSection) {
+    private fun setupTaskSectionAdapter(taskSection: TaskSection) {
         val adapter = TaskAdapter(
             emptyList(),
             taskViewModel,
@@ -295,10 +312,6 @@ class MainActivity : AppCompatActivity() {
         taskSection.recyclerView.layoutManager = LinearLayoutManager(this)
         taskSection.recyclerView.adapter = adapter
         taskSection.recyclerView.isNestedScrollingEnabled = false
-
-        taskSection.liveData.observe(this) {
-            updateTaskSection(taskSection)
-        }
     }
 
     private fun updateTaskSection(taskSection: TaskSection) {
@@ -322,59 +335,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateSpinner() {
-        if (selectedCategoryId == ALL_CATEGORIES_ID) {
-            spinnerCategory.setSelection(0)
-        }
-        else if (selectedCategoryId == DEFAULT_CATEGORY_ID) {
-            spinnerCategory.setSelection(1)
-        } else {
-            val categoryIndex: Int? = categoryViewModel.allCategories.value?.indexOfFirst {
-                it.id == selectedCategoryId
-            }
-            if (categoryIndex == null || categoryIndex == -1) {
-                spinnerCategory.setSelection(0)
-            } else {
-                spinnerCategory.setSelection(categoryIndex + SPINNER_SKIP)
-            }
-        }
-    }
-
-    private fun showMenu(anchor: View) {
-        PopupMenu(ContextThemeWrapper(this, R.style.PopupMenu), anchor).apply {
-            gravity = Gravity.END
-            inflate(R.menu.popup_menu)
-            setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.item_task_categories -> {
-                        categoryActivityLauncher.launch(Intent(
-                            applicationContext,
-                            CategoryActivity::class.java))
-                        true
-                    }
-                    else -> false
+    private fun setupDialogListeners() {
+        // Add Category
+        supportFragmentManager.setFragmentResultListener(
+            AddCategoryDialog.REQUEST_KEY,
+            this,
+            { _, bundle ->
+                val name = bundle.getString(AddCategoryDialog.RESULT_KEY) ?:
+                return@setFragmentResultListener
+                categoryViewModel.addCategory(
+                    Category(name = name)
+                ) { isSuccessful ->
+                    if (!isSuccessful) return@addCategory
                 }
             }
-            show()
-        }
-    }
+        )
 
-    private val categoryActivityLauncher = registerForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-        callback = { result ->
-            if (result.resultCode == RESULT_OK) {
-                selectedCategoryId = result.data?.getIntExtra(
-                    "selected_category_id",
-                    ALL_CATEGORIES_ID
-                ) ?: ALL_CATEGORIES_ID
-                updateSpinner()
+        // Delete Tasks
+        supportFragmentManager.setFragmentResultListener(
+            DeleteTasksDialog.REQUEST_KEY,
+            this,
+            { _, bundle ->
+                val isConfirmed = bundle.getBoolean(DeleteTasksDialog.RESULT_KEY)
+                if (isConfirmed) {
+                    selectedTasks.forEach { task ->
+                        taskViewModel.deleteTask(task)
+                    }
+                    selectedTasks.clear()
+                    buttonDeleteTasks.visibility = View.GONE
+                }
             }
-        }
-    )
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBoolean("is_completed", isCompleted)
-        outState.putInt("selected_category_id", selectedCategoryId)
-        super.onSaveInstanceState(outState)
+        )
     }
 }

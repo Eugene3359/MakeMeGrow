@@ -19,16 +19,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.R
+import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
-import com.scipath.makemegrow.data.local.AppDatabase
 import com.scipath.makemegrow.data.model.Task
-import com.scipath.makemegrow.data.repository.CategoryRepository
-import com.scipath.makemegrow.data.repository.TaskRepository
 import com.scipath.makemegrow.ui.dialog.DeleteTaskDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
-import com.scipath.makemegrow.ui.viewmodel.CategoryViewModelFactory
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
-import com.scipath.makemegrow.ui.viewmodel.TaskViewModelFactory
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -55,15 +51,9 @@ class TaskActivity : AppCompatActivity() {
             task = intent.getSerializableExtra("task") as Task
         }
 
-        val taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
-        val taskRepository = TaskRepository(taskDao)
-        val taskViewModelFactory = TaskViewModelFactory(taskRepository)
-        val taskViewModel = ViewModelProvider(this, taskViewModelFactory)[TaskViewModel::class.java]
-
-        val categoryDao = AppDatabase.getDatabase(applicationContext).categoryDao()
-        val categoryRepository = CategoryRepository(categoryDao)
-        val categoryFactory = CategoryViewModelFactory(categoryRepository)
-        val categoryViewModel = ViewModelProvider(this, categoryFactory)[CategoryViewModel::class.java]
+        val app = application as MakeMeGrowApp
+        val taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java]
+        val categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
 
         val inputTask: EditText = findViewById(R.id.input_task)
         val inputDate: EditText = findViewById(R.id.input_date)
