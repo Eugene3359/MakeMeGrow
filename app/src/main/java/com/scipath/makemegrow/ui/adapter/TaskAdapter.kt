@@ -3,9 +3,6 @@ package com.scipath.makemegrow.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
@@ -13,6 +10,7 @@ import com.scipath.makemegrow.data.handler.ErrorHandler
 import com.scipath.makemegrow.data.handler.ErrorHandlerToast
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.model.Task.RepeatType.*
+import com.scipath.makemegrow.databinding.LayoutTaskBinding
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 import java.lang.Exception
 import java.time.LocalDate
@@ -28,20 +26,19 @@ class TaskAdapter(
     private var selectedTasks: MutableList<Int> = mutableListOf()
     private val errorHandler: ErrorHandler = ErrorHandlerToast
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val checkbox: CheckBox = itemView.findViewById(R.id.checkbox)
-        val textTask: TextView = itemView.findViewById(R.id.text_task)
-        val textDeadline: TextView = itemView.findViewById(R.id.text_deadline)
-        val imageRepeat: ImageView = itemView.findViewById(R.id.image_repeat)
-    }
+    class ViewHolder(val binding: LayoutTaskBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.layout_task, parent, false)
-        return ViewHolder(view)
+        val binding = LayoutTaskBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(
@@ -52,20 +49,20 @@ class TaskAdapter(
         val task = tasks[position]
 
         // Name
-        holder.textTask.text = task.name
+        holder.binding.textTask.text = task.name
 
         // Deadline
         if (task.deadlineDate == DateAndTimeConverter.NO_DATE) {
-            holder.textDeadline.visibility = View.GONE
+            holder.binding.textDeadline.visibility = View.GONE
         } else {
-            holder.textDeadline.visibility = View.VISIBLE
+            holder.binding.textDeadline.visibility = View.VISIBLE
             val deadline: String = DateAndTimeConverter.dateAndTimeToString(
                 date = DateAndTimeConverter.secondsToDate(task.deadlineDate),
                 time = DateAndTimeConverter.secondsToTime(task.deadlineTime),
                 context = context
             )
-            holder.textDeadline.text = deadline
-            holder.textDeadline.setTextColor(
+            holder.binding.textDeadline.text = deadline
+            holder.binding.textDeadline.setTextColor(
                 if (isDeadlineMissed(task)) {
                     context.getColor(R.color.red)
                 } else {
@@ -76,15 +73,15 @@ class TaskAdapter(
 
         // Repeat
         if (task.repeat == Task.RepeatType.NO_REPEAT) {
-           holder.imageRepeat.visibility = View.GONE
+           holder.binding.imageRepeat.visibility = View.GONE
         } else {
-            holder.imageRepeat.visibility = View.VISIBLE
+            holder.binding.imageRepeat.visibility = View.VISIBLE
         }
 
         // Completed
-        holder.checkbox.setOnCheckedChangeListener(null)
-        holder.checkbox.isChecked = task.isCompleted
-        holder.checkbox.setOnCheckedChangeListener { _, isChecked ->
+        holder.binding.checkbox.setOnCheckedChangeListener(null)
+        holder.binding.checkbox.isChecked = task.isCompleted
+        holder.binding.checkbox.setOnCheckedChangeListener { _, isChecked ->
             val deadlineDate: LocalDate? = DateAndTimeConverter.secondsToDate(task.deadlineDate)
             try {
                 when (task.repeat) {

@@ -4,12 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
-import com.scipath.makemegrow.R
+import com.scipath.makemegrow.databinding.LayoutDialogBinding
 
 abstract class BaseDialog : DialogFragment() {
 
@@ -27,11 +24,7 @@ abstract class BaseDialog : DialogFragment() {
     abstract val requestKey: String
     abstract val resultKey: String
 
-    protected lateinit var title: TextView
-    protected lateinit var message: TextView
-    protected lateinit var input: EditText
-    protected lateinit var buttonConfirm: Button
-    protected lateinit var buttonCancel: Button
+    protected lateinit var binding: LayoutDialogBinding
 
     abstract fun onConfirm()
 
@@ -40,44 +33,38 @@ abstract class BaseDialog : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.layout_dialog, container, false)
-
-        title = view.findViewById(R.id.text_title)
-        message = view.findViewById(R.id.text_message)
-        input = view.findViewById(R.id.input)
-        buttonConfirm = view.findViewById(R.id.button_confirm)
-        buttonCancel = view.findViewById(R.id.button_cancel)
+        binding = LayoutDialogBinding.inflate(inflater)
 
         titleId?.let {
-            title.setText(it)
+            binding.textTitle.setText(it)
         } ?: run {
-            title.visibility = View.GONE
+            binding.textTitle.visibility = View.GONE
         }
 
         messageId?.let {
-            message.setText(it)
+            binding.textMessage.setText(it)
         } ?: run {
-            message.visibility = View.GONE
+            binding.textMessage.visibility = View.GONE
         }
 
         inputHintId?.let {
-            input.setHint(it)
+            binding.input.setHint(it)
         } ?: run {
-            input.visibility = View.GONE
+            binding.input.visibility = View.GONE
         }
 
-        confirmButtonTextId?.let(buttonConfirm::setText)
-        cancelButtonTextId?.let(buttonCancel::setText)
+        confirmButtonTextId?.let(binding.buttonConfirm::setText)
+        cancelButtonTextId?.let(binding.buttonCancel::setText)
 
-        buttonConfirm.setOnClickListener {
+        binding.buttonConfirm.setOnClickListener {
             onConfirm()
         }
 
-        buttonCancel.setOnClickListener {
+        binding.buttonCancel.setOnClickListener {
             dismiss()
         }
 
-        return view
+        return binding.root
     }
 
     override fun onStart() {

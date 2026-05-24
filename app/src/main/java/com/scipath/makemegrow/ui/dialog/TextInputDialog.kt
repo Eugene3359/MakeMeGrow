@@ -7,7 +7,7 @@ import com.scipath.makemegrow.R
 abstract class TextInputDialog : BaseDialog() {
 
     override fun onConfirm() {
-        val name = input.text.toString()
+        val name = binding.input.text.toString()
 
         if (name.isNotEmpty()) {
             parentFragmentManager.setFragmentResult(

@@ -6,11 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.Spinner
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +17,7 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.model.Task
+import com.scipath.makemegrow.databinding.ActivityTaskBinding
 import com.scipath.makemegrow.ui.dialog.DeleteTaskDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
@@ -35,12 +31,14 @@ class TaskActivity : AppCompatActivity() {
     private var selectedTime: LocalTime? = null
     private var repeatPosition = 0
     private var selectedCategoryId: Int? = null
+    private lateinit var binding: ActivityTaskBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_task)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        binding = ActivityTaskBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -55,18 +53,8 @@ class TaskActivity : AppCompatActivity() {
         val taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java]
         val categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
 
-        val inputTask: EditText = findViewById(R.id.input_task)
-        val inputDate: EditText = findViewById(R.id.input_date)
-        val buttonClearDate: Button = findViewById(R.id.button_clear_date)
-        val layoutTimeSelection: LinearLayout = findViewById(R.id.layout_time_selection)
-        val inputTime: EditText = findViewById(R.id.input_time)
-        val buttonClearTime: Button = findViewById(R.id.button_clear_time)
-        val layoutRepeat: LinearLayout = findViewById(R.id.container_repeat)
-        val spinnerRepeat: Spinner = findViewById(R.id.spinner_repeat)
-        val spinnerCategory: Spinner = findViewById(R.id.spinner_category)
-
         // Input Date
-        inputDate.setOnClickListener {
+        binding.inputDate.setOnClickListener {
             val currentDate: LocalDate = LocalDate.now()
             val year: Int = selectedDate?.year ?: currentDate.year
             val month: Int = selectedDate?.month?.value?.minus(1) ?: (currentDate.month.value - 1)
@@ -76,7 +64,7 @@ class TaskActivity : AppCompatActivity() {
                 /*R.style.DatePickerDialog*/
                 { _, year, month, day -> run {
                     selectedDate = LocalDate.of(year, month + 1, day)
-                    inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
+                    binding.inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
                 }},
                 year,
                 month,
@@ -84,33 +72,33 @@ class TaskActivity : AppCompatActivity() {
             dialog.show()
         }
 
-        inputDate.doAfterTextChanged { text ->
+        binding.inputDate.doAfterTextChanged { text ->
             text?.let {
                 if (it.isBlank()) {
-                    buttonClearDate.visibility = View.GONE
-                    layoutTimeSelection.visibility = View.GONE
-                    buttonClearTime.visibility = View.GONE
-                    layoutRepeat.visibility = View.GONE
+                    binding.buttonClearDate.visibility = View.GONE
+                    binding.layoutTimeSelection.visibility = View.GONE
+                    binding.buttonClearTime.visibility = View.GONE
+                    binding.layoutRepeat.visibility = View.GONE
                 } else {
-                    buttonClearDate.visibility = View.VISIBLE
-                    layoutTimeSelection.visibility = View.VISIBLE
-                    layoutRepeat.visibility = View.VISIBLE
+                    binding.buttonClearDate.visibility = View.VISIBLE
+                    binding.layoutTimeSelection.visibility = View.VISIBLE
+                    binding.layoutRepeat.visibility = View.VISIBLE
                 }
             }
         }
 
         // Button Clear Date
-        buttonClearDate.setOnClickListener {
+        binding.buttonClearDate.setOnClickListener {
             selectedDate = null
             selectedTime = null
             repeatPosition = 0
-            inputDate.setText("")
-            inputTime.setText("")
-            spinnerRepeat.setSelection(0)
+            binding.inputDate.setText("")
+            binding.inputTime.setText("")
+            binding.spinnerRepeat.setSelection(0)
         }
 
         // Input Time
-        inputTime.setOnClickListener {
+        binding.inputTime.setOnClickListener {
             val hourOfDay: Int = selectedTime?.hour ?: 12
             val minute: Int = selectedTime?.minute ?: 0
             val dialog = TimePickerDialog(
@@ -118,7 +106,7 @@ class TaskActivity : AppCompatActivity() {
                 /*R.style.TimePickerDialog,*/
                 { _, hour, minute -> run {
                     selectedTime = LocalTime.of(hour, minute)
-                    inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
+                    binding.inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
                 }},
                 hourOfDay,
                 minute,
@@ -126,29 +114,29 @@ class TaskActivity : AppCompatActivity() {
             dialog.show()
         }
 
-        inputTime.doAfterTextChanged { text ->
+        binding.inputTime.doAfterTextChanged { text ->
             text?.let {
                 if (it.isBlank()) {
-                    buttonClearTime.visibility = View.GONE
+                    binding.buttonClearTime.visibility = View.GONE
                 } else {
-                    buttonClearTime.visibility = View.VISIBLE
+                    binding.buttonClearTime.visibility = View.VISIBLE
                 }
             }
         }
 
         // Button Clear Time
-        buttonClearTime.setOnClickListener {
+        binding.buttonClearTime.setOnClickListener {
             selectedTime = null
-            inputTime.setText("")
+            binding.inputTime.setText("")
         }
 
         // Repeat Type Spinner
         val repeatTypes = resources.getStringArray(R.array.repeat_types)
-        spinnerRepeat.adapter = ArrayAdapter(
+        binding.spinnerRepeat.adapter = ArrayAdapter(
             this,
             R.layout.spinner_item_small,
             repeatTypes)
-        spinnerRepeat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spinnerRepeat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 repeatPosition = position
             }
@@ -162,13 +150,13 @@ class TaskActivity : AppCompatActivity() {
                 addAll(categories.map { it.name })
             }
 
-            spinnerCategory.adapter = ArrayAdapter(
+            binding.spinnerCategory.adapter = ArrayAdapter(
                 this,
                 R.layout.spinner_item_small,
                 categoryNames
             )
 
-            spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                     selectedCategoryId =
                         if (position == 0) null
@@ -181,27 +169,25 @@ class TaskActivity : AppCompatActivity() {
                 selectedCategoryId = it.categoryId
                 selectedCategoryId?.let { id ->
                     val index = categories.indexOfFirst { it.id == id }
-                    spinnerCategory.setSelection(index + 1)
+                    binding.spinnerCategory.setSelection(index + 1)
                 }
             }
         }
 
         // Setup Loaded Data
         task?.let {
-            val textTitle: TextView = findViewById(R.id.text_title)
-            textTitle.text = it.name
-            inputTask.setText(it.name)
+            binding.textTitle.text = it.name
+            binding.inputTask.setText(it.name)
             selectedDate = DateAndTimeConverter.secondsToDate(it.deadlineDate)
-            inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
+            binding.inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
             selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
-            inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
+            binding.inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
             repeatPosition = it.repeat.ordinal
-            spinnerRepeat.setSelection(repeatPosition)
+            binding.spinnerRepeat.setSelection(repeatPosition)
 
             // Botton Delete
-            val buttonDelete: Button = findViewById(R.id.button_delete)
-            buttonDelete.visibility = View.VISIBLE
-            buttonDelete.setOnClickListener {
+            binding.buttonDelete.visibility = View.VISIBLE
+            binding.buttonDelete.setOnClickListener {
                 DeleteTaskDialog().show(supportFragmentManager, "DeleteTaskDialog")
             }
 
@@ -219,9 +205,8 @@ class TaskActivity : AppCompatActivity() {
         }
 
         // Button Confirm
-        val buttonConfirm: Button = findViewById(R.id.button_confirm)
-        buttonConfirm.setOnClickListener {
-            val taskName: String = inputTask.text.toString()
+        binding.buttonConfirm.setOnClickListener {
+            val taskName: String = binding.inputTask.text.toString()
             if (taskName.isBlank()) {
                 Toast.makeText(
                     this,
@@ -254,8 +239,7 @@ class TaskActivity : AppCompatActivity() {
 
         // Taskbar Elements
         // Button Back
-        val buttonBack: Button = findViewById(R.id.button_back)
-        buttonBack.setOnClickListener {
+        binding.buttonBack.setOnClickListener {
             finish()
         }
     }

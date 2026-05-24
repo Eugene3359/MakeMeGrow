@@ -13,8 +13,8 @@ android {
         applicationId = "com.scipath.makemegrow"
         minSdk = 26
         targetSdk = 36
-        versionCode = 43
-        versionName = "0.4.17"
+        versionCode = 44
+        versionName = "0.4.18"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -28,6 +28,11 @@ android {
             )
         }
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

@@ -6,8 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
-import com.scipath.makemegrow.R
+import com.scipath.makemegrow.databinding.SpinnerItemLargeBinding
 
 class CategoryArrayAdapter(
     context: Context,
@@ -17,28 +16,40 @@ class CategoryArrayAdapter(
     var selectedPosition = 0
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = convertView ?: LayoutInflater.from(context)
-            .inflate(R.layout.spinner_item_large, parent, false)
+        val binding = if (convertView == null) {
+            SpinnerItemLargeBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        } else {
+            SpinnerItemLargeBinding.bind(convertView)
+        }
 
-        val text: TextView = view.findViewById(R.id.text)
-        text.setTypeface(null, Typeface.BOLD)
-        text.text = items[position]
+        binding.text.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+        binding.text.text = items[position]
 
-        return view
+        return binding.root
     }
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = convertView ?: LayoutInflater.from(context)
-            .inflate(R.layout.spinner_item_large, parent, false)
-
-        val text: TextView = view.findViewById(R.id.text)
-        text.text = items[position]
-        if (position == selectedPosition) {
-            text.setTypeface(null, Typeface.BOLD)
+        val binding = if (convertView == null) {
+            SpinnerItemLargeBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
         } else {
-            text.setTypeface(null, Typeface.NORMAL)
+            SpinnerItemLargeBinding.bind(convertView)
         }
 
-        return view
+        binding.text.text = items[position]
+        if (position == selectedPosition) {
+            binding.text.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+        } else {
+            binding.text.typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+        }
+
+        return binding.root
     }
 }

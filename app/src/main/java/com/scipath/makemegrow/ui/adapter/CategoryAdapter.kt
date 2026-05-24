@@ -3,11 +3,10 @@ package com.scipath.makemegrow.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.model.Category
+import com.scipath.makemegrow.databinding.LayoutCategoryBinding
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 
 class CategoryAdapter(
@@ -21,21 +20,19 @@ class CategoryAdapter(
 
     private var selectedCategories: MutableList<Int> = mutableListOf()
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val textCategory: TextView = itemView.findViewById(R.id.text_category)
-        val textTasks: TextView = itemView.findViewById(R.id.text_tasks)
-        val textOverdueTasks: TextView = itemView.findViewById(R.id.text_overdue_tasks)
-        val buttonEdit: Button = itemView.findViewById(R.id.button_edit)
-        val buttonDelete: Button = itemView.findViewById(R.id.button_delete)
-    }
+    class ViewHolder(val binding: LayoutCategoryBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.layout_category, parent, false)
-        return ViewHolder(view)
+        val binding = LayoutCategoryBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(
@@ -46,22 +43,22 @@ class CategoryAdapter(
         val category: Category = categories[position]
 
         // Name
-        holder.textCategory.text = category.name
+        holder.binding.textCategory.text = category.name
 
         // Number of Tasks
-        holder.textTasks.text = context.getString(
+        holder.binding.textTasks.text = context.getString(
             R.string.task_number,
             taskViewModel.filterTasksByCategory(taskViewModel.allTasks, category).size)
 
         // Number of Overdue Tasks
         val overdueTasksNumber: Int = taskViewModel.filterTasksByCategory(taskViewModel.overdueTasks, category).size
         if (overdueTasksNumber > 0) {
-            holder.textOverdueTasks.text = context.getString(
+            holder.binding.textOverdueTasks.text = context.getString(
                 R.string.overdue_task_number,
                 overdueTasksNumber)
-            holder.textOverdueTasks.visibility = View.VISIBLE
+            holder.binding.textOverdueTasks.visibility = View.VISIBLE
         } else {
-            holder.textOverdueTasks.visibility = View.GONE
+            holder.binding.textOverdueTasks.visibility = View.GONE
         }
 
         // Selection
@@ -73,12 +70,12 @@ class CategoryAdapter(
         )
 
         // Button Edit
-        holder.buttonEdit.setOnClickListener {
+        holder.binding.buttonEdit.setOnClickListener {
             onEdit.invoke(category)
         }
 
         // Button Delete
-        holder.buttonDelete.setOnClickListener {
+        holder.binding.buttonDelete.setOnClickListener {
             onDelete.invoke(category)
         }
 

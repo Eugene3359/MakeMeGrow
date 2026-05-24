@@ -3,17 +3,15 @@ package com.scipath.makemegrow.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.model.Category
+import com.scipath.makemegrow.databinding.ActivityCategoryBinding
 import com.scipath.makemegrow.ui.adapter.CategoryAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
 import com.scipath.makemegrow.ui.dialog.DeleteCategoriesDialog
@@ -25,13 +23,14 @@ import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 class CategoryActivity : AppCompatActivity() {
 
     private var selectedCategories: MutableList<Category> = mutableListOf()
-    private lateinit var buttonDeleteCategories: Button
+    private lateinit var binding: ActivityCategoryBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_category)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        binding = ActivityCategoryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -44,8 +43,7 @@ class CategoryActivity : AppCompatActivity() {
         taskViewModel.overdueTasks.observe(this) { return@observe }
 
         // Categories
-        val viewCategories: RecyclerView = findViewById(R.id.view_categories)
-        viewCategories.layoutManager = LinearLayoutManager(this)
+        binding.viewCategories.layoutManager = LinearLayoutManager(this)
         val adapter = CategoryAdapter(
             emptyList(),
             taskViewModel,
@@ -86,19 +84,18 @@ class CategoryActivity : AppCompatActivity() {
                 } else {
                     selectedCategories.remove(category)
                 }
-                buttonDeleteCategories.visibility =
+                binding.buttonDelete.visibility =
                     if (selectedCategories.isEmpty()) View.GONE else View.VISIBLE
             }
         )
-        viewCategories.adapter = adapter
+        binding.viewCategories.adapter = adapter
 
         categoryViewModel.allCategories.observe(this) { categories ->
             adapter.updateCategories(categories)
         }
 
         // Button New Category
-        val buttonNewCategory: Button = findViewById(R.id.button_new_category)
-        buttonNewCategory.setOnClickListener {
+        binding.buttonNewCategory.setOnClickListener {
             AddCategoryDialog().show(supportFragmentManager, "AddCategoryDialog")
         }
 
@@ -114,8 +111,7 @@ class CategoryActivity : AppCompatActivity() {
 
         // Taskbar Elements
         // Button Delete Category
-        buttonDeleteCategories = findViewById(R.id.button_delete)
-        buttonDeleteCategories.setOnClickListener {
+        binding.buttonDelete.setOnClickListener {
             DeleteCategoriesDialog().show(supportFragmentManager, "DeleteCategoriesDialog")
         }
 
@@ -130,14 +126,13 @@ class CategoryActivity : AppCompatActivity() {
                         categoryViewModel.deleteCategory(category)
                     }
                     selectedCategories.clear()
-                    buttonDeleteCategories.visibility = View.GONE
+                    binding.buttonDelete.visibility = View.GONE
                 }
             }
         )
 
         // Button Back
-        val buttonBack: Button = findViewById(R.id.button_back)
-        buttonBack.setOnClickListener {
+        binding.buttonBack.setOnClickListener {
             finish()
         }
     }

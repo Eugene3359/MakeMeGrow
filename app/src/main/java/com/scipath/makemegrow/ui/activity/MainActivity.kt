@@ -6,11 +6,8 @@ import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.View
 import android.widget.AdapterView
-import android.widget.Button
-import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.PopupMenu
-import android.widget.Spinner
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +21,7 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.model.Category
+import com.scipath.makemegrow.databinding.ActivityMainBinding
 import com.scipath.makemegrow.ui.adapter.CategoryArrayAdapter
 import com.scipath.makemegrow.ui.adapter.TaskAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
@@ -55,15 +53,15 @@ class MainActivity : AppCompatActivity() {
     private var categoryNames: List<String> = mutableListOf()
     private var selectedCategoryId: Int = ALL_CATEGORIES_ID
     private var isCompleted: Boolean = false
-    private lateinit var spinnerCategory: Spinner
+    private lateinit var binding: ActivityMainBinding
     private lateinit var categoryAdapter: CategoryArrayAdapter
-    private lateinit var buttonDeleteTasks: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -82,29 +80,25 @@ class MainActivity : AppCompatActivity() {
         setupTaskbar()
         setupAllTaskSections()
 
-        val buttonNewTask: Button = findViewById(R.id.button_new_task)
-        buttonNewTask.setOnClickListener {
+        binding.buttonNewTask.setOnClickListener {
             startActivity(Intent(this, TaskActivity::class.java))
         }
     }
 
     private fun setupTaskbar() {
-        val checkboxCompleted: CheckBox = findViewById(R.id.checkbox_completed)
-        checkboxCompleted.setOnCheckedChangeListener { _, isChecked ->
+        binding.checkboxCompleted.setOnCheckedChangeListener { _, isChecked ->
             isCompleted = isChecked
             taskSections.forEach(::updateTaskSection)
         }
 
         setupCategorySpinner()
 
-        buttonDeleteTasks = findViewById(R.id.button_delete)
-        buttonDeleteTasks.setOnClickListener {
+        binding.buttonDelete.setOnClickListener {
             DeleteTasksDialog().show(supportFragmentManager, "DeleteTasksDialog")
         }
 
         // Button Menu
-        val buttonMenu: Button = findViewById(R.id.button_menu)
-        buttonMenu.setOnClickListener { showMenu(it) }
+        binding.buttonMenu.setOnClickListener { showMenu(it) }
 
         setupDialogListeners()
     }
@@ -133,9 +127,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         categoryAdapter = CategoryArrayAdapter(this, mutableListOf())
-        spinnerCategory = findViewById(R.id.spinner_category)
-        spinnerCategory.adapter = categoryAdapter
-        spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spinnerCategory.adapter = categoryAdapter
+        binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                 if (position == categoryNames.lastIndex) {
                     // Add Category
@@ -161,14 +154,14 @@ class MainActivity : AppCompatActivity() {
     private fun updateCategorySpinner() {
         when (selectedCategoryId) {
             ALL_CATEGORIES_ID -> {
-                spinnerCategory.setSelection(0)
+                binding.spinnerCategory.setSelection(0)
             }
             DEFAULT_CATEGORY_ID -> {
-                spinnerCategory.setSelection(1)
+                binding.spinnerCategory.setSelection(1)
             }
             else -> {
                 val categoryIndex: Int = categoriesList.indexOfFirst { it.id == selectedCategoryId }
-                spinnerCategory.setSelection(categoryIndex + SPINNER_SKIP)
+                binding.spinnerCategory.setSelection(categoryIndex + SPINNER_SKIP)
             }
         }
     }
@@ -211,72 +204,72 @@ class MainActivity : AppCompatActivity() {
         // Overdue
         taskSections.add(TaskSection(
             taskViewModel.overdueTasks,
-            findViewById(R.id.layout_overdue_tasks),
-            findViewById(R.id.view_overdue_tasks),
+            binding.layoutOverdueTasks,
+            binding.viewOverdueTasks,
             null
         ))
 
         // Today
         taskSections.add(TaskSection(
             taskViewModel.todayTasks,
-            findViewById(R.id.layout_today_tasks),
-            findViewById(R.id.view_today_tasks),
+            binding.layoutTodayTasks,
+            binding.viewTodayTasks,
             null
         ))
 
         // Tomorrow
         taskSections.add(TaskSection(
             taskViewModel.tomorrowTasks,
-            findViewById(R.id.layout_tomorrow_tasks),
-                findViewById(R.id.view_tomorrow_tasks),
+            binding.layoutTomorrowTasks,
+            binding.viewTomorrowTasks,
                 null
         ))
 
         // This Week
         taskSections.add(TaskSection(
             taskViewModel.thisWeekTasks,
-            findViewById(R.id.layout_this_week_tasks),
-            findViewById(R.id.view_this_week_tasks),
+            binding.layoutThisWeekTasks,
+            binding.viewThisWeekTasks,
             null
         ))
 
         // Next Week
         taskSections.add(TaskSection(
             taskViewModel.nextWeekTasks,
-            findViewById(R.id.layout_next_week_tasks),
-            findViewById(R.id.view_next_week_tasks),
+            binding.layoutNextWeekTasks,
+            binding.viewNextWeekTasks,
             null
         ))
 
         // This Month
         taskSections.add(TaskSection(
             taskViewModel.thisMonthTasks,
-            findViewById(R.id.layout_this_month_tasks),
-            findViewById(R.id.view_this_month_tasks),
+            binding.layoutThisMonthTasks,
+            binding.viewThisMonthTasks,
             null
         ))
 
         // Next Month
         taskSections.add(TaskSection(
             taskViewModel.nextMonthTasks,
-            findViewById(R.id.layout_next_month_tasks),
-            findViewById(R.id.view_next_month_tasks),
+            binding.layoutNextMonthTasks,
+            binding.viewNextMonthTasks,
             null
         ))
 
         // Later
         taskSections.add(TaskSection(
             taskViewModel.laterTasks,
-            findViewById(R.id.layout_later_tasks),
-            findViewById(R.id.view_later_tasks),
+            binding.layoutLaterTasks,
+            binding.viewLaterTasks,
             null
         ))
 
         // Completed
         taskSections.add(TaskSection(
             taskViewModel.completedTasks,
-            findViewById(R.id.layout_completed_tasks),
-            findViewById(R.id.view_completed_tasks),
+            binding.layoutCompletedTasks,
+            binding.viewCompletedTasks,
             null
         ))
 
@@ -303,7 +296,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     selectedTasks.remove(task)
                 }
-                buttonDeleteTasks.visibility =
+                binding.buttonDelete.visibility =
                     if (selectedTasks.isEmpty()) View.GONE else View.VISIBLE
             }
         )
@@ -362,7 +355,7 @@ class MainActivity : AppCompatActivity() {
                         taskViewModel.deleteTask(task)
                     }
                     selectedTasks.clear()
-                    buttonDeleteTasks.visibility = View.GONE
+                    binding.buttonDelete.visibility = View.GONE
                 }
             }
         )
