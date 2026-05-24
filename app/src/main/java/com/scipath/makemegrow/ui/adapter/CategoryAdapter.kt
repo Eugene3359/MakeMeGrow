@@ -10,11 +10,11 @@ import com.scipath.makemegrow.databinding.LayoutCategoryBinding
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 
 class CategoryAdapter(
-    private var categories: List<Category>,
+    private var categories: List<Category?>,
     private val taskViewModel: TaskViewModel,
     private val onEdit: (Category) -> Unit,
     private val onDelete: (Category) -> Unit,
-    private val onCategoryClick: (category: Category) -> Unit,
+    private val onCategoryClick: (category: Category?) -> Unit,
     private val onCategorySelect: (category: Category, isSelected: Boolean) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
 
@@ -40,10 +40,10 @@ class CategoryAdapter(
         position: Int
     ) {
         val context = holder.itemView.context
-        val category: Category = categories[position]
+        val category: Category? = categories[position]
 
         // Name
-        holder.binding.textCategory.text = category.name
+        holder.binding.textCategory.text = category?.name ?: context.getString(R.string.default_category)
 
         // Number of Tasks
         holder.binding.textTasks.text = context.getString(
@@ -61,39 +61,46 @@ class CategoryAdapter(
             holder.binding.textOverdueTasks.visibility = View.GONE
         }
 
-        // Selection
-        holder.itemView.setBackgroundColor(
-            if (selectedCategories.contains(position))
-                context.getColor(R.color.light_gray)
-            else
-                context.getColor(R.color.dark_gray)
-        )
+        if (category != null) {
+            // Selection
+            holder.itemView.setBackgroundColor(
+                if (selectedCategories.contains(position))
+                    context.getColor(R.color.light_gray)
+                else
+                    context.getColor(R.color.dark_gray)
+            )
 
-        // Button Edit
-        holder.binding.buttonEdit.setOnClickListener {
-            onEdit.invoke(category)
-        }
+            // Button Edit
+            holder.binding.buttonEdit.visibility = View.VISIBLE
+            holder.binding.buttonEdit.setOnClickListener {
+                onEdit.invoke(category)
+            }
 
-        // Button Delete
-        holder.binding.buttonDelete.setOnClickListener {
-            onDelete.invoke(category)
+            // Button Delete
+            holder.binding.buttonDelete.visibility = View.VISIBLE
+            holder.binding.buttonDelete.setOnClickListener {
+                onDelete.invoke(category)
+            }
+
+            // OnLongClick
+            holder.itemView.setOnLongClickListener {
+                if (selectedCategories.contains(position)) {
+                    selectedCategories.remove(position)
+                } else {
+                    selectedCategories.add(position)
+                }
+                notifyItemChanged(position)
+                onCategorySelect(category, selectedCategories.contains(position))
+                return@setOnLongClickListener true
+            }
+        } else {
+            holder.binding.buttonEdit.visibility = View.GONE
+            holder.binding.buttonDelete.visibility = View.GONE
         }
 
         // OnClick
         holder.itemView.setOnClickListener {
             onCategoryClick(category)
-        }
-
-        // OnLongClick
-        holder.itemView.setOnLongClickListener {
-            if (selectedCategories.contains(position)) {
-                selectedCategories.remove(position)
-            } else {
-                selectedCategories.add(position)
-            }
-            notifyItemChanged(position)
-            onCategorySelect(category, selectedCategories.contains(position))
-            return@setOnLongClickListener true
         }
     }
 
@@ -101,7 +108,7 @@ class CategoryAdapter(
         return categories.size
     }
 
-    fun updateCategories(newCategories: List<Category>) {
+    fun updateCategories(newCategories: List<Category?>) {
         categories = newCategories
         selectedCategories.clear()
         notifyDataSetChanged()

@@ -33,8 +33,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val DEV_MODE = true
-        private const val ALL_CATEGORIES_ID = -2
-        private const val DEFAULT_CATEGORY_ID = -1
+        const val ALL_CATEGORIES_ID = -2
+        const val DEFAULT_CATEGORY_ID = -1
         private const val SPINNER_SKIP = 2
     }
 

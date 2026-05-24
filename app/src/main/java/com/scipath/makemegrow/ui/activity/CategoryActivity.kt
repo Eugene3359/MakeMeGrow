@@ -73,7 +73,10 @@ class CategoryActivity : AppCompatActivity() {
             },
             onCategoryClick = { category ->
                 val resultIntent = Intent().apply {
-                    putExtra("selected_category_id", category.id)
+                    putExtra(
+                        "selected_category_id",
+                        category?.id ?: MainActivity.DEFAULT_CATEGORY_ID
+                    )
                 }
                 setResult(RESULT_OK, resultIntent)
                 finish()
@@ -91,7 +94,11 @@ class CategoryActivity : AppCompatActivity() {
         binding.viewCategories.adapter = adapter
 
         categoryViewModel.allCategories.observe(this) { categories ->
-            adapter.updateCategories(categories)
+
+            adapter.updateCategories(buildList {
+                add(null)
+                addAll(categories)
+            })
         }
 
         // Button New Category
