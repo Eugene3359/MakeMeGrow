@@ -72,7 +72,7 @@ class TaskAdapter(
         }
 
         // Repeat
-        if (task.repeat == Task.RepeatType.NO_REPEAT) {
+        if (task.repeat == NO_REPEAT) {
            holder.binding.imageRepeat.visibility = View.GONE
         } else {
             holder.binding.imageRepeat.visibility = View.VISIBLE

@@ -3,4 +3,7 @@
     <item
         android:id="@+id/item_task_categories"
         android:title="@string/task_categories"/>
+    <item
+        android:id="@+id/item_settings"
+        android:title="@string/settings"/>
 </menu>
