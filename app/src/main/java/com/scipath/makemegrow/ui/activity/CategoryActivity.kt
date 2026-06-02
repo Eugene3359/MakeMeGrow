@@ -103,7 +103,7 @@ class CategoryActivity : AppCompatActivity() {
             this,
             { _, bundle ->
                 val name = bundle.getString(AddCategoryDialog.RESULT_KEY)
-                name?.let { categoryViewModel.addCategory(Category(name = it), null) }
+                name?.let { categoryViewModel.addCategory(Category(name = it)) }
             }
         )
 

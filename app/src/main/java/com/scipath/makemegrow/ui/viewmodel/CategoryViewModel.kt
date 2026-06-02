@@ -12,13 +12,9 @@ class CategoryViewModel(private val repository: CategoryRepository) : ViewModel(
 
     val allCategories = repository.allCategories.asLiveData()
 
-    fun addCategory(
-        category: Category,
-        onResult: ((Boolean) -> Unit)?
-    ) {
+    fun addCategory(category: Category) {
         viewModelScope.launch {
-            val isSuccessful = repository.addCategory(category)
-            onResult?.invoke(isSuccessful)
+            repository.addCategory(category)
         }
     }
 

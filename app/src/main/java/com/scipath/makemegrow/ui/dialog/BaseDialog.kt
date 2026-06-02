@@ -28,6 +28,10 @@ abstract class BaseDialog : DialogFragment() {
 
     abstract fun onConfirm()
 
+    open fun onCancel() {
+        dismiss()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,7 +65,7 @@ abstract class BaseDialog : DialogFragment() {
         }
 
         binding.buttonCancel.setOnClickListener {
-            dismiss()
+            onCancel()
         }
 
         return binding.root

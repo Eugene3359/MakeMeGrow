@@ -13,4 +13,14 @@ abstract class ConfirmationDialog() : BaseDialog() {
         )
         dismiss()
     }
+
+    override fun onCancel() {
+        parentFragmentManager.setFragmentResult(
+            requestKey,
+            Bundle().apply {
+                putBoolean(resultKey, false)
+            }
+        )
+        dismiss()
+    }
 }

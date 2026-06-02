@@ -16,15 +16,26 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
+import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.model.Category
+import com.scipath.makemegrow.data.model.Task.RepeatType.NO_REPEAT
+import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_DAY
+import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_MONTH
+import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_WEEK
+import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_YEAR
+import com.scipath.makemegrow.data.model.Task.RepeatType.ON_WEEKDAYS
+import com.scipath.makemegrow.data.model.Task.RepeatType.ON_WEEKENDS
 import com.scipath.makemegrow.databinding.ActivityMainBinding
 import com.scipath.makemegrow.ui.adapter.CategoryArrayAdapter
 import com.scipath.makemegrow.ui.adapter.TaskAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
 import com.scipath.makemegrow.ui.dialog.DeleteTasksDialog
+import com.scipath.makemegrow.ui.dialog.TaskCompletionDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
+import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
+import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,14 +55,17 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var taskViewModel: TaskViewModel
     private lateinit var categoryViewModel: CategoryViewModel
-    private val taskSections: MutableList<TaskSection> = mutableListOf()
+    private lateinit var settingsViewModel: SettingsViewModel
     private var selectedTasks: MutableList<Task> = mutableListOf()
+    private var pendingTask: Task? = null
+    private var onTaskCompletionCancel: (() -> Unit)? = null
     private var categoriesList: List<Category> = mutableListOf()
     private var categoryNames: List<String> = mutableListOf()
     private var selectedCategoryId: Int = ALL_CATEGORIES_ID
-    private var isCompleted: Boolean = false
     private lateinit var binding: ActivityMainBinding
+    private val taskSections: MutableList<TaskSection> = mutableListOf()
     private lateinit var categoryAdapter: CategoryArrayAdapter
+    private var displayCompletedTasks: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,6 +75,8 @@ class MainActivity : AppCompatActivity() {
         val app = application as MakeMeGrowApp
         taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java]
         categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
+        settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
+        settingsViewModel.confirmationOfCompletion.observe(this) {}
 
         // Seed Database
         if (DEV_MODE && savedInstanceState == null) {
@@ -78,7 +94,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupTaskbar() {
         binding.checkboxCompleted.setOnCheckedChangeListener { _, isChecked ->
-            isCompleted = isChecked
+            displayCompletedTasks = isChecked
             taskSections.forEach(::updateTaskSection)
         }
 
@@ -281,7 +297,6 @@ class MainActivity : AppCompatActivity() {
     private fun setupTaskSectionAdapter(taskSection: TaskSection) {
         val adapter = TaskAdapter(
             emptyList(),
-            taskViewModel,
             onTaskClick = { task ->
                 val intent = Intent(this, TaskActivity::class.java)
                 intent.putExtra("task", task)
@@ -295,6 +310,15 @@ class MainActivity : AppCompatActivity() {
                 }
                 binding.buttonDelete.visibility =
                     if (selectedTasks.isEmpty()) View.GONE else View.VISIBLE
+            },
+            onTaskChecked = { task, isChecked, onCancel ->
+                if (settingsViewModel.isConfirmationOfCompletionEnabled() && isChecked) {
+                    pendingTask = task
+                    onTaskCompletionCancel = onCancel
+                    TaskCompletionDialog().show(supportFragmentManager, "TaskCompletionDialog")
+                } else {
+                    checkTask(task, isChecked)
+                }
             }
         )
 
@@ -304,11 +328,68 @@ class MainActivity : AppCompatActivity() {
         taskSection.recyclerView.isNestedScrollingEnabled = false
     }
 
+    private fun checkTask(task: Task, isChecked: Boolean) {
+        val deadlineDate: LocalDate? = DateAndTimeConverter.secondsToDate(task.deadlineDate)
+        when (task.repeat) {
+            NO_REPEAT -> task.isCompleted = isChecked
+            ONCE_A_DAY -> {
+                deadlineDate?.let {
+                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
+                        it.plusDays(1)
+                    )
+                }
+            }
+            ON_WEEKDAYS -> {
+                deadlineDate?.let {
+                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
+                        it.plusDays(
+                            if (it.dayOfWeek.value < 5) 1
+                            else 8L - it.dayOfWeek.value
+                        )
+                    )
+                }
+            }
+            ON_WEEKENDS -> {
+                deadlineDate?.let {
+                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
+                        it.plusDays(
+                            if (it.dayOfWeek.value == 6) 1
+                            else if (it.dayOfWeek.value == 7) 6
+                            else 6L - it.dayOfWeek.value
+                        )
+                    )
+                }
+            }
+            ONCE_A_WEEK -> {
+                deadlineDate?.let {
+                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
+                        it.plusWeeks(1)
+                    )
+                }
+            }
+            ONCE_A_MONTH -> {
+                deadlineDate?.let {
+                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
+                        it.plusMonths(1)
+                    )
+                }
+            }
+            ONCE_A_YEAR -> {
+                deadlineDate?.let {
+                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
+                        it.plusYears(1)
+                    )
+                }
+            }
+        }
+        taskViewModel.updateTask(task)
+    }
+
     private fun updateTaskSection(taskSection: TaskSection) {
         val filteredTasks = filterTasks(taskSection.liveData)
         taskSection.parentLayout.visibility =
             if (filteredTasks.isEmpty() ||
-                filteredTasks.first().isCompleted != isCompleted)
+                filteredTasks.first().isCompleted != displayCompletedTasks)
                 View.GONE
             else View.VISIBLE
         taskSection.adapter?.updateTasks(filteredTasks)
@@ -333,11 +414,25 @@ class MainActivity : AppCompatActivity() {
             { _, bundle ->
                 val name = bundle.getString(AddCategoryDialog.RESULT_KEY) ?:
                 return@setFragmentResultListener
-                categoryViewModel.addCategory(
-                    Category(name = name)
-                ) { isSuccessful ->
-                    if (!isSuccessful) return@addCategory
+                categoryViewModel.addCategory(Category(name = name))
+            }
+        )
+
+        // Complete Task
+        supportFragmentManager.setFragmentResultListener(
+            TaskCompletionDialog.REQUEST_KEY,
+            this,
+            { _, bundle ->
+                val isConfirmed = bundle.getBoolean(TaskCompletionDialog.RESULT_KEY)
+                if (isConfirmed) {
+                    pendingTask?.let { task ->
+                        checkTask(task, true)
+                    }
+                } else {
+                    onTaskCompletionCancel?.invoke()
                 }
+                pendingTask = null
+                onTaskCompletionCancel = null
             }
         )
 
