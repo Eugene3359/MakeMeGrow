@@ -1,12 +1,12 @@
 package com.scipath.makemegrow.ui.activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.scipath.makemegrow.app.MakeMeGrowApp
+import com.scipath.makemegrow.data.common.CategoryIds.DEFAULT
 import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.databinding.ActivityCategoryBinding
 import com.scipath.makemegrow.ui.adapter.CategoryAdapter
@@ -63,13 +63,7 @@ class CategoryActivity : AppCompatActivity() {
                 }
             },
             onCategoryClick = { category ->
-                val resultIntent = Intent().apply {
-                    putExtra(
-                        "selected_category_id",
-                        category?.id ?: MainActivity.DEFAULT_CATEGORY_ID
-                    )
-                }
-                setResult(RESULT_OK, resultIntent)
+                categoryViewModel.selectCategory(category?.id ?: DEFAULT)
                 finish()
             },
             onCategorySelect = { category, isSelected ->
@@ -85,9 +79,8 @@ class CategoryActivity : AppCompatActivity() {
         binding.viewCategories.adapter = adapter
 
         categoryViewModel.allCategories.observe(this) { categories ->
-
             adapter.updateCategories(buildList {
-                add(null)
+                add(null) // Default Category
                 addAll(categories)
             })
         }

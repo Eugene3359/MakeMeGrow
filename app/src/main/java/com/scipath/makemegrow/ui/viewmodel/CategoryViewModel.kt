@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 class CategoryViewModel(private val repository: CategoryRepository) : ViewModel() {
 
     val allCategories = repository.allCategories.asLiveData()
+    val selectedCategoryId = repository.selectedCategoryId.asLiveData()
 
     fun addCategory(category: Category) {
         viewModelScope.launch {
@@ -28,6 +29,10 @@ class CategoryViewModel(private val repository: CategoryRepository) : ViewModel(
         viewModelScope.launch {
             repository.deleteCategory(category)
         }
+    }
+
+    fun selectCategory(categoryId: Int) {
+        repository.setSelectedCategory(categoryId)
     }
 
     fun seedDatabase() {

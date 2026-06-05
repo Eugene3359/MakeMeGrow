@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
+import com.scipath.makemegrow.data.common.CategoryIds.ALL
+import com.scipath.makemegrow.data.common.CategoryIds.DEFAULT
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.model.Category
@@ -41,8 +42,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val DEV_MODE = true
-        const val ALL_CATEGORIES_ID = -2
-        const val DEFAULT_CATEGORY_ID = -1
         private const val SPINNER_SKIP = 2
     }
 
@@ -59,9 +58,7 @@ class MainActivity : AppCompatActivity() {
     private var selectedTasks: MutableList<Task> = mutableListOf()
     private var pendingTask: Task? = null
     private var onTaskCompletionCancel: (() -> Unit)? = null
-    private var categoriesList: List<Category> = mutableListOf()
     private var categoryNames: List<String> = mutableListOf()
-    private var selectedCategoryId: Int = ALL_CATEGORIES_ID
     private lateinit var binding: ActivityMainBinding
     private val taskSections: MutableList<TaskSection> = mutableListOf()
     private lateinit var categoryAdapter: CategoryArrayAdapter
@@ -112,8 +109,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupCategorySpinner() {
         categoryViewModel.allCategories.observe(this) { categories ->
-            categoriesList = categories
-
             categoryNames = buildList {
                 add(getString(R.string.all_tasks))
                 add(getString(R.string.default_category))
@@ -124,13 +119,12 @@ class MainActivity : AppCompatActivity() {
             categoryAdapter.clear()
             categoryAdapter.addAll(categoryNames)
             categoryAdapter.notifyDataSetChanged()
-
-            if (selectedCategoryId != DEFAULT_CATEGORY_ID &&
-                categories.none { it.id == selectedCategoryId}){
-                selectedCategoryId = ALL_CATEGORIES_ID
-            }
-
             updateCategorySpinner()
+        }
+
+        categoryViewModel.selectedCategoryId.observe(this) {
+            updateCategorySpinner()
+            taskSections.forEach(::updateTaskSection)
         }
 
         categoryAdapter = CategoryArrayAdapter(this, mutableListOf())
@@ -143,14 +137,13 @@ class MainActivity : AppCompatActivity() {
                     AddCategoryDialog().show(supportFragmentManager, "AddCategoryDialog")
                 } else {
                     // Change Category
-                    categoryAdapter.selectedPosition = position
-                    categoryAdapter.notifyDataSetChanged()
-                    selectedCategoryId = when (position) {
-                        0 -> ALL_CATEGORIES_ID
-                        1 -> DEFAULT_CATEGORY_ID
-                        else -> categoriesList[position - SPINNER_SKIP].id
-                    }
-                    taskSections.forEach(::updateTaskSection)
+                    categoryViewModel.selectCategory(
+                        when (position) {
+                            0 -> ALL
+                            1 -> DEFAULT
+                            else -> categoryViewModel.allCategories.value!![position - SPINNER_SKIP].id
+                        }
+                    )
                 }
             }
 
@@ -159,16 +152,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateCategorySpinner() {
-        when (selectedCategoryId) {
-            ALL_CATEGORIES_ID -> {
-                binding.spinnerCategory.setSelection(0)
+        val selectedPosition = binding.spinnerCategory.selectedItemPosition
+        when (categoryViewModel.selectedCategoryId.value) {
+            ALL -> {
+                if (selectedPosition != 0)
+                    binding.spinnerCategory.setSelection(0)
             }
-            DEFAULT_CATEGORY_ID -> {
-                binding.spinnerCategory.setSelection(1)
+            DEFAULT -> {
+                if (selectedPosition != 1)
+                    binding.spinnerCategory.setSelection(1)
             }
             else -> {
-                val categoryIndex: Int = categoriesList.indexOfFirst { it.id == selectedCategoryId }
-                binding.spinnerCategory.setSelection(categoryIndex + SPINNER_SKIP)
+                var categoryId: Int = ALL
+                categoryViewModel.allCategories.value?.let { categories ->
+                    val result = categories.indexOfFirst { category ->
+                        category.id == categoryViewModel.selectedCategoryId.value
+                    }
+                    if (result != -1) categoryId = result
+                }
+                val position = categoryId + SPINNER_SKIP
+                if (selectedPosition != position) {
+                    binding.spinnerCategory.setSelection(position)
+                }
             }
         }
     }
@@ -180,7 +185,7 @@ class MainActivity : AppCompatActivity() {
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.item_task_categories -> {
-                        categoryActivityLauncher.launch(Intent(
+                        startActivity(Intent(
                             applicationContext,
                             CategoryActivity::class.java))
                         true
@@ -197,19 +202,6 @@ class MainActivity : AppCompatActivity() {
             show()
         }
     }
-
-    private val categoryActivityLauncher = registerForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-        callback = { result ->
-            if (result.resultCode == RESULT_OK) {
-                selectedCategoryId = result.data?.getIntExtra(
-                    "selected_category_id",
-                    ALL_CATEGORIES_ID
-                ) ?: selectedCategoryId
-                updateCategorySpinner()
-            }
-        }
-    )
 
     private fun setupAllTaskSections() {
         taskSections.clear()
@@ -396,12 +388,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun filterTasks(tasks: LiveData<List<Task>>) : List<Task> {
-        return when (selectedCategoryId) {
-            ALL_CATEGORIES_ID -> tasks.value ?: emptyList()
-            DEFAULT_CATEGORY_ID -> taskViewModel.filterTasksByCategory(tasks, null)
+        return when (categoryViewModel.selectedCategoryId.value) {
+            ALL -> tasks.value ?: emptyList()
+            DEFAULT -> taskViewModel.filterTasksByCategory(tasks, null)
             else -> taskViewModel.filterTasksByCategory(
                 tasks,
-                categoryViewModel.allCategories.value?.find { it.id == selectedCategoryId }
+                categoryViewModel.allCategories.value?.find { it.id == categoryViewModel.selectedCategoryId.value }
             )
         }
     }
