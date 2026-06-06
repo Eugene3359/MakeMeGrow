@@ -19,7 +19,8 @@ import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 
 class CategoryActivity : AppCompatActivity() {
 
-    private var selectedCategories: MutableList<Category> = mutableListOf()
+    private lateinit var categoryViewModel: CategoryViewModel
+    private var pendingCategory: Category? = null
     private lateinit var binding: ActivityCategoryBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +30,7 @@ class CategoryActivity : AppCompatActivity() {
 
         val app = application as MakeMeGrowApp
         val taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java]
-        val categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
+        categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
         taskViewModel.allTasks.observe(this) { return@observe }
         taskViewModel.overdueTasks.observe(this) { return@observe }
 
@@ -39,28 +40,12 @@ class CategoryActivity : AppCompatActivity() {
             emptyList(),
             taskViewModel,
             onEdit = { category ->
+                pendingCategory = category
                 RenameCategoryDialog().show(supportFragmentManager, "RenameCategoryDialog")
-                supportFragmentManager.setFragmentResultListener(
-                    RenameCategoryDialog.REQUEST_KEY,
-                    this
-                ) { _, bundle ->
-                    val name = bundle.getString(RenameCategoryDialog.RESULT_KEY) ?:
-                    return@setFragmentResultListener
-                    category.name = name
-                    categoryViewModel.updateCategory(category)
-                }
             },
             onDelete = { category ->
+                pendingCategory = category
                 DeleteCategoryDialog().show(supportFragmentManager, "DeleteCategoryDialog")
-                supportFragmentManager.setFragmentResultListener(
-                    DeleteCategoryDialog.REQUEST_KEY,
-                    this
-                ) { _, bundle ->
-                    val isConfirmed = bundle.getBoolean(DeleteCategoryDialog.RESULT_KEY)
-                    if (isConfirmed) {
-                        categoryViewModel.deleteCategory(category)
-                    }
-                }
             },
             onCategoryClick = { category ->
                 categoryViewModel.selectCategory(category?.id ?: DEFAULT)
@@ -68,12 +53,10 @@ class CategoryActivity : AppCompatActivity() {
             },
             onCategorySelect = { category, isSelected ->
                 if (isSelected) {
-                    selectedCategories.add(category)
+                    categoryViewModel.addSelectedCategory(category.id)
                 } else {
-                    selectedCategories.remove(category)
+                    categoryViewModel.removeSelectedCategory(category.id)
                 }
-                binding.buttonDelete.visibility =
-                    if (selectedCategories.isEmpty()) View.GONE else View.VISIBLE
             }
         )
         binding.viewCategories.adapter = adapter
@@ -85,10 +68,62 @@ class CategoryActivity : AppCompatActivity() {
             })
         }
 
+        categoryViewModel.selectedCategoryIds.observe(this) { categoryIds ->
+            binding.buttonDelete.visibility =
+                if (categoryIds.isEmpty()) View.GONE
+                else View.VISIBLE
+        }
+
         // Button New Category
         binding.buttonNewCategory.setOnClickListener {
             AddCategoryDialog().show(supportFragmentManager, "AddCategoryDialog")
         }
+
+        // Taskbar Elements
+        // Button Delete Category
+        binding.buttonDelete.setOnClickListener {
+            DeleteCategoriesDialog().show(supportFragmentManager, "DeleteCategoriesDialog")
+        }
+
+        // Button Back
+        binding.buttonBack.setOnClickListener {
+            finish()
+        }
+
+        setupDialogListeners()
+    }
+
+    private fun setupDialogListeners() {
+        // Rename Category
+        supportFragmentManager.setFragmentResultListener(
+            RenameCategoryDialog.REQUEST_KEY,
+            this,
+            { _, bundle ->
+                val name = bundle.getString(RenameCategoryDialog.RESULT_KEY) ?:
+                return@setFragmentResultListener
+                pendingCategory?.let {
+                    categoryViewModel.updateCategory(
+                        it.copy(name = name)
+                    )
+                }
+                pendingCategory = null
+            }
+        )
+
+        // Delete Category
+        supportFragmentManager.setFragmentResultListener(
+            DeleteCategoryDialog.REQUEST_KEY,
+            this,
+            { _, bundle ->
+                val isConfirmed = bundle.getBoolean(DeleteCategoryDialog.RESULT_KEY)
+                if (isConfirmed) {
+                    pendingCategory?.let {
+                        categoryViewModel.deleteCategory(it)
+                    }
+                }
+                pendingCategory = null
+            }
+        )
 
         // Add Category
         supportFragmentManager.setFragmentResultListener(
@@ -96,15 +131,11 @@ class CategoryActivity : AppCompatActivity() {
             this,
             { _, bundle ->
                 val name = bundle.getString(AddCategoryDialog.RESULT_KEY)
-                name?.let { categoryViewModel.addCategory(Category(name = it)) }
+                name?.let {
+                    categoryViewModel.addCategory(Category(name = it))
+                }
             }
         )
-
-        // Taskbar Elements
-        // Button Delete Category
-        binding.buttonDelete.setOnClickListener {
-            DeleteCategoriesDialog().show(supportFragmentManager, "DeleteCategoriesDialog")
-        }
 
         // Delete Categories
         supportFragmentManager.setFragmentResultListener(
@@ -113,18 +144,9 @@ class CategoryActivity : AppCompatActivity() {
             { _, bundle ->
                 val isConfirmed = bundle.getBoolean(DeleteCategoriesDialog.RESULT_KEY)
                 if (isConfirmed) {
-                    selectedCategories.forEach { category ->
-                        categoryViewModel.deleteCategory(category)
-                    }
-                    selectedCategories.clear()
-                    binding.buttonDelete.visibility = View.GONE
+                    categoryViewModel.deleteSelectedCategories()
                 }
             }
         )
-
-        // Button Back
-        binding.buttonBack.setOnClickListener {
-            finish()
-        }
     }
 }
