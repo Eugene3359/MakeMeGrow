@@ -156,12 +156,15 @@ class TaskActivity : AppCompatActivity() {
                 override fun onNothingSelected(parent: AdapterView<*>) {}
             }
 
-            task?.let { task ->
-                selectedCategoryId = task.categoryId
-                selectedCategoryId?.let { id ->
-                    val index = categories.indexOfFirst { it.id == id }
-                    binding.spinnerCategory.setSelection(index + 1)
-                }
+            if (task == null) { // New Task
+                categoryViewModel.selectedCategoryId.observe(this) {}
+                selectedCategoryId = categoryViewModel.selectedCategoryId.value
+            } else { // Modify Task
+                selectedCategoryId = task!!.categoryId
+            }
+            selectedCategoryId?.let { id ->
+                val index = categories.indexOfFirst { it.id == id }
+                binding.spinnerCategory.setSelection(index + 1)
             }
         }
 
