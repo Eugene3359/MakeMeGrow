@@ -2,7 +2,7 @@ package com.scipath.makemegrow.ui.dialog
 
 import com.scipath.makemegrow.R
 
-class DeleteCategoriesDialog() : ConfirmationDialog() {
+class DeleteCategoriesDialog : ConfirmationDialog() {
 
     override val titleId: Int = R.string.delete_categories
     override val messageId: Int = R.string.delete_categories_message

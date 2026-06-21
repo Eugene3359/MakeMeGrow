@@ -57,6 +57,8 @@ abstract class BaseDialog : DialogFragment() {
             binding.input.visibility = View.GONE
         }
 
+        binding.radioGroup.visibility = View.GONE
+
         confirmButtonTextId?.let(binding.buttonConfirm::setText)
         cancelButtonTextId?.let(binding.buttonCancel::setText)
 

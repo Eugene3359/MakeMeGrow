@@ -17,6 +17,7 @@ import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityTaskBinding
 import com.scipath.makemegrow.ui.dialog.DeleteTaskDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
+import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 import java.time.LocalDate
 import java.time.LocalTime
@@ -43,6 +44,8 @@ class TaskActivity : AppCompatActivity() {
         val app = application as MakeMeGrowApp
         val taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java]
         val categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
+        val settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
+        settingsViewModel.firstDayOfWeek.observe(this) {}
 
         // Input Date
         binding.inputDate.setOnClickListener {
@@ -60,6 +63,7 @@ class TaskActivity : AppCompatActivity() {
                 year,
                 month,
                 dayOfMonth)
+            dialog.datePicker.firstDayOfWeek = settingsViewModel.getFirstDayOfWeek().value + 1
             dialog.show()
         }
 

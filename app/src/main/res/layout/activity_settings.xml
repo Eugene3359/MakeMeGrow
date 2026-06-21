@@ -77,6 +77,22 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/container_first_day_of_week"
+                style="@style/SettingItem.Container"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/SettingItem.Name"
+                    android:text="@string/first_day_of_week"/>
+
+                <TextView
+                    android:id="@+id/text_day_of_week"
+                    style="@style/SettingItem.Value"
+                    android:text="@string/placeholder"/>
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout

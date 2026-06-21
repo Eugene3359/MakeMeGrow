@@ -81,6 +81,7 @@
     <string name="disabled">Disabled</string>
     <string name="general">General</string>
     <string name="confirm_task_completion">Confirm task completion</string>
+    <string name="first_day_of_week">First day of week</string>
     <string name="notifications">Notifications</string>
     <string name="about">About</string>
     <string name="app">App: %s</string>

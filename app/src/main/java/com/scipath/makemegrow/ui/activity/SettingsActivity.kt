@@ -6,7 +6,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.databinding.ActivitySettingsBinding
+import com.scipath.makemegrow.ui.dialog.FirstDayOfWeekDialog
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
+import java.time.DayOfWeek
+import java.time.format.TextStyle
+import java.util.Locale
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -29,12 +33,34 @@ class SettingsActivity : AppCompatActivity() {
                 if (enabled) R.string.enabled
                 else R.string.disabled
             )
-            if (binding.checkboxConfirmCompleting.isChecked != enabled)
-                binding.checkboxConfirmCompleting.isChecked = enabled
+            binding.checkboxConfirmCompleting.isChecked = enabled
         }
 
         binding.checkboxConfirmCompleting.setOnCheckedChangeListener { _, isChecked ->
             settingsViewModel.setConfirmationOfCompletion(isChecked)
+        }
+
+        // First Day of Week
+        settingsViewModel.firstDayOfWeek.observe(this) { dayOfWeek ->
+            binding.textDayOfWeek.text = dayOfWeek.getDisplayName(
+                TextStyle.FULL,
+                Locale.getDefault()
+            )
+        }
+
+        binding.containerFirstDayOfWeek.setOnClickListener {
+            FirstDayOfWeekDialog
+                .newInstance(settingsViewModel.getFirstDayOfWeek())
+                .show(supportFragmentManager, "FirstDayOfWeekDialog")
+        }
+
+        supportFragmentManager.setFragmentResultListener(
+            FirstDayOfWeekDialog.REQUEST_KEY, this
+        ) { _, bundle ->
+            val dayOfWeek = DayOfWeek.of(
+                bundle.getInt(FirstDayOfWeekDialog.RESULT_KEY)
+            )
+            settingsViewModel.setFirstDayOfWeek(dayOfWeek)
         }
 
         // About
