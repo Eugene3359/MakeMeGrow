@@ -9,6 +9,7 @@ class RenameCategoryDialog : TextInputDialog() {
     override val inputHintId: Int = R.string.rename_category_hint
     override val confirmButtonTextId: Int = R.string.save
     override val cancelButtonTextId: Int? = null
+    override val selectOptions: List<String>? = null
 
     override val requestKey: String = REQUEST_KEY
     override val resultKey: String = RESULT_KEY

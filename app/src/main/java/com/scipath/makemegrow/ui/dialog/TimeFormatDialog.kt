@@ -6,13 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import com.scipath.makemegrow.R
-import java.time.DayOfWeek
-import java.time.format.TextStyle
-import java.util.Locale
 
-class FirstDayOfWeekDialog : BaseDialog() {
+class TimeFormatDialog : BaseDialog() {
 
-    override val titleId: Int = R.string.first_day_of_week
+    override val titleId: Int = R.string.time_format
     override val messageId: Int? = null
     override val inputHintId: Int? = null
     override val confirmButtonTextId: Int? = null
@@ -22,18 +19,22 @@ class FirstDayOfWeekDialog : BaseDialog() {
     override val requestKey: String = REQUEST_KEY
     override val resultKey: String = RESULT_KEY
 
-    private var resultValue = DayOfWeek.MONDAY.value
+    private var resultValue: Boolean = true
 
     companion object {
-        const val REQUEST_KEY = "change_first_day_of_week_request"
-        const val RESULT_KEY = "first_day_of_week"
+        const val REQUEST_KEY = "change_time_format_request"
+        const val RESULT_KEY = "is_time_format_24"
 
         private const val ARG_SELECTED_OPTION = "selected_option"
 
-        fun newInstance(firstDayOfWeek: DayOfWeek) =
-            FirstDayOfWeekDialog().apply {
+        fun newInstance(isTimeFormat24: Boolean) =
+            TimeFormatDialog().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_SELECTED_OPTION, firstDayOfWeek.value - 1)
+                    putInt(
+                        ARG_SELECTED_OPTION,
+                        if (isTimeFormat24) 1
+                        else 0
+                    )
                 }
             }
     }
@@ -42,7 +43,7 @@ class FirstDayOfWeekDialog : BaseDialog() {
         parentFragmentManager.setFragmentResult(
             requestKey,
             Bundle().apply {
-                putInt(resultKey, resultValue)
+                putBoolean(resultKey, resultValue)
             }
         )
         dismiss()
@@ -53,10 +54,10 @@ class FirstDayOfWeekDialog : BaseDialog() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        selectOptions = DayOfWeek.entries.map {
-            it.getDisplayName(
-                TextStyle.FULL,
-                Locale.getDefault()
+        context?.let { context ->
+            selectOptions = listOf(
+                context.getString(R.string.twelve_hour_format),
+                context.getString(R.string.twenty_four_hour_format)
             )
         }
 
@@ -64,10 +65,10 @@ class FirstDayOfWeekDialog : BaseDialog() {
 
         binding.radioGroup.setOnCheckedChangeListener { radioGroup, checkedId ->
             val index = radioGroup.indexOfChild(radioGroup.findViewById(checkedId))
-            resultValue = index + 1
+            resultValue = index == 1
         }
 
-        val selectedOption = arguments?.getInt(ARG_SELECTED_OPTION) ?: (DayOfWeek.MONDAY.value - 1)
+        val selectedOption = arguments?.getInt(ARG_SELECTED_OPTION) ?: 1
         (binding.radioGroup.getChildAt(selectedOption) as RadioButton)
             .isChecked = true
 

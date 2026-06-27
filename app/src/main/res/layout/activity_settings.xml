@@ -93,6 +93,22 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/container_time_format"
+                style="@style/SettingItem.Container"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/SettingItem.Name"
+                    android:text="@string/time_format"/>
+
+                <TextView
+                    android:id="@+id/text_time_format"
+                    style="@style/SettingItem.Value"
+                    android:text="@string/twenty_four_hour_format"/>
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout

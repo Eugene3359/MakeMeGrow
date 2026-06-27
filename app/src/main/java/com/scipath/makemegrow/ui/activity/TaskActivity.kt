@@ -46,6 +46,7 @@ class TaskActivity : AppCompatActivity() {
         val categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
         val settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
         settingsViewModel.firstDayOfWeek.observe(this) {}
+        settingsViewModel.timeFormat24.observe(this) {}
 
         // Input Date
         binding.inputDate.setOnClickListener {
@@ -101,11 +102,15 @@ class TaskActivity : AppCompatActivity() {
                 /*R.style.TimePickerDialog,*/
                 { _, hour, minute -> run {
                     selectedTime = LocalTime.of(hour, minute)
-                    binding.inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
+                    binding.inputTime.setText(DateAndTimeConverter.timeToString(
+                        selectedTime,
+                        settingsViewModel.isTimeFormat24(),
+                        this)
+                    )
                 }},
                 hourOfDay,
                 minute,
-                true)
+                settingsViewModel.isTimeFormat24())
             dialog.show()
         }
 
@@ -179,7 +184,14 @@ class TaskActivity : AppCompatActivity() {
             selectedDate = DateAndTimeConverter.secondsToDate(it.deadlineDate)
             binding.inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
             selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
-            binding.inputTime.setText(DateAndTimeConverter.timeToString(selectedTime, this))
+            settingsViewModel.timeFormat24.observe(this) { timeFormat24 ->
+                binding.inputTime.setText(DateAndTimeConverter.timeToString(
+                    selectedTime,
+                    timeFormat24,
+                    this)
+                )
+            }
+
             repeatPosition = it.repeat.ordinal
             binding.spinnerRepeat.setSelection(repeatPosition)
 

@@ -8,6 +8,7 @@ class TaskCompletionDialog : ConfirmationDialog() {
     override val inputHintId: Int? = null
     override val confirmButtonTextId: Int? = null
     override val cancelButtonTextId: Int? = null
+    override val selectOptions: List<String>? = null
 
     override val requestKey: String = REQUEST_KEY
     override val resultKey: String = RESULT_KEY

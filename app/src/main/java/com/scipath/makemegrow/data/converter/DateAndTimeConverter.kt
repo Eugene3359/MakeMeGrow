@@ -46,19 +46,26 @@ class DateAndTimeConverter {
             return date?.format(formatter) ?: ""
         }
 
-        fun timeToString(time: LocalTime?, context: Context): String {
+        fun timeToString(time: LocalTime?, isTimeFormat24: Boolean, context: Context): String {
             val formatter = DateTimeFormatter.ofPattern(
-                context.getString(R.string.time_format),
+                context.getString(
+                    if (isTimeFormat24) R.string.time_format_24
+                    else R.string.time_format_12),
                 Locale.getDefault())
             return time?.format(formatter) ?: ""
         }
 
-        fun dateAndTimeToString(date: LocalDate?, time: LocalTime?, context: Context): String {
+        fun dateAndTimeToString(
+            date: LocalDate?,
+            time: LocalTime?,
+            isTimeFormat24: Boolean,
+            context: Context
+        ): String {
             if (date == null) return ""
             if (time == null) return dateToString(date, context)
             return context.getString(R.string.date_time_formatting).format(
                 dateToString(date, context),
-                timeToString(time, context))
+                timeToString(time, isTimeFormat24, context))
         }
     }
 }

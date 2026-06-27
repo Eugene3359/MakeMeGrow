@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
 import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
+import com.scipath.makemegrow.R
 import com.scipath.makemegrow.databinding.LayoutDialogBinding
 
 abstract class BaseDialog : DialogFragment() {
@@ -20,6 +22,7 @@ abstract class BaseDialog : DialogFragment() {
     abstract val confirmButtonTextId: Int?
     @get:StringRes
     abstract val cancelButtonTextId: Int?
+    abstract val selectOptions: List<String>?
 
     abstract val requestKey: String
     abstract val resultKey: String
@@ -57,7 +60,18 @@ abstract class BaseDialog : DialogFragment() {
             binding.input.visibility = View.GONE
         }
 
-        binding.radioGroup.visibility = View.GONE
+        selectOptions?.let { options ->
+            options.forEach { option ->
+                val radioButton = inflater.inflate(
+                    R.layout.layout_radio_button,
+                    null
+                ) as RadioButton
+                radioButton.text = option
+                binding.radioGroup.addView(radioButton)
+            }
+        } ?: run {
+            binding.radioGroup.visibility = View.GONE
+        }
 
         confirmButtonTextId?.let(binding.buttonConfirm::setText)
         cancelButtonTextId?.let(binding.buttonCancel::setText)

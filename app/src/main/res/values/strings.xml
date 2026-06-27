@@ -26,7 +26,8 @@
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="date_format">dd MMM yyyy</string>
-    <string name="time_format">HH:mm</string>
+    <string name="time_format_12">h:mm a</string>
+    <string name="time_format_24">HH:mm</string>
     <string name="date_time_formatting">%s, %s</string>
 
     <!-- Repeat Types -->
@@ -77,11 +78,14 @@
     <string name="settings">Settings</string>
 
     <!-- Setting -->
-    <string name="enabled">Enabled</string>
-    <string name="disabled">Disabled</string>
     <string name="general">General</string>
     <string name="confirm_task_completion">Confirm task completion</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
     <string name="first_day_of_week">First day of week</string>
+    <string name="time_format">Time format</string>
+    <string name="twelve_hour_format">12-hour</string>
+    <string name="twenty_four_hour_format">24-hour</string>
     <string name="notifications">Notifications</string>
     <string name="about">About</string>
     <string name="app">App: %s</string>

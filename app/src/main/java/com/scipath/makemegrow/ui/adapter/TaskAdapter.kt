@@ -8,6 +8,7 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.model.Task.RepeatType.*
+import com.scipath.makemegrow.data.repository.SettingsRepository.Companion.DEFAULT_TIME_FORMAT_24
 import com.scipath.makemegrow.databinding.LayoutTaskBinding
 import java.time.LocalDate
 import java.time.LocalTime
@@ -23,6 +24,7 @@ class TaskAdapter(
     ) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
+    private var isTimeFormat24: Boolean = DEFAULT_TIME_FORMAT_24
     private var selectedTasks: MutableList<Int> = mutableListOf()
 
     class ViewHolder(val binding: LayoutTaskBinding) :
@@ -58,6 +60,7 @@ class TaskAdapter(
             val deadline: String = DateAndTimeConverter.dateAndTimeToString(
                 date = DateAndTimeConverter.secondsToDate(task.deadlineDate),
                 time = DateAndTimeConverter.secondsToTime(task.deadlineTime),
+                isTimeFormat24 = isTimeFormat24,
                 context = context
             )
             holder.binding.textDeadline.text = deadline
@@ -117,6 +120,11 @@ class TaskAdapter(
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
         selectedTasks.clear()
+        notifyDataSetChanged()
+    }
+
+    fun updateTimeFormat(isTimeFormat24: Boolean) {
+        this.isTimeFormat24 = isTimeFormat24
         notifyDataSetChanged()
     }
 

@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
         settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
         settingsViewModel.confirmationOfCompletion.observe(this) {}
+        settingsViewModel.timeFormat24.observe(this) {}
 
         // Seed Database
         if (DEV_MODE && savedInstanceState == null) {
@@ -284,11 +285,17 @@ class MainActivity : AppCompatActivity() {
                 updateTaskSection(taskSection)
             }
         }
+
+        settingsViewModel.timeFormat24.observe(this) { timeFormat24 ->
+            taskSections.forEach { taskSection ->
+                taskSection.adapter?.updateTimeFormat(timeFormat24)
+            }
+        }
     }
 
     private fun setupTaskSectionAdapter(taskSection: TaskSection) {
         val adapter = TaskAdapter(
-            emptyList(),
+            tasks = emptyList(),
             onTaskClick = { task ->
                 val intent = Intent(this, TaskActivity::class.java)
                 intent.putExtra("task", task)
