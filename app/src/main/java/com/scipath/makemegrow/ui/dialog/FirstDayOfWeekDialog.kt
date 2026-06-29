@@ -1,34 +1,30 @@
 package com.scipath.makemegrow.ui.dialog
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.RadioButton
 import com.scipath.makemegrow.R
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
 
-class FirstDayOfWeekDialog : BaseDialog() {
+class FirstDayOfWeekDialog : SelectionDialog<Int>() {
 
     override val titleId: Int = R.string.first_day_of_week
     override val messageId: Int? = null
-    override val inputHintId: Int? = null
-    override val confirmButtonTextId: Int? = null
-    override val cancelButtonTextId: Int? = null
-    override lateinit var selectOptions: List<String>
+    override val options by lazy {
+        DayOfWeek.entries.map {
+            Option(
+                it.getDisplayName(TextStyle.FULL, Locale.getDefault()),
+                it.value
+            )
+        }
+    }
 
     override val requestKey: String = REQUEST_KEY
     override val resultKey: String = RESULT_KEY
 
-    private var resultValue = DayOfWeek.MONDAY.value
-
     companion object {
         const val REQUEST_KEY = "change_first_day_of_week_request"
         const val RESULT_KEY = "first_day_of_week"
-
-        private const val ARG_SELECTED_OPTION = "selected_option"
 
         fun newInstance(firstDayOfWeek: DayOfWeek) =
             FirstDayOfWeekDialog().apply {
@@ -39,38 +35,9 @@ class FirstDayOfWeekDialog : BaseDialog() {
     }
 
     override fun onConfirm() {
-        parentFragmentManager.setFragmentResult(
-            requestKey,
-            Bundle().apply {
-                putInt(resultKey, resultValue)
-            }
-        )
+        setResult {
+            putInt(resultKey, selectedValue)
+        }
         dismiss()
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        selectOptions = DayOfWeek.entries.map {
-            it.getDisplayName(
-                TextStyle.FULL,
-                Locale.getDefault()
-            )
-        }
-
-        super.onCreateView(inflater, container, savedInstanceState)
-
-        binding.radioGroup.setOnCheckedChangeListener { radioGroup, checkedId ->
-            val index = radioGroup.indexOfChild(radioGroup.findViewById(checkedId))
-            resultValue = index + 1
-        }
-
-        val selectedOption = arguments?.getInt(ARG_SELECTED_OPTION) ?: (DayOfWeek.MONDAY.value - 1)
-        (binding.radioGroup.getChildAt(selectedOption) as RadioButton)
-            .isChecked = true
-
-        return binding.root
     }
 }

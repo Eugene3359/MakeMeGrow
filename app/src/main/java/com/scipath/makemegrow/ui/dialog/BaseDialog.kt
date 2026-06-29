@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
 import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
 import com.scipath.makemegrow.R
@@ -17,12 +16,9 @@ abstract class BaseDialog : DialogFragment() {
     @get:StringRes
     abstract val messageId: Int?
     @get:StringRes
-    abstract val inputHintId: Int?
+    protected open val confirmButtonTextId: Int? = R.string.confirm
     @get:StringRes
-    abstract val confirmButtonTextId: Int?
-    @get:StringRes
-    abstract val cancelButtonTextId: Int?
-    abstract val selectOptions: List<String>?
+    protected open val cancelButtonTextId: Int? = R.string.cancel
 
     abstract val requestKey: String
     abstract val resultKey: String
@@ -31,7 +27,7 @@ abstract class BaseDialog : DialogFragment() {
 
     abstract fun onConfirm()
 
-    open fun onCancel() {
+    protected open fun onCancel() {
         dismiss()
     }
 
@@ -40,7 +36,7 @@ abstract class BaseDialog : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = LayoutDialogBinding.inflate(inflater)
+        binding = LayoutDialogBinding.inflate(inflater, container, false)
 
         titleId?.let {
             binding.textTitle.setText(it)
@@ -54,24 +50,8 @@ abstract class BaseDialog : DialogFragment() {
             binding.textMessage.visibility = View.GONE
         }
 
-        inputHintId?.let {
-            binding.input.setHint(it)
-        } ?: run {
-            binding.input.visibility = View.GONE
-        }
-
-        selectOptions?.let { options ->
-            options.forEach { option ->
-                val radioButton = inflater.inflate(
-                    R.layout.layout_radio_button,
-                    null
-                ) as RadioButton
-                radioButton.text = option
-                binding.radioGroup.addView(radioButton)
-            }
-        } ?: run {
-            binding.radioGroup.visibility = View.GONE
-        }
+        binding.input.visibility = View.GONE
+        binding.radioGroup.visibility = View.GONE
 
         confirmButtonTextId?.let(binding.buttonConfirm::setText)
         cancelButtonTextId?.let(binding.buttonCancel::setText)
@@ -92,6 +72,13 @@ abstract class BaseDialog : DialogFragment() {
         dialog?.window?.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+    }
+
+    protected fun setResult(builder: Bundle.() -> Unit) {
+        parentFragmentManager.setFragmentResult(
+            requestKey,
+            Bundle().apply(builder)
         )
     }
 }
