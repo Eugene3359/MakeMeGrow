@@ -15,11 +15,15 @@
     <!-- New/Modify Task -->
     <string name="new_task">New Task</string>
     <string name="task">Task</string>
-    <string name="enter_task_here">Enter Task Here</string>
+    <string name="enter_task_here">Enter task here</string>
+    <string name="description">Description</string>
+    <string name="enter_description">Enter task description if needed</string>
     <string name="deadline">Deadline</string>
     <string name="date_not_set">Date not set</string>
     <string name="time_not_set">Time not set</string>
     <string name="enter_task_first">Enter Task First</string>
+    <string name="unfold_sign">v</string>
+    <string name="fold_sign">—</string>
 
     <!-- Date and Time Formating -->
     <string name="yesterday">Yesterday</string>

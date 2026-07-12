@@ -181,6 +181,7 @@ class TaskActivity : AppCompatActivity() {
         task?.let {
             binding.textTitle.text = it.name
             binding.inputTask.setText(it.name)
+            binding.inputDescription.setText(it.description)
             selectedDate = DateAndTimeConverter.secondsToDate(it.deadlineDate)
             binding.inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
             selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
@@ -216,7 +217,7 @@ class TaskActivity : AppCompatActivity() {
 
         // Button Confirm
         binding.buttonConfirm.setOnClickListener {
-            val taskName: String = binding.inputTask.text.toString()
+            val taskName: String = binding.inputTask.text.trim().toString()
             if (taskName.isBlank()) {
                 Toast.makeText(
                     this,
@@ -224,18 +225,20 @@ class TaskActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
             } else {
+                val description: String = binding.inputDescription.text.trim().toString()
                 val deadlineDate: Long = DateAndTimeConverter.dateToSeconds(selectedDate)
                 val deadlineTime: Int = DateAndTimeConverter.timeToSeconds(selectedTime)
                 val repeat: Task.RepeatType = Task.RepeatType.entries[repeatPosition]
                 if (task == null) {
                     // Add new task
                     taskViewModel.addTask(
-                        Task(0, taskName, false, deadlineDate,
+                        Task(0, taskName, description, false, deadlineDate,
                             deadlineTime, repeat, selectedCategoryId))
                 } else {
                     // Modify existing task
                     task?.let{
                         it.name = taskName
+                        it.description = description
                         it.deadlineDate = deadlineDate
                         it.deadlineTime = deadlineTime
                         it.repeat = repeat

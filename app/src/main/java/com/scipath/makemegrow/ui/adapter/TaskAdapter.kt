@@ -1,5 +1,6 @@
 package com.scipath.makemegrow.ui.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import com.scipath.makemegrow.data.repository.SettingsRepository.Companion.DEFAU
 import com.scipath.makemegrow.databinding.LayoutTaskBinding
 import java.time.LocalDate
 import java.time.LocalTime
+import androidx.core.view.isVisible
 
 class TaskAdapter(
     private var tasks: List<Task>,
@@ -52,17 +54,35 @@ class TaskAdapter(
         // Name
         holder.binding.textTask.text = task.name
 
+        // Description
+        holder.binding.textDescription.visibility = View.GONE
+        if (task.description.isEmpty()) {
+            holder.binding.buttonDescription.visibility = View.GONE
+        } else {
+            holder.binding.textDescription.text = task.description
+            holder.binding.buttonDescription.visibility = View.VISIBLE
+            holder.binding.buttonDescription.setOnClickListener {
+                if (holder.binding.textDescription.isVisible) {
+                    holder.binding.textDescription.visibility = View.GONE
+                    holder.binding.buttonDescription.setText(R.string.unfold_sign)
+                } else {
+                    holder.binding.textDescription.visibility = View.VISIBLE
+                    holder.binding.buttonDescription.setText(R.string.fold_sign)
+                }
+            }
+        }
+
         // Deadline
         if (task.deadlineDate == DateAndTimeConverter.NO_DATE) {
             holder.binding.textDeadline.visibility = View.GONE
         } else {
-            holder.binding.textDeadline.visibility = View.VISIBLE
             val deadline: String = DateAndTimeConverter.dateAndTimeToString(
                 date = DateAndTimeConverter.secondsToDate(task.deadlineDate),
                 time = DateAndTimeConverter.secondsToTime(task.deadlineTime),
                 isTimeFormat24 = isTimeFormat24,
                 context = context
             )
+            holder.binding.textDeadline.visibility = View.VISIBLE
             holder.binding.textDeadline.text = deadline
             holder.binding.textDeadline.setTextColor(
                 if (isDeadlineMissed(task)) {
@@ -73,7 +93,7 @@ class TaskAdapter(
             )
         }
 
-        // Repeat
+        // Repeat Icon
         if (task.repeat == NO_REPEAT) {
            holder.binding.imageRepeat.visibility = View.GONE
         } else {
@@ -84,7 +104,10 @@ class TaskAdapter(
         holder.binding.checkbox.setOnCheckedChangeListener(null)
         holder.binding.checkbox.isChecked = task.isCompleted
         holder.binding.checkbox.setOnCheckedChangeListener { checkbox, isChecked ->
-            onTaskChecked(task, isChecked) { checkbox.isChecked = false }
+            onTaskChecked(task, isChecked) {
+                // OnCompletionCancel
+                checkbox.isChecked = false
+            }
         }
 
         // Selection
@@ -102,13 +125,16 @@ class TaskAdapter(
 
         // OnLongClick
         holder.itemView.setOnLongClickListener {
+            val isSelected: Boolean
             if (selectedTasks.contains(position)) {
-                selectedTasks.remove(position)
+                selectedTasks.remove(position) // Deselected
+                isSelected = false
             } else {
-                selectedTasks.add(position)
+                selectedTasks.add(position) // Selected
+                isSelected = true
             }
             notifyItemChanged(position)
-            onTaskSelect(task, selectedTasks.contains(position))
+            onTaskSelect(task, isSelected)
             return@setOnLongClickListener true
         }
     }
@@ -117,14 +143,20 @@ class TaskAdapter(
         return tasks.size
     }
 
+    fun updateTimeFormat(isTimeFormat24: Boolean) {
+        this.isTimeFormat24 = isTimeFormat24
+        for (index in tasks.indices) {
+            val task: Task = tasks[index]
+            if (task.deadlineTime != DateAndTimeConverter.NO_TIME) {
+                notifyItemChanged(index)
+            }
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
         selectedTasks.clear()
-        notifyDataSetChanged()
-    }
-
-    fun updateTimeFormat(isTimeFormat24: Boolean) {
-        this.isTimeFormat24 = isTimeFormat24
         notifyDataSetChanged()
     }
 

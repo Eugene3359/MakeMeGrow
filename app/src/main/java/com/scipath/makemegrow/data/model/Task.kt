@@ -21,6 +21,7 @@ import java.io.Serializable
 data class Task(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "name") var name: String,
+    @ColumnInfo(name = "description") var description: String,
     @ColumnInfo(name = "is_completed") var isCompleted: Boolean,
     @ColumnInfo(name = "deadline_date") var deadlineDate: Long,
     @ColumnInfo(name = "deadline_time") var deadlineTime: Int,

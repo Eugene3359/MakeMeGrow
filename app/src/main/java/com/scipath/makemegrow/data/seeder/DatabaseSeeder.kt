@@ -6,17 +6,16 @@ import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
 import java.time.LocalDate
-import java.time.LocalTime
 
 object DatabaseSeeder {
 
     suspend fun seedTasks(repository: TaskRepository) {
         val currentDate: LocalDate = LocalDate.now()
-        val currentTime: LocalTime = LocalTime.now()
 
         repository.addTask(
             Task(0,
                 "Yesterday Task",
+                "",
                 false,
                 DateAndTimeConverter.dateToSeconds(currentDate.minusDays(1)),
                 DateAndTimeConverter.NO_TIME,
@@ -26,17 +25,8 @@ object DatabaseSeeder {
 
         repository.addTask(
             Task(0,
-                "Today Overdue Task",
-                false,
-                DateAndTimeConverter.dateToSeconds(currentDate),
-                DateAndTimeConverter.timeToSeconds(currentTime.minusSeconds(1)),
-                Task.RepeatType.NO_REPEAT,
-                null)
-        )
-
-        repository.addTask(
-            Task(0,
-                "Today Task",
+                "Today Task with Description",
+                "Line 1\nLine 2\nLine 3",
                 false,
                 DateAndTimeConverter.dateToSeconds(currentDate),
                 DateAndTimeConverter.NO_TIME,
@@ -47,6 +37,7 @@ object DatabaseSeeder {
         repository.addTask(
             Task(0,
                 "Tomorrow Task",
+                "",
                 false,
                 DateAndTimeConverter.dateToSeconds(currentDate.plusDays(1)),
                 DateAndTimeConverter.NO_TIME,
@@ -57,8 +48,11 @@ object DatabaseSeeder {
         repository.addTask(
             Task(0,
                 "Next Week Task",
+                "",
                 false,
-                DateAndTimeConverter.dateToSeconds(currentDate.plusWeeks(1)),
+                DateAndTimeConverter.dateToSeconds(currentDate.plusDays(
+                    8L - currentDate.dayOfWeek.value
+                )),
                 DateAndTimeConverter.NO_TIME,
                 Task.RepeatType.NO_REPEAT,
                 null)
@@ -67,8 +61,9 @@ object DatabaseSeeder {
         repository.addTask(
             Task(0,
                 "Next Month Task",
+                "",
                 false,
-                DateAndTimeConverter.dateToSeconds(currentDate.plusMonths(1)),
+                DateAndTimeConverter.dateToSeconds(currentDate.plusMonths(1).withDayOfMonth(1)),
                 DateAndTimeConverter.NO_TIME,
                 Task.RepeatType.NO_REPEAT,
                 null)
@@ -77,8 +72,9 @@ object DatabaseSeeder {
         repository.addTask(
             Task(0,
                 "Next Year Task",
+                "",
                 false,
-                DateAndTimeConverter.dateToSeconds(currentDate.plusYears(1)),
+                DateAndTimeConverter.dateToSeconds(currentDate.plusYears(1).withMonth(1).withDayOfMonth(1)),
                 DateAndTimeConverter.NO_TIME,
                 Task.RepeatType.NO_REPEAT,
                 null)
@@ -86,7 +82,8 @@ object DatabaseSeeder {
 
         repository.addTask(
             Task(0,
-                "Once a Day Task",
+                "Daily Repeatable Task",
+                "",
                 false,
                 DateAndTimeConverter.dateToSeconds(currentDate),
                 DateAndTimeConverter.NO_TIME,
@@ -96,9 +93,13 @@ object DatabaseSeeder {
 
         repository.addTask(
             Task(0,
-                "Mon-Fri Task",
+                "Mon-Fri Repeatable Task",
+                "",
                 false,
-                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.dateToSeconds(currentDate.plusDays(
+                    if (currentDate.dayOfWeek.value < 5) 1
+                    else 8L - currentDate.dayOfWeek.value
+                )),
                 DateAndTimeConverter.NO_TIME,
                 Task.RepeatType.ON_WEEKDAYS,
                 null)
@@ -106,9 +107,14 @@ object DatabaseSeeder {
 
         repository.addTask(
             Task(0,
-                "Sat-Sun Task",
+                "Sat-Sun Repeatable Task",
+                "",
                 false,
-                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.dateToSeconds(currentDate.plusDays(
+                    if (currentDate.dayOfWeek.value == 6) 1
+                    else if (currentDate.dayOfWeek.value == 7) 6
+                    else 6L - currentDate.dayOfWeek.value
+                )),
                 DateAndTimeConverter.NO_TIME,
                 Task.RepeatType.ON_WEEKENDS,
                 null)
@@ -116,9 +122,12 @@ object DatabaseSeeder {
 
         repository.addTask(
             Task(0,
-                "Once a Week Task",
+                "Weakly Repeatable Task",
+                "",
                 false,
-                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.dateToSeconds(currentDate.plusDays(
+                    8L - currentDate.dayOfWeek.value
+                )),
                 DateAndTimeConverter.NO_TIME,
                 Task.RepeatType.ONCE_A_WEEK,
                 null)
@@ -126,9 +135,10 @@ object DatabaseSeeder {
 
         repository.addTask(
             Task(0,
-                "Once a Month Task",
+                "Monthly Repeatable Task",
+                "",
                 false,
-                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.dateToSeconds(currentDate.plusMonths(1).withDayOfMonth(1)),
                 DateAndTimeConverter.NO_TIME,
                 Task.RepeatType.ONCE_A_MONTH,
                 null)
@@ -136,9 +146,12 @@ object DatabaseSeeder {
 
         repository.addTask(
             Task(0,
-                "Once a Year Task",
+                "Yearly Repeatable Task",
+                "",
                 false,
-                DateAndTimeConverter.dateToSeconds(currentDate),
+                DateAndTimeConverter.dateToSeconds(
+                    currentDate.plusYears(1).withMonth(1).withDayOfMonth(1)
+                ),
                 DateAndTimeConverter.NO_TIME,
                 Task.RepeatType.ONCE_A_YEAR,
                 null)
@@ -146,7 +159,8 @@ object DatabaseSeeder {
 
         repository.addTask(
             Task(0,
-                "Task",
+                "No Deadline Task",
+                "",
                 false,
                 DateAndTimeConverter.NO_DATE,
                 DateAndTimeConverter.NO_TIME,
@@ -157,8 +171,7 @@ object DatabaseSeeder {
 
     suspend fun seedCategories(repository: CategoryRepository) {
         repository.addCategory(
-            Category(0,
-                "Work Category")
+            Category(0, "Work Category")
         )
     }
 }
