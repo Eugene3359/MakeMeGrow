@@ -14,7 +14,7 @@
         android:id="@+id/text_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="5dp"
         android:text="@string/placeholder"
         android:textColor="@color/white"
         android:textSize="@dimen/text_large"
@@ -24,7 +24,6 @@
         android:id="@+id/text_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
         android:text="@string/placeholder"
         android:textColor="@color/white"
         android:textSize="@dimen/text_medium"/>
@@ -33,7 +32,6 @@
         android:id="@+id/input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
         android:backgroundTint="@color/light_gray"
         android:hint="@string/placeholder"
         android:importantForAutofill="no"
@@ -46,7 +44,7 @@
         android:id="@+id/radio_group"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="10dp" />
+        android:visibility="gone"/>
 
     <LinearLayout
         android:layout_width="match_parent"

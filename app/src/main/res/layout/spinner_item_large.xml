@@ -6,6 +6,6 @@
     android:paddingVertical="5dp"
     android:paddingHorizontal="10dp"
     android:textColor="@color/white"
-    android:textSize="@dimen/text_large"
+    android:textSize="@dimen/taskbar_text"
     android:textStyle="bold"
     android:singleLine="true"/>

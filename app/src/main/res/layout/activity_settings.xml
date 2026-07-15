@@ -20,8 +20,8 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_back"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="@dimen/button_icon"
+            android:layout_height="@dimen/button_icon"
             android:background="@android:color/transparent"
             android:foreground="@drawable/ic_back" />
 
@@ -31,7 +31,7 @@
             android:layout_marginHorizontal="20dp"
             android:text="@string/settings"
             android:textColor="@color/white"
-            android:textSize="@dimen/text_large"
+            android:textSize="@dimen/taskbar_text"
             android:textStyle="bold" />
 
     </LinearLayout>
