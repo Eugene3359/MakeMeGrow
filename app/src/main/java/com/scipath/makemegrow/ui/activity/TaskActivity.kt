@@ -3,6 +3,8 @@ package com.scipath.makemegrow.ui.activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -47,6 +49,49 @@ class TaskActivity : AppCompatActivity() {
         val settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
         settingsViewModel.firstDayOfWeek.observe(this) {}
         settingsViewModel.timeFormat24.observe(this) {}
+
+        // Description
+        var bulletPointsOn = false
+
+        binding.inputDescription.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(
+                text: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {}
+
+            override fun onTextChanged(
+                text: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+                if (bulletPointsOn &&
+                    before == 0 && count == 1 &&
+                    text?.get(start) == '\n') {
+                    val bulletPoint: String = getString(R.string.bullet_point)
+                    var description = StringBuilder(text)
+                    description = description.insert(start + 1, bulletPoint)
+                    binding.inputDescription.setText(description)
+                    binding.inputDescription.setSelection(start + bulletPoint.length + 1)
+                }
+            }
+
+            override fun afterTextChanged(text: Editable?) {}
+        })
+
+        binding.buttonBulletPoint.setOnClickListener {
+            if (bulletPointsOn) {
+                bulletPointsOn = false
+                binding.buttonBulletPoint.setText(R.string.bullet_point_sign)
+                removeBulletPoints()
+            } else {
+                bulletPointsOn = true
+                binding.buttonBulletPoint.text = ""
+                addBulletPoints()
+            }
+        }
 
         // Input Date
         binding.inputDate.setOnClickListener {
@@ -182,6 +227,10 @@ class TaskActivity : AppCompatActivity() {
             binding.textTitle.text = it.name
             binding.inputTask.setText(it.name)
             binding.inputDescription.setText(it.description)
+            if (it.description.contains(getString(R.string.bullet_point))) {
+                bulletPointsOn = true
+                binding.buttonBulletPoint.text = ""
+            }
             selectedDate = DateAndTimeConverter.secondsToDate(it.deadlineDate)
             binding.inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
             selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
@@ -255,5 +304,28 @@ class TaskActivity : AppCompatActivity() {
         binding.buttonBack.setOnClickListener {
             finish()
         }
+    }
+
+    private fun addBulletPoints() {
+        val bulletPoint: String = getString(R.string.bullet_point)
+        var description: String = binding.inputDescription.text.toString()
+        var selection: Int = binding.inputDescription.selectionEnd
+        val n = description.take(selection).count { it == '\n' } + 1
+        selection += n * bulletPoint.length
+        description = bulletPoint + description
+        description = description.replace("\n", "\n" + bulletPoint)
+        binding.inputDescription.setText(description)
+        binding.inputDescription.setSelection(selection)
+    }
+
+    private fun removeBulletPoints() {
+        val bulletPoint: String = getString(R.string.bullet_point)
+        var description: String = binding.inputDescription.text.toString()
+        var selection: Int = binding.inputDescription.selectionEnd
+        val n = description.take(selection).count { it == '•' }
+        selection -= n * bulletPoint.length
+        description = description.replace(bulletPoint, "")
+        binding.inputDescription.setText(description)
+        binding.inputDescription.setSelection(selection)
     }
 }

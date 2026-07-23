@@ -34,7 +34,7 @@
             android:id="@+id/text_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="6dp"
             android:text="@string/placeholder"
             android:textColor="@color/light_gray"
             android:textSize="@dimen/text_medium_small"

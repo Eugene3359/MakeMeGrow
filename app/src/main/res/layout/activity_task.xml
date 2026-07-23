@@ -91,17 +91,35 @@
             android:textColor="@color/white"
             android:textSize="@dimen/text_medium"/>
 
-        <EditText
-            android:id="@+id/input_description"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/light_gray"
-            android:hint="@string/enter_description"
-            android:importantForAutofill="no"
-            android:inputType="textMultiLine"
-            android:textColorHint="@color/light_gray"
-            android:textColor="@color/light_gray"
-            android:textSize="@dimen/text_medium"/>
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/input_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/light_gray"
+                android:hint="@string/enter_description"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine"
+                android:textColorHint="@color/light_gray"
+                android:textColor="@color/light_gray"
+                android:textSize="@dimen/text_medium"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_bullet_point"
+                android:layout_width="@dimen/button_icon"
+                android:layout_height="@dimen/button_icon"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/shape_round"
+                android:text="@string/bullet_point_sign"
+                android:textColor="@color/white"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -143,8 +161,8 @@
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/button_clear_date"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_width="@dimen/button_icon"
+                android:layout_height="@dimen/button_icon"
                 android:layout_marginStart="10dp"
                 android:background="@drawable/shape_round"
                 android:foreground="@drawable/ic_cross"
@@ -177,8 +195,8 @@
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/button_clear_time"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_width="@dimen/button_icon"
+                android:layout_height="@dimen/button_icon"
                 android:layout_marginStart="10dp"
                 android:background="@drawable/shape_round"
                 android:foreground="@drawable/ic_cross"

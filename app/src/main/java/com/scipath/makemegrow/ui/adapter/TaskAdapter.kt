@@ -56,6 +56,7 @@ class TaskAdapter(
 
         // Description
         holder.binding.textDescription.visibility = View.GONE
+        holder.binding.buttonDescription.setText(R.string.unfold_sign)
         if (task.description.isEmpty()) {
             holder.binding.buttonDescription.visibility = View.GONE
         } else {
