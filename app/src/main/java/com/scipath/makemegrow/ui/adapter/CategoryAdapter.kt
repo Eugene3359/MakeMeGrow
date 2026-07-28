@@ -65,7 +65,7 @@ class CategoryAdapter(
             // Selection
             holder.itemView.setBackgroundColor(
                 if (selectedCategories.contains(position))
-                    context.getColor(R.color.light_gray)
+                    context.getColor(R.color.white)
                 else
                     context.getColor(R.color.dark_gray)
             )

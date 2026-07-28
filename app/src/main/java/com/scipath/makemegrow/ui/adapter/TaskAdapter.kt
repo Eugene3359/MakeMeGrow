@@ -52,7 +52,7 @@ class TaskAdapter(
         val task = tasks[position]
 
         // Name
-        holder.binding.textTask.text = task.name
+        holder.binding.textName.text = task.name
 
         // Description
         holder.binding.textDescription.visibility = View.GONE
@@ -114,7 +114,7 @@ class TaskAdapter(
         // Selection
         holder.itemView.setBackgroundColor(
             if (selectedTasks.contains(position))
-                context.getColor(R.color.light_gray)
+                context.getColor(R.color.white)
             else
                 context.getColor(R.color.dark_gray)
         )
