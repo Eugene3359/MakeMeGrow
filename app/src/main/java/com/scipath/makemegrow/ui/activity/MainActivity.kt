@@ -17,16 +17,8 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.common.CategoryIds.ALL
 import com.scipath.makemegrow.data.common.CategoryIds.DEFAULT
-import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.model.Category
-import com.scipath.makemegrow.data.model.Task.RepeatType.NO_REPEAT
-import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_DAY
-import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_MONTH
-import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_WEEK
-import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_YEAR
-import com.scipath.makemegrow.data.model.Task.RepeatType.ON_WEEKDAYS
-import com.scipath.makemegrow.data.model.Task.RepeatType.ON_WEEKENDS
 import com.scipath.makemegrow.databinding.ActivityMainBinding
 import com.scipath.makemegrow.ui.adapter.CategoryArrayAdapter
 import com.scipath.makemegrow.ui.adapter.TaskAdapter
@@ -36,7 +28,6 @@ import com.scipath.makemegrow.ui.dialog.TaskCompletionDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
-import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
 
@@ -316,7 +307,7 @@ class MainActivity : AppCompatActivity() {
                     onTaskCompletionCancel = onCancel
                     TaskCompletionDialog().show(supportFragmentManager, "TaskCompletionDialog")
                 } else {
-                    checkTask(task, isChecked)
+                    taskViewModel.completeTask(task, isChecked)
                 }
             }
         )
@@ -325,63 +316,6 @@ class MainActivity : AppCompatActivity() {
         taskSection.recyclerView.layoutManager = LinearLayoutManager(this)
         taskSection.recyclerView.adapter = adapter
         taskSection.recyclerView.isNestedScrollingEnabled = false
-    }
-
-    private fun checkTask(task: Task, isChecked: Boolean) {
-        val deadlineDate: LocalDate? = DateAndTimeConverter.secondsToDate(task.deadlineDate)
-        when (task.repeat) {
-            NO_REPEAT -> task.isCompleted = isChecked
-            ONCE_A_DAY -> {
-                deadlineDate?.let {
-                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
-                        it.plusDays(1)
-                    )
-                }
-            }
-            ON_WEEKDAYS -> {
-                deadlineDate?.let {
-                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
-                        it.plusDays(
-                            if (it.dayOfWeek.value < 5) 1
-                            else 8L - it.dayOfWeek.value
-                        )
-                    )
-                }
-            }
-            ON_WEEKENDS -> {
-                deadlineDate?.let {
-                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
-                        it.plusDays(
-                            if (it.dayOfWeek.value == 6) 1
-                            else if (it.dayOfWeek.value == 7) 6
-                            else 6L - it.dayOfWeek.value
-                        )
-                    )
-                }
-            }
-            ONCE_A_WEEK -> {
-                deadlineDate?.let {
-                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
-                        it.plusWeeks(1)
-                    )
-                }
-            }
-            ONCE_A_MONTH -> {
-                deadlineDate?.let {
-                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
-                        it.plusMonths(1)
-                    )
-                }
-            }
-            ONCE_A_YEAR -> {
-                deadlineDate?.let {
-                    task.deadlineDate = DateAndTimeConverter.dateToSeconds(
-                        it.plusYears(1)
-                    )
-                }
-            }
-        }
-        taskViewModel.updateTask(task)
     }
 
     private fun updateTaskSection(taskSection: TaskSection) {
@@ -425,7 +359,7 @@ class MainActivity : AppCompatActivity() {
                 val isConfirmed = bundle.getBoolean(TaskCompletionDialog.RESULT_KEY)
                 if (isConfirmed) {
                     pendingTask?.let { task ->
-                        checkTask(task, true)
+                        taskViewModel.completeTask(task, true)
                     }
                 } else {
                     onTaskCompletionCancel?.invoke()
