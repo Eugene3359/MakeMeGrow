@@ -232,8 +232,16 @@
         app:layout_constraintTop_toTopOf="parent"
         android:paddingHorizontal="20dp"
         android:background="@color/dark_gray"
-        android:orientation="horizontal"
-        android:gravity="center_vertical|end">
+        android:gravity="center_vertical">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_back"
+            android:layout_width="@dimen/button_icon"
+            android:layout_height="@dimen/button_icon"
+            android:layout_marginEnd="20dp"
+            android:background="@android:color/transparent"
+            android:foreground="@drawable/ic_back"
+            android:visibility="gone"/>
 
         <CheckBox
             android:id="@+id/checkbox_completed"

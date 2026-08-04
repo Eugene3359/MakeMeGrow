@@ -161,6 +161,14 @@ class TaskAdapter(
         notifyDataSetChanged()
     }
 
+    fun deselectTasks() {
+        while(!selectedTasks.isEmpty()) {
+            val position: Int = selectedTasks[0]
+            selectedTasks.remove(position)
+            notifyItemChanged(position)
+        }
+    }
+
     private fun isDeadlineMissed(task: Task): Boolean {
         val currentDate: Long = DateAndTimeConverter.dateToSeconds(LocalDate.now())
         val currentTime: Int = DateAndTimeConverter.timeToSeconds(LocalTime.now())

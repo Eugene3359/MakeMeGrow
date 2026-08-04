@@ -35,7 +35,8 @@
             android:text="@string/new_task"
             android:textColor="@color/white"
             android:textSize="@dimen/taskbar_text"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:maxLines="1"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_delete"

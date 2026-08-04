@@ -82,6 +82,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupTaskbar() {
+        binding.buttonBack.setOnClickListener {
+            deselectTasks()
+        }
+
         binding.checkboxCompleted.setOnCheckedChangeListener { _, isChecked ->
             displayCompletedTasks = isChecked
             taskSections.forEach(::updateTaskSection)
@@ -93,7 +97,6 @@ class MainActivity : AppCompatActivity() {
             DeleteTasksDialog().show(supportFragmentManager, "DeleteTasksDialog")
         }
 
-        // Button Menu
         binding.buttonMenu.setOnClickListener { showMenu(it) }
 
         setupDialogListeners()
@@ -298,8 +301,17 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     selectedTasks.remove(task)
                 }
-                binding.buttonDelete.visibility =
-                    if (selectedTasks.isEmpty()) View.GONE else View.VISIBLE
+                if (selectedTasks.isEmpty()) {
+                    binding.buttonBack.visibility = View.GONE
+                    binding.checkboxCompleted.visibility = View.VISIBLE
+                    binding.spinnerCategory.visibility = View.VISIBLE
+                    binding.buttonDelete.visibility = View.GONE
+                } else {
+                    binding.buttonBack.visibility = View.VISIBLE
+                    binding.checkboxCompleted.visibility = View.GONE
+                    binding.spinnerCategory.visibility = View.INVISIBLE
+                    binding.buttonDelete.visibility = View.VISIBLE
+                }
             },
             onTaskChecked = { task, isChecked, onCancel ->
                 if (settingsViewModel.isConfirmationOfCompletionEnabled() && isChecked) {
@@ -326,6 +338,17 @@ class MainActivity : AppCompatActivity() {
                 View.GONE
             else View.VISIBLE
         taskSection.adapter?.updateTasks(filteredTasks)
+    }
+
+    private fun deselectTasks() {
+        selectedTasks.clear()
+        taskSections.forEach { taskSections ->
+            taskSections.adapter?.deselectTasks()
+        }
+        binding.buttonBack.visibility = View.GONE
+        binding.checkboxCompleted.visibility = View.VISIBLE
+        binding.spinnerCategory.visibility = View.VISIBLE
+        binding.buttonDelete.visibility = View.GONE
     }
 
     private fun filterTasks(tasks: LiveData<List<Task>>) : List<Task> {
@@ -379,8 +402,7 @@ class MainActivity : AppCompatActivity() {
                     selectedTasks.forEach { task ->
                         taskViewModel.deleteTask(task)
                     }
-                    selectedTasks.clear()
-                    binding.buttonDelete.visibility = View.GONE
+                    deselectTasks()
                 }
             }
         )
