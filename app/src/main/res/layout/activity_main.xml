@@ -260,6 +260,15 @@
             tools:listitem="@layout/spinner_item_large"/>
 
         <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_share"
+            android:layout_width="@dimen/button_icon"
+            android:layout_height="@dimen/button_icon"
+            android:layout_marginEnd="20dp"
+            android:background="@android:color/transparent"
+            android:foreground="@drawable/ic_share"
+            android:visibility="gone"/>
+
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_delete"
             android:layout_width="@dimen/button_icon"
             android:layout_height="@dimen/button_icon"

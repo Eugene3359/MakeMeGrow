@@ -17,8 +17,9 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.common.CategoryIds.ALL
 import com.scipath.makemegrow.data.common.CategoryIds.DEFAULT
-import com.scipath.makemegrow.data.model.Task
+import com.scipath.makemegrow.data.converter.TaskToStringConverter
 import com.scipath.makemegrow.data.model.Category
+import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityMainBinding
 import com.scipath.makemegrow.ui.adapter.CategoryArrayAdapter
 import com.scipath.makemegrow.ui.adapter.TaskAdapter
@@ -92,6 +93,31 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupCategorySpinner()
+
+        binding.buttonShare.setOnClickListener {
+            val text = selectedTasks
+                .sortedWith(
+                    compareBy<Task> { it.deadlineDate }
+                        .thenBy { it.deadlineTime }
+                        .thenBy { it.name }
+                )
+                .joinToString { task ->
+                    TaskToStringConverter.convert(
+                        task,
+                        settingsViewModel.isTimeFormat24(),
+                        this
+                    )
+                }
+
+            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, text)
+            }
+
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            startActivity(shareIntent)
+            deselectTasks()
+        }
 
         binding.buttonDelete.setOnClickListener {
             DeleteTasksDialog().show(supportFragmentManager, "DeleteTasksDialog")
@@ -302,15 +328,9 @@ class MainActivity : AppCompatActivity() {
                     selectedTasks.remove(task)
                 }
                 if (selectedTasks.isEmpty()) {
-                    binding.buttonBack.visibility = View.GONE
-                    binding.checkboxCompleted.visibility = View.VISIBLE
-                    binding.spinnerCategory.visibility = View.VISIBLE
-                    binding.buttonDelete.visibility = View.GONE
+                    updateViewsOnTasksDeselected()
                 } else {
-                    binding.buttonBack.visibility = View.VISIBLE
-                    binding.checkboxCompleted.visibility = View.GONE
-                    binding.spinnerCategory.visibility = View.INVISIBLE
-                    binding.buttonDelete.visibility = View.VISIBLE
+                    updateViewsOnTasksSelected()
                 }
             },
             onTaskChecked = { task, isChecked, onCancel ->
@@ -338,6 +358,7 @@ class MainActivity : AppCompatActivity() {
                 View.GONE
             else View.VISIBLE
         taskSection.adapter?.updateTasks(filteredTasks)
+        selectedTasks.clear()
     }
 
     private fun deselectTasks() {
@@ -345,9 +366,22 @@ class MainActivity : AppCompatActivity() {
         taskSections.forEach { taskSections ->
             taskSections.adapter?.deselectTasks()
         }
+        updateViewsOnTasksDeselected()
+    }
+
+    private fun updateViewsOnTasksSelected() {
+        binding.buttonBack.visibility = View.VISIBLE
+        binding.checkboxCompleted.visibility = View.GONE
+        binding.spinnerCategory.visibility = View.INVISIBLE
+        binding.buttonShare.visibility = View.VISIBLE
+        binding.buttonDelete.visibility = View.VISIBLE
+    }
+
+    private fun updateViewsOnTasksDeselected() {
         binding.buttonBack.visibility = View.GONE
         binding.checkboxCompleted.visibility = View.VISIBLE
         binding.spinnerCategory.visibility = View.VISIBLE
+        binding.buttonShare.visibility = View.GONE
         binding.buttonDelete.visibility = View.GONE
     }
 
@@ -357,7 +391,7 @@ class MainActivity : AppCompatActivity() {
             DEFAULT -> taskViewModel.filterTasksByCategory(tasks, null)
             else -> taskViewModel.filterTasksByCategory(
                 tasks,
-                categoryViewModel.allCategories.value?.find { it.id == categoryViewModel.selectedCategoryId.value }
+                categoryViewModel.selectedCategoryId.value
             )
         }
     }

@@ -6,6 +6,7 @@ import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
 import java.time.LocalDate
+import java.time.LocalTime
 
 object DatabaseSeeder {
 
@@ -18,7 +19,7 @@ object DatabaseSeeder {
                 "",
                 false,
                 DateAndTimeConverter.dateToSeconds(currentDate.minusDays(1)),
-                DateAndTimeConverter.NO_TIME,
+                DateAndTimeConverter.timeToSeconds(LocalTime.of(12, 0)),
                 Task.RepeatType.NO_REPEAT,
                 null)
         )

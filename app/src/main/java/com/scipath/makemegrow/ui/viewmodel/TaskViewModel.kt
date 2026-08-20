@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
-import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.model.Task.RepeatType.NO_REPEAT
 import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_DAY
@@ -85,9 +84,9 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
         return DateAndTimeConverter.dateToSeconds(nextDate)
     }
 
-    fun filterTasksByCategory(tasks: LiveData<List<Task>>, category: Category?) : List<Task> {
+    fun filterTasksByCategory(tasks: LiveData<List<Task>>, categoryId: Int?) : List<Task> {
         val result = tasks.value?.filter {
-            it.categoryId == category?.id
+            it.categoryId == categoryId
         } ?: emptyList()
         return result
     }

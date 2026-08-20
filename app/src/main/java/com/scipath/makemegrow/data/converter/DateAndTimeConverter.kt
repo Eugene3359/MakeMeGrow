@@ -32,14 +32,16 @@ class DateAndTimeConverter {
             return LocalTime.ofSecondOfDay(secondOfDay.toLong())
         }
 
-        fun dateToString(date: LocalDate?, context: Context): String {
+        fun dateToString(date: LocalDate?, context: Context, relativeFormatting: Boolean = true): String {
             val currentDate: LocalDate = LocalDate.now()
-            if (date == currentDate.minusDays(1))
-                return context.getString(R.string.yesterday)
-            if (date == currentDate)
-                return context.getString(R.string.today)
-            if (date == currentDate.plusDays(1))
-                return context.getString(R.string.tomorrow)
+            if (relativeFormatting) {
+                if (date == currentDate.minusDays(1))
+                    return context.getString(R.string.yesterday)
+                if (date == currentDate)
+                    return context.getString(R.string.today)
+                if (date == currentDate.plusDays(1))
+                    return context.getString(R.string.tomorrow)
+            }
             val formatter = DateTimeFormatter.ofPattern(
                 context.getString(R.string.date_format),
                 Locale.getDefault())

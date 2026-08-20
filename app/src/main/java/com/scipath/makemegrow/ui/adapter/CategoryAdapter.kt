@@ -48,10 +48,10 @@ class CategoryAdapter(
         // Number of Tasks
         holder.binding.textTasks.text = context.getString(
             R.string.task_number,
-            taskViewModel.filterTasksByCategory(taskViewModel.allTasks, category).size)
+            taskViewModel.filterTasksByCategory(taskViewModel.allTasks, category?.id).size)
 
         // Number of Overdue Tasks
-        val overdueTasksNumber: Int = taskViewModel.filterTasksByCategory(taskViewModel.overdueTasks, category).size
+        val overdueTasksNumber: Int = taskViewModel.filterTasksByCategory(taskViewModel.overdueTasks, category?.id).size
         if (overdueTasksNumber > 0) {
             holder.binding.textOverdueTasks.text = context.getString(
                 R.string.overdue_task_number,

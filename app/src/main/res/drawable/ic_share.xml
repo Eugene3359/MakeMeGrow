@@ -13,10 +13,18 @@
 
         <path
             android:pathData="
-                M25,25 L75,75
-                M75,25 L25,75"
+                M25,50 L25,50
+                M75,20 L75,20
+                M75,80 L75,80"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="8"/>
+            android:strokeWidth="36"
+            android:strokeLineCap="round"/>
+
+        <path
+            android:pathData="M75,20 L25,50 L75,80"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="12"
+            android:strokeLineCap="round"/>
 
     </group>
 </vector>
