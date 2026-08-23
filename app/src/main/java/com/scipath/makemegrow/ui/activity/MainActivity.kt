@@ -6,13 +6,9 @@ import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.View
 import android.widget.AdapterView
-import android.widget.LinearLayout
 import android.widget.PopupMenu
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.common.CategoryIds.ALL
@@ -22,10 +18,10 @@ import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityMainBinding
 import com.scipath.makemegrow.ui.adapter.CategoryArrayAdapter
-import com.scipath.makemegrow.ui.adapter.TaskAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
 import com.scipath.makemegrow.ui.dialog.DeleteTasksDialog
 import com.scipath.makemegrow.ui.dialog.TaskCompletionDialog
+import com.scipath.makemegrow.ui.manager.TaskSectionManager
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
@@ -37,13 +33,6 @@ class MainActivity : AppCompatActivity() {
         private const val SPINNER_SKIP = 2
     }
 
-    data class TaskSection(
-        val liveData: LiveData<List<Task>>,
-        val parentLayout: LinearLayout,
-        val recyclerView: RecyclerView,
-        var adapter: TaskAdapter?
-    )
-
     private lateinit var taskViewModel: TaskViewModel
     private lateinit var categoryViewModel: CategoryViewModel
     private lateinit var settingsViewModel: SettingsViewModel
@@ -52,7 +41,7 @@ class MainActivity : AppCompatActivity() {
     private var onTaskCompletionCancel: (() -> Unit)? = null
     private var categoryNames: List<String> = mutableListOf()
     private lateinit var binding: ActivityMainBinding
-    private val taskSections: MutableList<TaskSection> = mutableListOf()
+    private lateinit var taskSectionManager: TaskSectionManager
     private lateinit var categoryAdapter: CategoryArrayAdapter
     private var displayCompletedTasks: Boolean = false
 
@@ -74,8 +63,19 @@ class MainActivity : AppCompatActivity() {
             taskViewModel.seedDatabase()
         }
 
+        taskSectionManager = TaskSectionManager(
+            activity = this,
+            taskViewModel = taskViewModel,
+            categoryViewModel = categoryViewModel,
+            settingsViewModel = settingsViewModel,
+            binding = binding,
+            onTaskClick = ::onTaskClick,
+            onTaskSelect = ::onTaskSelect,
+            onTaskCheck = ::onTaskCheck
+        )
+
         setupTaskbar()
-        setupAllTaskSections()
+        taskSectionManager.setupSections(displayCompletedTasks)
 
         binding.buttonNewTask.setOnClickListener {
             startActivity(Intent(this, TaskActivity::class.java))
@@ -89,7 +89,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.checkboxCompleted.setOnCheckedChangeListener { _, isChecked ->
             displayCompletedTasks = isChecked
-            taskSections.forEach(::updateTaskSection)
+            taskSectionManager.updateSections(displayCompletedTasks)
+            selectedTasks.clear()
         }
 
         setupCategorySpinner()
@@ -145,7 +146,8 @@ class MainActivity : AppCompatActivity() {
 
         categoryViewModel.selectedCategoryId.observe(this) {
             updateCategorySpinner()
-            taskSections.forEach(::updateTaskSection)
+            taskSectionManager.updateSections(displayCompletedTasks)
+            selectedTasks.clear()
         }
 
         categoryAdapter = CategoryArrayAdapter(this, mutableListOf())
@@ -224,148 +226,38 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupAllTaskSections() {
-        taskSections.clear()
+    private fun onTaskClick(task: Task) {
+        val intent = Intent(this, TaskActivity::class.java)
+        intent.putExtra("task", task)
+        startActivity(intent)
+    }
 
-        // Overdue
-        taskSections.add(TaskSection(
-            taskViewModel.overdueTasks,
-            binding.layoutOverdueTasks,
-            binding.viewOverdueTasks,
-            null
-        ))
-
-        // Today
-        taskSections.add(TaskSection(
-            taskViewModel.todayTasks,
-            binding.layoutTodayTasks,
-            binding.viewTodayTasks,
-            null
-        ))
-
-        // Tomorrow
-        taskSections.add(TaskSection(
-            taskViewModel.tomorrowTasks,
-            binding.layoutTomorrowTasks,
-            binding.viewTomorrowTasks,
-                null
-        ))
-
-        // This Week
-        taskSections.add(TaskSection(
-            taskViewModel.thisWeekTasks,
-            binding.layoutThisWeekTasks,
-            binding.viewThisWeekTasks,
-            null
-        ))
-
-        // Next Week
-        taskSections.add(TaskSection(
-            taskViewModel.nextWeekTasks,
-            binding.layoutNextWeekTasks,
-            binding.viewNextWeekTasks,
-            null
-        ))
-
-        // This Month
-        taskSections.add(TaskSection(
-            taskViewModel.thisMonthTasks,
-            binding.layoutThisMonthTasks,
-            binding.viewThisMonthTasks,
-            null
-        ))
-
-        // Next Month
-        taskSections.add(TaskSection(
-            taskViewModel.nextMonthTasks,
-            binding.layoutNextMonthTasks,
-            binding.viewNextMonthTasks,
-            null
-        ))
-
-        // Later
-        taskSections.add(TaskSection(
-            taskViewModel.laterTasks,
-            binding.layoutLaterTasks,
-            binding.viewLaterTasks,
-            null
-        ))
-
-        // Completed
-        taskSections.add(TaskSection(
-            taskViewModel.completedTasks,
-            binding.layoutCompletedTasks,
-            binding.viewCompletedTasks,
-            null
-        ))
-
-        taskSections.forEach { taskSection ->
-            setupTaskSectionAdapter(taskSection)
-            taskSection.liveData.observe(this) {
-                updateTaskSection(taskSection)
-            }
+    private fun onTaskSelect(task: Task, isSelected: Boolean) {
+        if (isSelected) {
+            selectedTasks.add(task)
+        } else {
+            selectedTasks.remove(task)
         }
-
-        settingsViewModel.timeFormat24.observe(this) { timeFormat24 ->
-            taskSections.forEach { taskSection ->
-                taskSection.adapter?.updateTimeFormat(timeFormat24)
-            }
+        if (selectedTasks.isEmpty()) {
+            updateViewsOnTasksDeselected()
+        } else {
+            updateViewsOnTasksSelected()
         }
     }
 
-    private fun setupTaskSectionAdapter(taskSection: TaskSection) {
-        val adapter = TaskAdapter(
-            tasks = emptyList(),
-            onTaskClick = { task ->
-                val intent = Intent(this, TaskActivity::class.java)
-                intent.putExtra("task", task)
-                startActivity(intent)
-            },
-            onTaskSelect = { task, isSelected ->
-                if (isSelected) {
-                    selectedTasks.add(task)
-                } else {
-                    selectedTasks.remove(task)
-                }
-                if (selectedTasks.isEmpty()) {
-                    updateViewsOnTasksDeselected()
-                } else {
-                    updateViewsOnTasksSelected()
-                }
-            },
-            onTaskChecked = { task, isChecked, onCancel ->
-                if (settingsViewModel.isConfirmationOfCompletionEnabled() && isChecked) {
-                    pendingTask = task
-                    onTaskCompletionCancel = onCancel
-                    TaskCompletionDialog().show(supportFragmentManager, "TaskCompletionDialog")
-                } else {
-                    taskViewModel.completeTask(task, isChecked)
-                }
-            }
-        )
-
-        taskSection.adapter = adapter
-        taskSection.recyclerView.layoutManager = LinearLayoutManager(this)
-        taskSection.recyclerView.adapter = adapter
-        taskSection.recyclerView.isNestedScrollingEnabled = false
-    }
-
-    private fun updateTaskSection(taskSection: TaskSection) {
-        val filteredTasks = filterTasks(taskSection.liveData)
-        taskSection.parentLayout.visibility =
-            if (filteredTasks.isEmpty() ||
-                filteredTasks.first().isCompleted != displayCompletedTasks)
-                View.GONE
-            else View.VISIBLE
-        taskSection.adapter?.updateTasks(filteredTasks)
-        selectedTasks.clear()
+    private fun onTaskCheck(task: Task, isChecked: Boolean, onCancel: () -> Unit) {
+        if (settingsViewModel.isConfirmationOfCompletionEnabled() && isChecked) {
+            pendingTask = task
+            onTaskCompletionCancel = onCancel
+            TaskCompletionDialog().show(supportFragmentManager, "TaskCompletionDialog")
+        } else {
+            taskViewModel.completeTask(task, isChecked)
+        }
     }
 
     private fun deselectTasks() {
         selectedTasks.clear()
-        taskSections.forEach { taskSections ->
-            taskSections.adapter?.deselectTasks()
-        }
+        taskSectionManager.deselectTasks()
         updateViewsOnTasksDeselected()
     }
 
@@ -383,17 +275,6 @@ class MainActivity : AppCompatActivity() {
         binding.spinnerCategory.visibility = View.VISIBLE
         binding.buttonShare.visibility = View.GONE
         binding.buttonDelete.visibility = View.GONE
-    }
-
-    private fun filterTasks(tasks: LiveData<List<Task>>) : List<Task> {
-        return when (categoryViewModel.selectedCategoryId.value) {
-            ALL -> tasks.value ?: emptyList()
-            DEFAULT -> taskViewModel.filterTasksByCategory(tasks, null)
-            else -> taskViewModel.filterTasksByCategory(
-                tasks,
-                categoryViewModel.selectedCategoryId.value
-            )
-        }
     }
 
     private fun setupDialogListeners() {

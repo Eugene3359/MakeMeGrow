@@ -19,7 +19,7 @@ class TaskAdapter(
     private var tasks: List<Task>,
     private val onTaskClick: (task: Task) -> Unit,
     private val onTaskSelect: (task: Task, isSelected: Boolean) -> Unit,
-    private val onTaskChecked: (
+    private val onTaskCheck: (
         task: Task,
         isChecked: Boolean,
         onCancel: () -> Unit
@@ -27,7 +27,7 @@ class TaskAdapter(
 ) : RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
     private var isTimeFormat24: Boolean = DEFAULT_TIME_FORMAT_24
-    private var selectedTasks: MutableList<Int> = mutableListOf()
+    private var selectedTaskPositions: MutableList<Int> = mutableListOf()
 
     class ViewHolder(val binding: LayoutTaskBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -105,7 +105,7 @@ class TaskAdapter(
         holder.binding.checkbox.setOnCheckedChangeListener(null)
         holder.binding.checkbox.isChecked = task.isCompleted
         holder.binding.checkbox.setOnCheckedChangeListener { checkbox, isChecked ->
-            onTaskChecked(task, isChecked) {
+            onTaskCheck(task, isChecked) {
                 // OnCompletionCancel
                 checkbox.isChecked = false
             }
@@ -113,7 +113,7 @@ class TaskAdapter(
 
         // Selection
         holder.itemView.setBackgroundColor(
-            if (selectedTasks.contains(position))
+            if (selectedTaskPositions.contains(position))
                 context.getColor(R.color.white)
             else
                 context.getColor(R.color.dark_gray)
@@ -127,11 +127,11 @@ class TaskAdapter(
         // OnLongClick
         holder.itemView.setOnLongClickListener {
             val isSelected: Boolean
-            if (selectedTasks.contains(position)) {
-                selectedTasks.remove(position) // Deselected
+            if (selectedTaskPositions.contains(position)) {
+                selectedTaskPositions.remove(position) // Deselected
                 isSelected = false
             } else {
-                selectedTasks.add(position) // Selected
+                selectedTaskPositions.add(position) // Selected
                 isSelected = true
             }
             notifyItemChanged(position)
@@ -157,14 +157,14 @@ class TaskAdapter(
     @SuppressLint("NotifyDataSetChanged")
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
-        selectedTasks.clear()
+        selectedTaskPositions.clear()
         notifyDataSetChanged()
     }
 
     fun deselectTasks() {
-        while(!selectedTasks.isEmpty()) {
-            val position: Int = selectedTasks[0]
-            selectedTasks.remove(position)
+        while(!selectedTaskPositions.isEmpty()) {
+            val position: Int = selectedTaskPositions[0]
+            selectedTaskPositions.remove(position)
             notifyItemChanged(position)
         }
     }

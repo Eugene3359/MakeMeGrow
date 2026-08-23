@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.scipath.makemegrow.data.common.CategoryIds.ALL
+import com.scipath.makemegrow.data.common.CategoryIds.DEFAULT
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.data.model.Task.RepeatType.NO_REPEAT
@@ -85,10 +87,16 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     }
 
     fun filterTasksByCategory(tasks: LiveData<List<Task>>, categoryId: Int?) : List<Task> {
-        val result = tasks.value?.filter {
-            it.categoryId == categoryId
-        } ?: emptyList()
-        return result
+        val result = when (categoryId) {
+            ALL -> tasks.value
+            DEFAULT -> tasks.value?.filter {
+                it.categoryId == null
+            }
+            else -> tasks.value?.filter {
+                it.categoryId == categoryId
+            }
+        }
+        return result ?: emptyList()
     }
 
     fun seedDatabase() {
