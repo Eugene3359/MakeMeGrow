@@ -14,11 +14,12 @@ import com.scipath.makemegrow.databinding.LayoutTaskBinding
 import java.time.LocalDate
 import java.time.LocalTime
 import androidx.core.view.isVisible
+import com.scipath.makemegrow.ui.viewmodel.SelectedTasksViewModel
 
 class TaskAdapter(
     private var tasks: List<Task>,
+    private val selectedTasksViewModel: SelectedTasksViewModel,
     private val onTaskClick: (task: Task) -> Unit,
-    private val onTaskSelect: (task: Task, isSelected: Boolean) -> Unit,
     private val onTaskCheck: (
         task: Task,
         isChecked: Boolean,
@@ -27,7 +28,6 @@ class TaskAdapter(
 ) : RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
     private var isTimeFormat24: Boolean = DEFAULT_TIME_FORMAT_24
-    private var selectedTaskPositions: MutableList<Int> = mutableListOf()
 
     class ViewHolder(val binding: LayoutTaskBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -113,7 +113,7 @@ class TaskAdapter(
 
         // Selection
         holder.itemView.setBackgroundColor(
-            if (selectedTaskPositions.contains(position))
+            if (selectedTasksViewModel.isSelected(task))
                 context.getColor(R.color.white)
             else
                 context.getColor(R.color.dark_gray)
@@ -126,16 +126,8 @@ class TaskAdapter(
 
         // OnLongClick
         holder.itemView.setOnLongClickListener {
-            val isSelected: Boolean
-            if (selectedTaskPositions.contains(position)) {
-                selectedTaskPositions.remove(position) // Deselected
-                isSelected = false
-            } else {
-                selectedTaskPositions.add(position) // Selected
-                isSelected = true
-            }
+            selectedTasksViewModel.toggle(task)
             notifyItemChanged(position)
-            onTaskSelect(task, isSelected)
             return@setOnLongClickListener true
         }
     }
@@ -157,15 +149,17 @@ class TaskAdapter(
     @SuppressLint("NotifyDataSetChanged")
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
-        selectedTaskPositions.clear()
+        selectedTasksViewModel.clear()
         notifyDataSetChanged()
     }
 
     fun deselectTasks() {
-        while(!selectedTaskPositions.isEmpty()) {
-            val position: Int = selectedTaskPositions[0]
-            selectedTaskPositions.remove(position)
-            notifyItemChanged(position)
+        selectedTasksViewModel.selectedTasks.value?.forEach { selectedTask ->
+            val position: Int = tasks.indexOf(selectedTask)
+            if (position != -1) {
+                selectedTasksViewModel.deselect(selectedTask)
+                notifyItemChanged(position)
+            }
         }
     }
 

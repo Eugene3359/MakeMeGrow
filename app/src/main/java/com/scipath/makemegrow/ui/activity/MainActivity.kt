@@ -22,6 +22,7 @@ import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
 import com.scipath.makemegrow.ui.dialog.DeleteTasksDialog
 import com.scipath.makemegrow.ui.dialog.TaskCompletionDialog
 import com.scipath.makemegrow.ui.manager.TaskSectionManager
+import com.scipath.makemegrow.ui.viewmodel.SelectedTasksViewModel
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
@@ -34,16 +35,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var taskViewModel: TaskViewModel
+    private lateinit var selectedTasksViewModel: SelectedTasksViewModel
     private lateinit var categoryViewModel: CategoryViewModel
     private lateinit var settingsViewModel: SettingsViewModel
-    private var selectedTasks: MutableList<Task> = mutableListOf()
     private var pendingTask: Task? = null
     private var onTaskCompletionCancel: (() -> Unit)? = null
     private var categoryNames: List<String> = mutableListOf()
     private lateinit var binding: ActivityMainBinding
     private lateinit var taskSectionManager: TaskSectionManager
     private lateinit var categoryAdapter: CategoryArrayAdapter
-    private var displayCompletedTasks: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         val app = application as MakeMeGrowApp
         taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java]
+        selectedTasksViewModel = ViewModelProvider(this)[SelectedTasksViewModel::class.java]
         categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
         settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
         settingsViewModel.confirmationOfCompletion.observe(this) {}
@@ -66,16 +67,36 @@ class MainActivity : AppCompatActivity() {
         taskSectionManager = TaskSectionManager(
             activity = this,
             taskViewModel = taskViewModel,
+            selectedTasksViewModel = selectedTasksViewModel.apply {
+                selectedTasks.observe(this@MainActivity) {
+                    if (selectedTasksViewModel.isEmpty()) {
+                        updateViewsOnTasksDeselected()
+                    } else {
+                        updateViewsOnTasksSelected()
+                    }
+                }
+            },
             categoryViewModel = categoryViewModel,
             settingsViewModel = settingsViewModel,
             binding = binding,
-            onTaskClick = ::onTaskClick,
-            onTaskSelect = ::onTaskSelect,
-            onTaskCheck = ::onTaskCheck
+            onTaskClick = { task ->
+                val intent = Intent(this, TaskActivity::class.java)
+                intent.putExtra("task", task)
+                startActivity(intent)
+            },
+            onTaskCheck = { task, isChecked, onCancel ->
+                if (settingsViewModel.isConfirmationOfCompletionEnabled() && isChecked) {
+                    pendingTask = task
+                    onTaskCompletionCancel = onCancel
+                    TaskCompletionDialog().show(supportFragmentManager, "TaskCompletionDialog")
+                } else {
+                    taskViewModel.completeTask(task, isChecked)
+                }
+            }
         )
 
         setupTaskbar()
-        taskSectionManager.setupSections(displayCompletedTasks)
+        taskSectionManager.setupSections()
 
         binding.buttonNewTask.setOnClickListener {
             startActivity(Intent(this, TaskActivity::class.java))
@@ -88,21 +109,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.checkboxCompleted.setOnCheckedChangeListener { _, isChecked ->
-            displayCompletedTasks = isChecked
-            taskSectionManager.updateSections(displayCompletedTasks)
-            selectedTasks.clear()
+            taskSectionManager.displayCompletedTasks = isChecked
+            taskSectionManager.updateSections()
         }
 
         setupCategorySpinner()
 
         binding.buttonShare.setOnClickListener {
-            val text = selectedTasks
-                .sortedWith(
+            val text = selectedTasksViewModel.selectedTasks.value
+                ?.sortedWith(
                     compareBy<Task> { it.deadlineDate }
                         .thenBy { it.deadlineTime }
                         .thenBy { it.name }
                 )
-                .joinToString { task ->
+                ?.joinToString(separator = "") { task ->
                     TaskToStringConverter.convert(
                         task,
                         settingsViewModel.isTimeFormat24(),
@@ -146,8 +166,7 @@ class MainActivity : AppCompatActivity() {
 
         categoryViewModel.selectedCategoryId.observe(this) {
             updateCategorySpinner()
-            taskSectionManager.updateSections(displayCompletedTasks)
-            selectedTasks.clear()
+            taskSectionManager.updateSections()
         }
 
         categoryAdapter = CategoryArrayAdapter(this, mutableListOf())
@@ -226,39 +245,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onTaskClick(task: Task) {
-        val intent = Intent(this, TaskActivity::class.java)
-        intent.putExtra("task", task)
-        startActivity(intent)
-    }
-
-    private fun onTaskSelect(task: Task, isSelected: Boolean) {
-        if (isSelected) {
-            selectedTasks.add(task)
-        } else {
-            selectedTasks.remove(task)
-        }
-        if (selectedTasks.isEmpty()) {
-            updateViewsOnTasksDeselected()
-        } else {
-            updateViewsOnTasksSelected()
-        }
-    }
-
-    private fun onTaskCheck(task: Task, isChecked: Boolean, onCancel: () -> Unit) {
-        if (settingsViewModel.isConfirmationOfCompletionEnabled() && isChecked) {
-            pendingTask = task
-            onTaskCompletionCancel = onCancel
-            TaskCompletionDialog().show(supportFragmentManager, "TaskCompletionDialog")
-        } else {
-            taskViewModel.completeTask(task, isChecked)
-        }
-    }
-
     private fun deselectTasks() {
-        selectedTasks.clear()
         taskSectionManager.deselectTasks()
-        updateViewsOnTasksDeselected()
     }
 
     private fun updateViewsOnTasksSelected() {
@@ -314,7 +302,7 @@ class MainActivity : AppCompatActivity() {
             { _, bundle ->
                 val isConfirmed = bundle.getBoolean(DeleteTasksDialog.RESULT_KEY)
                 if (isConfirmed) {
-                    selectedTasks.forEach { task ->
+                    selectedTasksViewModel.selectedTasks.value?.forEach { task ->
                         taskViewModel.deleteTask(task)
                     }
                     deselectTasks()

@@ -10,17 +10,18 @@ import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityMainBinding
 import com.scipath.makemegrow.ui.adapter.TaskAdapter
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
+import com.scipath.makemegrow.ui.viewmodel.SelectedTasksViewModel
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 
 class TaskSectionManager(
     private val activity: AppCompatActivity,
     private val taskViewModel: TaskViewModel,
+    private val selectedTasksViewModel: SelectedTasksViewModel,
     private val categoryViewModel: CategoryViewModel,
     private val settingsViewModel: SettingsViewModel,
     private val binding: ActivityMainBinding,
     private val onTaskClick: (Task) -> Unit,
-    private val onTaskSelect: (Task, Boolean) -> Unit,
     private val onTaskCheck: (Task, Boolean, () -> Unit) -> Unit
 ) {
 
@@ -31,6 +32,8 @@ class TaskSectionManager(
         val adapter: TaskAdapter
     )
 
+    var displayCompletedTasks: Boolean = false
+
     private fun createTaskSection(
         liveData: LiveData<List<Task>>,
         parentLayout: LinearLayout,
@@ -38,8 +41,8 @@ class TaskSectionManager(
     ): TaskSection {
         val adapter = TaskAdapter(
             tasks = emptyList(),
+            selectedTasksViewModel = selectedTasksViewModel,
             onTaskClick = onTaskClick,
-            onTaskSelect = onTaskSelect,
             onTaskCheck = onTaskCheck
         )
 
@@ -57,7 +60,7 @@ class TaskSectionManager(
 
     private val taskSections: MutableList<TaskSection> = mutableListOf()
 
-    fun setupSections(displayCompletedTasks: Boolean) {
+    fun setupSections() {
         taskSections.clear()
         taskSections.addAll(listOf(
             // Overdue
@@ -118,7 +121,7 @@ class TaskSectionManager(
 
         taskSections.forEach { section ->
             section.liveData.observe(activity) {
-                updateSection(section, displayCompletedTasks)
+                updateSection(section)
             }
         }
 
@@ -129,13 +132,14 @@ class TaskSectionManager(
         }
     }
 
-    fun updateSections(displayCompletedTasks: Boolean) {
+    fun updateSections() {
         taskSections.forEach { section ->
-            updateSection(section, displayCompletedTasks)
+            updateSection(section)
         }
+        selectedTasksViewModel.clear()
     }
 
-    private fun updateSection(taskSection: TaskSection, displayCompletedTasks: Boolean) {
+    private fun updateSection(taskSection: TaskSection) {
         val filteredTasks = taskViewModel.filterTasksByCategory(
             taskSection.liveData,
             categoryViewModel.selectedCategoryId.value
