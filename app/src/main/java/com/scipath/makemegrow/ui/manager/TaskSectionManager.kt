@@ -16,11 +16,11 @@ import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 
 class TaskSectionManager(
     private val activity: AppCompatActivity,
+    private val binding: ActivityMainBinding,
     private val taskViewModel: TaskViewModel,
     private val selectedTasksViewModel: SelectedTasksViewModel,
     private val categoryViewModel: CategoryViewModel,
     private val settingsViewModel: SettingsViewModel,
-    private val binding: ActivityMainBinding,
     private val onTaskClick: (Task) -> Unit,
     private val onTaskCheck: (Task, Boolean, () -> Unit) -> Unit
 ) {
@@ -32,6 +32,7 @@ class TaskSectionManager(
         val adapter: TaskAdapter
     )
 
+    private val taskSections: MutableList<TaskSection> = mutableListOf()
     var displayCompletedTasks: Boolean = false
 
     private fun createTaskSection(
@@ -57,8 +58,6 @@ class TaskSectionManager(
             adapter
         )
     }
-
-    private val taskSections: MutableList<TaskSection> = mutableListOf()
 
     fun setupSections() {
         taskSections.clear()
