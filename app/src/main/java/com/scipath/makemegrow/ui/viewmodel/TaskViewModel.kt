@@ -51,6 +51,12 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
         }
     }
 
+    fun deleteTasks(tasks: List<Task>) {
+        viewModelScope.launch {
+            repository.deleteTasks(tasks)
+        }
+    }
+
     fun completeTask(task: Task, isCompleted: Boolean) {
         if (task.repeat == NO_REPEAT) {
             task.isCompleted = isCompleted

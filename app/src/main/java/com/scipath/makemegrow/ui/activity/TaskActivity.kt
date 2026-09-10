@@ -245,7 +245,7 @@ class TaskActivity : AppCompatActivity() {
             repeatPosition = it.repeat.ordinal
             binding.spinnerRepeat.setSelection(repeatPosition)
 
-            // Botton Delete
+            // Button Delete
             binding.buttonDelete.visibility = View.VISIBLE
             binding.buttonDelete.setOnClickListener {
                 DeleteTaskDialog().show(supportFragmentManager, "DeleteTaskDialog")

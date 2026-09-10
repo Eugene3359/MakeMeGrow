@@ -155,10 +155,10 @@ class MainActivity : AppCompatActivity() {
             { _, bundle ->
                 val isConfirmed = bundle.getBoolean(DeleteTasksDialog.RESULT_KEY)
                 if (isConfirmed) {
-                    selectedTasksViewModel.selectedTasks.value?.forEach { task ->
-                        taskViewModel.deleteTask(task)
+                    selectedTasksViewModel.selectedTasks.value?.let {
+                        taskViewModel.deleteTasks(it)
+                        deselectTasks()
                     }
-                    deselectTasks()
                 }
             }
         )
