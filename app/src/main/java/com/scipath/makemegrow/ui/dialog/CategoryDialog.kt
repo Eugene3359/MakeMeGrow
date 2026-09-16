@@ -92,8 +92,6 @@ abstract class CategoryDialog : TextInputDialog() {
                 )
             }
 
-            radioButton.isChecked = it == selectedColor
-
             binding.radioGroup.addView(radioButton)
         }
 

@@ -71,7 +71,10 @@ class CategoryAdapter(
 
         // Category Indicator
         holder.binding.indicatorCategory.setBackgroundColor(
-            context.getColor(category?.color?.toResourceId() ?: R.color.dark_gray)
+            context.getColor(
+                category?.color?.toResourceId() ?:
+                Category.Color.BLACK.toResourceId()
+            )
         )
 
         if (category != null) {
