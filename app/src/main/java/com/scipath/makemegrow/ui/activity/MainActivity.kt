@@ -124,9 +124,10 @@ class MainActivity : AppCompatActivity() {
             AddCategoryDialog.REQUEST_KEY,
             this,
             { _, bundle ->
-                val name = bundle.getString(AddCategoryDialog.RESULT_KEY) ?:
-                return@setFragmentResultListener
-                categoryViewModel.addCategory(Category(name = name))
+                val category = bundle.getSerializable(
+                    AddCategoryDialog.RESULT_KEY
+                ) as Category
+                categoryViewModel.addCategory(category)
             }
         )
 

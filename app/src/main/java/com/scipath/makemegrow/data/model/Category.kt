@@ -12,5 +12,16 @@ import java.io.Serializable
 )
 data class Category(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "name") var name: String
-) : Serializable
+    @ColumnInfo(name = "name") var name: String,
+    @ColumnInfo(name = "color") var color: Color
+) : Serializable {
+    enum class Color(val key: String) {
+        BLACK("gray"),
+        /*PURPLE("purple"),
+        BLUE("blue"),
+        GREEN("green"),*/
+        RED("red"),
+        /*ORANGE("orange"),
+        YELLOW("yellow")*/
+    }
+}

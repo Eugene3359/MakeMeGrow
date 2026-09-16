@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.databinding.LayoutCategoryBinding
+import com.scipath.makemegrow.ui.mapper.CategoryColorMapper.toResourceId
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 
 class CategoryAdapter(
@@ -43,15 +44,22 @@ class CategoryAdapter(
         val category: Category? = categories[position]
 
         // Name
-        holder.binding.textCategory.text = category?.name ?: context.getString(R.string.default_category)
+        holder.binding.textCategory.text = category?.name
+            ?: context.getString(R.string.default_category)
 
         // Number of Tasks
         holder.binding.textTasks.text = context.getString(
             R.string.task_number,
-            taskViewModel.filterTasksByCategory(taskViewModel.allTasks, category?.id).size)
+            taskViewModel.filterTasksByCategory(
+                taskViewModel.allTasks,
+                category?.id
+            ).size)
 
         // Number of Overdue Tasks
-        val overdueTasksNumber: Int = taskViewModel.filterTasksByCategory(taskViewModel.overdueTasks, category?.id).size
+        val overdueTasksNumber: Int = taskViewModel.filterTasksByCategory(
+            taskViewModel.overdueTasks,
+            category?.id
+        ).size
         if (overdueTasksNumber > 0) {
             holder.binding.textOverdueTasks.text = context.getString(
                 R.string.overdue_task_number,
@@ -60,6 +68,11 @@ class CategoryAdapter(
         } else {
             holder.binding.textOverdueTasks.visibility = View.GONE
         }
+
+        // Category Indicator
+        holder.binding.indicatorCategory.setBackgroundColor(
+            context.getColor(category?.color?.toResourceId() ?: R.color.dark_gray)
+        )
 
         if (category != null) {
             // Selection

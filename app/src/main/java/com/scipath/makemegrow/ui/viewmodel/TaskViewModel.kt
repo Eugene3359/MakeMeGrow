@@ -58,7 +58,7 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     }
 
     fun completeTask(task: Task, isCompleted: Boolean) {
-        if (task.repeat == NO_REPEAT) {
+        if (task.repeatType == NO_REPEAT) {
             task.isCompleted = isCompleted
         } else {
             task.deadlineDate = getNextDeadline(task)
@@ -72,7 +72,7 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
         val deadlineDate: LocalDate = DateAndTimeConverter.secondsToDate(task.deadlineDate)
             ?: return task.deadlineDate
 
-        val nextDate = when (task.repeat) {
+        val nextDate = when (task.repeatType) {
             NO_REPEAT -> deadlineDate
             ONCE_A_DAY -> deadlineDate.plusDays(1)
             ON_WEEKDAYS -> deadlineDate.plusDays(

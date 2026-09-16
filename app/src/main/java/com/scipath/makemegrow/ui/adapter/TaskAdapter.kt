@@ -14,6 +14,8 @@ import com.scipath.makemegrow.databinding.LayoutTaskBinding
 import java.time.LocalDate
 import java.time.LocalTime
 import androidx.core.view.isVisible
+import com.scipath.makemegrow.data.model.Category
+import com.scipath.makemegrow.ui.mapper.CategoryColorMapper.toResourceId
 import com.scipath.makemegrow.ui.viewmodel.SelectedTasksViewModel
 
 class TaskAdapter(
@@ -27,6 +29,7 @@ class TaskAdapter(
     ) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
+    private var categories: List<Category> = emptyList()
     private var isTimeFormat24: Boolean = DEFAULT_TIME_FORMAT_24
 
     class ViewHolder(val binding: LayoutTaskBinding) :
@@ -95,7 +98,7 @@ class TaskAdapter(
         }
 
         // Repeat Icon
-        if (task.repeat == NO_REPEAT) {
+        if (task.repeatType == NO_REPEAT) {
            holder.binding.imageRepeat.visibility = View.GONE
         } else {
             holder.binding.imageRepeat.visibility = View.VISIBLE
@@ -110,6 +113,14 @@ class TaskAdapter(
                 checkbox.isChecked = false
             }
         }
+
+        // Category Indicator
+        holder.binding.indicatorCategory.setBackgroundColor(
+            context.getColor(
+                categories.find { it.id == task.categoryId }?.color?.toResourceId()
+                    ?: R.color.dark_gray
+            )
+        )
 
         // Selection
         holder.itemView.setBackgroundColor(
@@ -136,6 +147,18 @@ class TaskAdapter(
         return tasks.size
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateTasks(newTasks: List<Task>) {
+        tasks = newTasks
+        selectedTasksViewModel.clear()
+        notifyDataSetChanged()
+    }
+
+    fun updateCategories(newCategories: List<Category>) {
+        categories = newCategories
+        notifyDataSetChanged()
+    }
+
     fun updateTimeFormat(isTimeFormat24: Boolean) {
         this.isTimeFormat24 = isTimeFormat24
         for (index in tasks.indices) {
@@ -144,13 +167,6 @@ class TaskAdapter(
                 notifyItemChanged(index)
             }
         }
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun updateTasks(newTasks: List<Task>) {
-        tasks = newTasks
-        selectedTasksViewModel.clear()
-        notifyDataSetChanged()
     }
 
     fun deselectTasks() {

@@ -172,7 +172,10 @@ object DatabaseSeeder {
 
     suspend fun seedCategories(repository: CategoryRepository) {
         repository.addCategory(
-            Category(0, "Work Category")
+            Category(
+                name = "Work Category",
+                color = Category.Color.RED
+            )
         )
     }
 }

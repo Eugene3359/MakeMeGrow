@@ -13,20 +13,21 @@ import java.io.Serializable
         ForeignKey(
             entity = Category::class,
             parentColumns = ["id"],
-            childColumns = ["categoryId"],
+            childColumns = ["category_id"],
             onDelete = ForeignKey.SET_NULL
         )
     ],
-    indices = [Index("categoryId")])
+    indices = [Index("category_id")]
+)
 data class Task(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "name") var name: String,
     @ColumnInfo(name = "description") var description: String,
-    @ColumnInfo(name = "is_completed") var isCompleted: Boolean,
+    @ColumnInfo(name = "is_completed") var isCompleted: Boolean = false,
     @ColumnInfo(name = "deadline_date") var deadlineDate: Long,
     @ColumnInfo(name = "deadline_time") var deadlineTime: Int,
-    @ColumnInfo(name = "repeat") var repeat: RepeatType,
-    @ColumnInfo(name = "categoryId") var categoryId: Int? = null
+    @ColumnInfo(name = "repeat_type") var repeatType: RepeatType,
+    @ColumnInfo(name = "category_id") var categoryId: Int? = null
 ) : Serializable {
     enum class RepeatType {
         NO_REPEAT,

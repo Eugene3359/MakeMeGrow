@@ -29,7 +29,7 @@ class TaskActivity : AppCompatActivity() {
     private var task: Task? = null
     private var selectedDate: LocalDate? = null
     private var selectedTime: LocalTime? = null
-    private var repeatPosition = 0
+    private var repeatTypePosition = 0
     private var selectedCategoryId: Int? = null
     private lateinit var binding: ActivityTaskBinding
 
@@ -119,11 +119,11 @@ class TaskActivity : AppCompatActivity() {
                     binding.buttonClearDate.visibility = View.GONE
                     binding.layoutTimeSelection.visibility = View.GONE
                     binding.buttonClearTime.visibility = View.GONE
-                    binding.layoutRepeat.visibility = View.GONE
+                    binding.layoutRepeatType.visibility = View.GONE
                 } else {
                     binding.buttonClearDate.visibility = View.VISIBLE
                     binding.layoutTimeSelection.visibility = View.VISIBLE
-                    binding.layoutRepeat.visibility = View.VISIBLE
+                    binding.layoutRepeatType.visibility = View.VISIBLE
                 }
             }
         }
@@ -132,10 +132,10 @@ class TaskActivity : AppCompatActivity() {
         binding.buttonClearDate.setOnClickListener {
             selectedDate = null
             selectedTime = null
-            repeatPosition = 0
+            repeatTypePosition = 0
             binding.inputDate.setText("")
             binding.inputTime.setText("")
-            binding.spinnerRepeat.setSelection(0)
+            binding.spinnerRepeatType.setSelection(0)
         }
 
         // Input Time
@@ -177,13 +177,13 @@ class TaskActivity : AppCompatActivity() {
 
         // Repeat Type Spinner
         val repeatTypes = resources.getStringArray(R.array.repeat_types)
-        binding.spinnerRepeat.adapter = ArrayAdapter(
+        binding.spinnerRepeatType.adapter = ArrayAdapter(
             this,
             R.layout.spinner_item_small,
             repeatTypes)
-        binding.spinnerRepeat.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.spinnerRepeatType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                repeatPosition = position
+                repeatTypePosition = position
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
@@ -242,8 +242,8 @@ class TaskActivity : AppCompatActivity() {
                 )
             }
 
-            repeatPosition = it.repeat.ordinal
-            binding.spinnerRepeat.setSelection(repeatPosition)
+            repeatTypePosition = it.repeatType.ordinal
+            binding.spinnerRepeatType.setSelection(repeatTypePosition)
 
             // Button Delete
             binding.buttonDelete.visibility = View.VISIBLE
@@ -277,12 +277,19 @@ class TaskActivity : AppCompatActivity() {
                 val description: String = binding.inputDescription.text.trim().toString()
                 val deadlineDate: Long = DateAndTimeConverter.dateToSeconds(selectedDate)
                 val deadlineTime: Int = DateAndTimeConverter.timeToSeconds(selectedTime)
-                val repeat: Task.RepeatType = Task.RepeatType.entries[repeatPosition]
+                val repeatType: Task.RepeatType = Task.RepeatType.entries[repeatTypePosition]
                 if (task == null) {
                     // Add new task
                     taskViewModel.addTask(
-                        Task(0, taskName, description, false, deadlineDate,
-                            deadlineTime, repeat, selectedCategoryId))
+                        Task(
+                            name = taskName,
+                            description = description,
+                            deadlineDate = deadlineDate,
+                            deadlineTime = deadlineTime,
+                            repeatType = repeatType,
+                            categoryId = selectedCategoryId
+                        )
+                    )
                 } else {
                     // Modify existing task
                     task?.let{
@@ -290,7 +297,7 @@ class TaskActivity : AppCompatActivity() {
                         it.description = description
                         it.deadlineDate = deadlineDate
                         it.deadlineTime = deadlineTime
-                        it.repeat = repeat
+                        it.repeatType = repeatType
                         it.categoryId = selectedCategoryId
                         taskViewModel.updateTask(it)
                     }

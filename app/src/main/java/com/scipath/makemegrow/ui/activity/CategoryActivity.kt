@@ -13,7 +13,7 @@ import com.scipath.makemegrow.ui.adapter.CategoryAdapter
 import com.scipath.makemegrow.ui.dialog.AddCategoryDialog
 import com.scipath.makemegrow.ui.dialog.DeleteCategoriesDialog
 import com.scipath.makemegrow.ui.dialog.DeleteCategoryDialog
-import com.scipath.makemegrow.ui.dialog.RenameCategoryDialog
+import com.scipath.makemegrow.ui.dialog.EditCategoryDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 
@@ -41,7 +41,9 @@ class CategoryActivity : AppCompatActivity() {
             taskViewModel,
             onEdit = { category ->
                 pendingCategory = category
-                RenameCategoryDialog().show(supportFragmentManager, "RenameCategoryDialog")
+                EditCategoryDialog
+                    .newInstance(category)
+                    .show(supportFragmentManager, "EditCategoryDialog")
             },
             onDelete = { category ->
                 pendingCategory = category
@@ -94,19 +96,27 @@ class CategoryActivity : AppCompatActivity() {
     }
 
     private fun setupDialogListeners() {
-        // Rename Category
+        // Add Category
         supportFragmentManager.setFragmentResultListener(
-            RenameCategoryDialog.REQUEST_KEY,
+            AddCategoryDialog.REQUEST_KEY,
             this,
             { _, bundle ->
-                val name = bundle.getString(RenameCategoryDialog.RESULT_KEY) ?:
-                return@setFragmentResultListener
-                pendingCategory?.let {
-                    categoryViewModel.updateCategory(
-                        it.copy(name = name)
-                    )
-                }
-                pendingCategory = null
+                val category = bundle.getSerializable(
+                    AddCategoryDialog.RESULT_KEY
+                ) as Category
+                categoryViewModel.addCategory(category)
+            }
+        )
+
+        // Rename Category
+        supportFragmentManager.setFragmentResultListener(
+            EditCategoryDialog.REQUEST_KEY,
+            this,
+            { _, bundle ->
+                val category = bundle.getSerializable(
+                    EditCategoryDialog.RESULT_KEY
+                ) as Category
+                categoryViewModel.updateCategory(category)
             }
         )
 
@@ -122,18 +132,6 @@ class CategoryActivity : AppCompatActivity() {
                     }
                 }
                 pendingCategory = null
-            }
-        )
-
-        // Add Category
-        supportFragmentManager.setFragmentResultListener(
-            AddCategoryDialog.REQUEST_KEY,
-            this,
-            { _, bundle ->
-                val name = bundle.getString(AddCategoryDialog.RESULT_KEY)
-                name?.let {
-                    categoryViewModel.addCategory(Category(name = it))
-                }
             }
         )
 

@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.scipath.makemegrow.data.converter.CategoryColorConverter
 import com.scipath.makemegrow.data.dao.TaskDao
 import com.scipath.makemegrow.data.dao.CategoryDao
 import com.scipath.makemegrow.data.model.Task
@@ -14,6 +16,7 @@ import com.scipath.makemegrow.data.model.Category
     version = 1,
     exportSchema = false
 )
+@TypeConverters(CategoryColorConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao

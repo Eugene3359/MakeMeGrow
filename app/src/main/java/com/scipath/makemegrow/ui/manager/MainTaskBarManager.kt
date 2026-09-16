@@ -115,7 +115,11 @@ class MainTaskBarManager(
                         when (position) {
                             0 -> ALL
                             1 -> DEFAULT
-                            else -> categoryViewModel.allCategories.value!![position - SPINNER_SKIP].id
+                            else -> {
+                                categoryViewModel.allCategories.value
+                                    ?.get(position - SPINNER_SKIP)?.id
+                                    ?: DEFAULT
+                            }
                         }
                     )
                 }
@@ -157,13 +161,13 @@ class MainTaskBarManager(
                 when (item.itemId) {
                     R.id.item_task_categories -> {
                         activity.startActivity(Intent(
-                            activity.applicationContext,
+                            activity,
                             CategoryActivity::class.java))
                         true
                     }
                     R.id.item_settings -> {
                         activity.startActivity(Intent(
-                            activity.applicationContext,
+                            activity,
                             SettingsActivity::class.java))
                         true
                     }

@@ -1,8 +1,10 @@
 package com.scipath.makemegrow.ui.dialog
 
+import android.os.Bundle
 import com.scipath.makemegrow.R
+import com.scipath.makemegrow.data.model.Category
 
-class RenameCategoryDialog : TextInputDialog() {
+class EditCategoryDialog : CategoryDialog() {
 
     override val titleId: Int = R.string.rename_category
     override val messageId: Int? = null
@@ -14,6 +16,13 @@ class RenameCategoryDialog : TextInputDialog() {
 
     companion object {
         const val REQUEST_KEY = "edit_category_request"
-        const val RESULT_KEY = "category_name"
+        const val RESULT_KEY = ARG_CATEGORY
+
+        fun newInstance(category: Category) =
+            EditCategoryDialog().apply {
+                arguments = Bundle().apply {
+                    putSerializable(ARG_CATEGORY, category)
+                }
+            }
     }
 }

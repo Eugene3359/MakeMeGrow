@@ -124,6 +124,12 @@ class TaskSectionManager(
             }
         }
 
+        categoryViewModel.allCategories.observe(activity) { categories ->
+            taskSections.forEach { section ->
+                section.adapter.updateCategories(categories)
+            }
+        }
+
         settingsViewModel.timeFormat24.observe(activity) { timeFormat24 ->
             taskSections.forEach { section ->
                 section.adapter.updateTimeFormat(timeFormat24)
