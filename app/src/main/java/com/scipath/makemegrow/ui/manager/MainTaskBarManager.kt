@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.common.CategoryIds.ALL
 import com.scipath.makemegrow.data.common.CategoryIds.DEFAULT
-import com.scipath.makemegrow.data.converter.TaskToStringConverter
+import com.scipath.makemegrow.data.converter.TaskShareConverter.toShareString
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityMainBinding
 import com.scipath.makemegrow.ui.activity.CategoryActivity
@@ -53,24 +53,11 @@ class MainTaskBarManager(
 
             buttonShare.setOnClickListener {
                 val text = selectedTasksViewModel.selectedTasks.value
-                    ?.sortedWith(
-                        compareBy<Task> { it.deadlineDate }
-                            .thenBy { it.deadlineTime }
-                            .thenBy { it.name }
-                    )
-                    ?.joinToString(separator = "") { task ->
-                        TaskToStringConverter.convert(
-                            task,
-                            settingsViewModel.isTimeFormat24(),
-                            activity
-                        )
-                    }
-
+                    ?.toShareString(settingsViewModel.isTimeFormat24(), activity)
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, text)
                 }
-
                 val shareIntent = Intent.createChooser(sendIntent, null)
                 activity.startActivity(shareIntent)
                 deselectTasks()

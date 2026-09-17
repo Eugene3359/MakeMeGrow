@@ -117,8 +117,8 @@ class TaskAdapter(
         // Category Indicator
         holder.binding.indicatorCategory.setBackgroundColor(
             context.getColor(
-                categories.find { it.id == task.categoryId }?.color?.toResourceId()
-                    ?: R.color.dark_gray
+                categories.find { it.id == task.categoryId }?.color?.toResourceId() ?:
+                Category.Color.BLACK.toResourceId()
             )
         )
 

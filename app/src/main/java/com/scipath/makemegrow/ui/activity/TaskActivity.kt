@@ -2,6 +2,7 @@ package com.scipath.makemegrow.ui.activity
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,6 +16,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
+import com.scipath.makemegrow.data.converter.TaskShareConverter
+import com.scipath.makemegrow.data.converter.TaskShareConverter.toShareString
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityTaskBinding
 import com.scipath.makemegrow.ui.dialog.DeleteTaskDialog
@@ -245,6 +248,20 @@ class TaskActivity : AppCompatActivity() {
             repeatTypePosition = it.repeatType.ordinal
             binding.spinnerRepeatType.setSelection(repeatTypePosition)
 
+            // Button Share
+            binding.buttonShare.visibility = View.VISIBLE
+            binding.buttonShare.setOnClickListener {
+                task?.let { task ->
+                    val text = task.toShareString(settingsViewModel.isTimeFormat24(), this)
+                    val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, text)
+                    }
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    startActivity(shareIntent)
+                }
+            }
+
             // Button Delete
             binding.buttonDelete.visibility = View.VISIBLE
             binding.buttonDelete.setOnClickListener {
@@ -306,7 +323,6 @@ class TaskActivity : AppCompatActivity() {
             }
         }
 
-        // Taskbar Elements
         // Button Back
         binding.buttonBack.setOnClickListener {
             finish()
