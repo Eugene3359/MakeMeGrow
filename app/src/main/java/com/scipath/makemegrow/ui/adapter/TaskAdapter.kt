@@ -1,6 +1,7 @@
 package com.scipath.makemegrow.ui.adapter
 
 import android.annotation.SuppressLint
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,6 +57,10 @@ class TaskAdapter(
 
         // Name
         holder.binding.textName.text = task.name
+        if (task.isCompleted) {
+            holder.binding.textName.paintFlags =
+                holder.binding.textName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        }
 
         // Description
         holder.binding.textDescription.visibility = View.GONE
@@ -89,10 +94,10 @@ class TaskAdapter(
             holder.binding.textDeadline.visibility = View.VISIBLE
             holder.binding.textDeadline.text = deadline
             holder.binding.textDeadline.setTextColor(
-                if (isDeadlineMissed(task)) {
-                    context.getColor(R.color.red)
-                } else {
+                if (task.isCompleted || !isDeadlineMissed(task)) {
                     context.getColor(R.color.white)
+                } else {
+                    context.getColor(R.color.red)
                 }
             )
         }
