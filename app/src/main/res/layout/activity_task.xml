@@ -36,7 +36,8 @@
             android:textColor="@color/white"
             android:textSize="@dimen/taskbar_text"
             android:textStyle="bold"
-            android:maxLines="1"/>
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_share"
