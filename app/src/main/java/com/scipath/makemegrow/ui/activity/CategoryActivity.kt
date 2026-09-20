@@ -1,5 +1,6 @@
 package com.scipath.makemegrow.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.common.CategoryIds.DEFAULT
+import com.scipath.makemegrow.data.converter.TaskShareConverter.toShareString
 import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.databinding.ActivityCategoryBinding
 import com.scipath.makemegrow.ui.adapter.CategoryAdapter
@@ -15,6 +17,7 @@ import com.scipath.makemegrow.ui.dialog.DeleteCategoriesDialog
 import com.scipath.makemegrow.ui.dialog.DeleteCategoryDialog
 import com.scipath.makemegrow.ui.dialog.EditCategoryDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
+import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 
 class CategoryActivity : AppCompatActivity() {
@@ -29,10 +32,23 @@ class CategoryActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val app = application as MakeMeGrowApp
-        val taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java]
-        categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
-        taskViewModel.allTasks.observe(this) { return@observe }
-        taskViewModel.overdueTasks.observe(this) { return@observe }
+        val taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java].apply {
+            allTasks.observe(this@CategoryActivity) {}
+            overdueTasks.observe(this@CategoryActivity) {}
+        }
+        categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java].apply {
+            selectedCategoryIds.observe(this@CategoryActivity) { categoryIds ->
+                binding.buttonDelete.visibility =
+                    if (categoryIds.isEmpty()) View.GONE
+                    else View.VISIBLE
+                binding.buttonShare.visibility =
+                    if (categoryIds.isEmpty()) View.GONE
+                    else View.VISIBLE
+            }
+        }
+        val settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java].apply {
+            timeFormat24.observe(this@CategoryActivity) {}
+        }
 
         // Categories
         binding.viewCategories.layoutManager = LinearLayoutManager(this)
@@ -70,18 +86,25 @@ class CategoryActivity : AppCompatActivity() {
             })
         }
 
-        categoryViewModel.selectedCategoryIds.observe(this) { categoryIds ->
-            binding.buttonDelete.visibility =
-                if (categoryIds.isEmpty()) View.GONE
-                else View.VISIBLE
-        }
-
         // Button New Category
         binding.buttonNewCategory.setOnClickListener {
             AddCategoryDialog().show(supportFragmentManager, "AddCategoryDialog")
         }
 
         // Taskbar Elements
+        // Button Share Category
+        binding.buttonShare.setOnClickListener {
+            val text = taskViewModel.allTasks.value?.filter {
+                categoryViewModel.selectedCategoryIds.value?.contains(it.categoryId) == true
+            }?.toShareString(settingsViewModel.isTimeFormat24(), this)
+            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, text)
+            }
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            startActivity(shareIntent)
+        }
+
         // Button Delete Category
         binding.buttonDelete.setOnClickListener {
             DeleteCategoriesDialog().show(supportFragmentManager, "DeleteCategoriesDialog")
