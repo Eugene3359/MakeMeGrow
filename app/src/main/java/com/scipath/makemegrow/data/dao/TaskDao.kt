@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.scipath.makemegrow.data.model.Task
 import kotlinx.coroutines.flow.Flow
 
@@ -67,6 +68,9 @@ interface TaskDao {
 
     @Update
     suspend fun updateTask(task: Task)
+
+    @Upsert
+    suspend fun upsertTask(task: Task)
 
     @Delete
     suspend fun delete(task: Task)

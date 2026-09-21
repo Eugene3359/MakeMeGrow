@@ -1,22 +1,66 @@
 package com.scipath.makemegrow.ui.activity
 
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
+import com.scipath.makemegrow.data.converter.JsonConverter
+import com.scipath.makemegrow.data.handler.ExceptionHandlerToast
 import com.scipath.makemegrow.databinding.ActivitySettingsBinding
 import com.scipath.makemegrow.ui.dialog.FirstDayOfWeekDialog
 import com.scipath.makemegrow.ui.dialog.TimeFormatDialog
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
 
 class SettingsActivity : AppCompatActivity() {
 
+    private lateinit var jsonConverter: JsonConverter
     private lateinit var binding: ActivitySettingsBinding
+
+    private val exportLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri ?: return@registerForActivityResult
+
+        lifecycleScope.launch {
+            try {
+                val json = jsonConverter.toJson()
+                contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(json.toByteArray(Charsets.UTF_8))
+                }
+            } catch (exception: Exception) {
+                ExceptionHandlerToast.handle(exception, this@SettingsActivity)
+            }
+        }
+    }
+
+    val importLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri ?: return@registerForActivityResult
+
+        lifecycleScope.launch {
+            try {
+                val json = contentResolver
+                    .openInputStream(uri)
+                    ?.bufferedReader()
+                    ?.use { it.readText() }
+                    ?: error("Could not read the file")
+                jsonConverter.fromJson(json)
+            } catch (exception: Exception) {
+                ExceptionHandlerToast.handle(exception, this@SettingsActivity)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +70,7 @@ class SettingsActivity : AppCompatActivity() {
         val packageInfo = packageManager.getPackageInfo(packageName, 0)
         val app = application as MakeMeGrowApp
         val settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
+        jsonConverter = JsonConverter(app.taskRepository, app.categoryRepository)
 
         // General
         // Confirmation of Completion
@@ -83,6 +128,17 @@ class SettingsActivity : AppCompatActivity() {
         ) { _, bundle ->
             val timeFormat24 = bundle.getBoolean(TimeFormatDialog.RESULT_KEY)
             settingsViewModel.setTimeFormat24(timeFormat24)
+        }
+
+        // Export/Import
+        binding.buttonExport.setOnClickListener {
+            val dateTime = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
+            exportLauncher.launch("MakeMeGrow_$dateTime.json")
+        }
+
+        binding.buttonImport.setOnClickListener {
+            importLauncher.launch(arrayOf("application/json", "text/plain"))
         }
 
         // About

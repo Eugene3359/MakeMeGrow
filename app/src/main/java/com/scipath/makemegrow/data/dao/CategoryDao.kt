@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import com.scipath.makemegrow.data.model.Category
 import kotlinx.coroutines.flow.Flow
 
@@ -28,6 +29,9 @@ interface CategoryDao {
 
     @Update
     suspend fun updateTask(category: Category)
+
+    @Upsert
+    suspend fun upsertCategory(category: Category)
 
     @Delete
     suspend fun delete(category: Category)

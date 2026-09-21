@@ -74,7 +74,7 @@ class CategoryActivity : AppCompatActivity() {
                 categoryViewModel.selectCategory(category?.id ?: DEFAULT)
                 finish()
             },
-            onCategorySelect = { category, isSelected ->
+            onCategoryLongClick = { category, isSelected ->
                 if (isSelected) {
                     categoryViewModel.addSelectedCategory(category?.id)
                 } else {

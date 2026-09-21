@@ -30,6 +30,10 @@ class CategoryRepository(private val categoryDao: CategoryDao) {
         categoryDao.updateTask(category)
     }
 
+    suspend fun upsertCategory(category: Category) {
+        categoryDao.upsertCategory(category)
+    }
+
     suspend fun deleteCategory(category: Category) {
         categoryDao.delete(category)
     }

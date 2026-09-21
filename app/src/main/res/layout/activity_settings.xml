@@ -125,6 +125,32 @@
 
             <TextView
                 style="@style/SettingSection.Name"
+                android:text="@string/export_and_import"/>
+
+            <LinearLayout
+                style="@style/SettingItem.Container"
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/button_export"
+                    style="@style/SettingItem.Button"
+                    android:text="@string/exp"/>
+
+                <Button
+                    android:id="@+id/button_import"
+                    style="@style/SettingItem.Button"
+                    android:layout_marginHorizontal="10dp"
+                    android:text="@string/imp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/SettingSection.Container">
+
+            <TextView
+                style="@style/SettingSection.Name"
                 android:text="@string/about"/>
 
             <LinearLayout

@@ -16,7 +16,7 @@ class CategoryAdapter(
     private val onEdit: (Category) -> Unit,
     private val onDelete: (Category) -> Unit,
     private val onCategoryClick: (category: Category?) -> Unit,
-    private val onCategorySelect: (category: Category?, isSelected: Boolean) -> Unit
+    private val onCategoryLongClick: (category: Category?, isSelected: Boolean) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
 
     private var selectedCategoryPositions: MutableList<Int?> = mutableListOf()
@@ -115,7 +115,7 @@ class CategoryAdapter(
                 selectedCategoryPositions.add(position)
             }
             notifyItemChanged(position)
-            onCategorySelect(category, selectedCategoryPositions.contains(position))
+            onCategoryLongClick(category, selectedCategoryPositions.contains(position))
             return@setOnLongClickListener true
         }
     }

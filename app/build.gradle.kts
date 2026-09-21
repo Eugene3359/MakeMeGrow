@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -13,8 +14,8 @@ android {
         applicationId = "com.scipath.makemegrow"
         minSdk = 26
         targetSdk = 36
-        versionCode = 72
-        versionName = "0.6.6"
+        versionCode = 73
+        versionName = "0.7.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -48,6 +49,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.json)
     implementation(libs.material)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
