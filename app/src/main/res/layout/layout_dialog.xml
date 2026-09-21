@@ -35,7 +35,7 @@
         android:backgroundTint="@color/light_gray"
         android:hint="@string/placeholder"
         android:importantForAutofill="no"
-        android:inputType="text"
+        android:inputType="textCapSentences"
         android:textColorHint="@color/light_gray"
         android:textColor="@color/light_gray"
         android:textSize="@dimen/text_medium"/>
