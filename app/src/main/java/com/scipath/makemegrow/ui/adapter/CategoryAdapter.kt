@@ -16,10 +16,10 @@ class CategoryAdapter(
     private val onEdit: (Category) -> Unit,
     private val onDelete: (Category) -> Unit,
     private val onCategoryClick: (category: Category?) -> Unit,
-    private val onCategorySelect: (category: Category, isSelected: Boolean) -> Unit
+    private val onCategorySelect: (category: Category?, isSelected: Boolean) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
 
-    private var selectedCategories: MutableList<Int> = mutableListOf()
+    private var selectedCategoryPositions: MutableList<Int?> = mutableListOf()
 
     class ViewHolder(val binding: LayoutCategoryBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -78,14 +78,6 @@ class CategoryAdapter(
         )
 
         if (category != null) {
-            // Selection
-            holder.itemView.setBackgroundColor(
-                if (selectedCategories.contains(position))
-                    context.getColor(R.color.white)
-                else
-                    context.getColor(R.color.dark_gray)
-            )
-
             // Button Edit
             holder.binding.buttonEdit.visibility = View.VISIBLE
             holder.binding.buttonEdit.setOnClickListener {
@@ -97,26 +89,34 @@ class CategoryAdapter(
             holder.binding.buttonDelete.setOnClickListener {
                 onDelete.invoke(category)
             }
-
-            // OnLongClick
-            holder.itemView.setOnLongClickListener {
-                if (selectedCategories.contains(position)) {
-                    selectedCategories.remove(position)
-                } else {
-                    selectedCategories.add(position)
-                }
-                notifyItemChanged(position)
-                onCategorySelect(category, selectedCategories.contains(position))
-                return@setOnLongClickListener true
-            }
         } else {
             holder.binding.buttonEdit.visibility = View.GONE
             holder.binding.buttonDelete.visibility = View.GONE
         }
 
+        // Selection
+        holder.itemView.setBackgroundColor(
+            if (selectedCategoryPositions.contains(position))
+                context.getColor(R.color.white)
+            else
+                context.getColor(R.color.dark_gray)
+        )
+
         // OnClick
         holder.itemView.setOnClickListener {
             onCategoryClick(category)
+        }
+
+        // OnLongClick
+        holder.itemView.setOnLongClickListener {
+            if (selectedCategoryPositions.contains(position)) {
+                selectedCategoryPositions.remove(position)
+            } else {
+                selectedCategoryPositions.add(position)
+            }
+            notifyItemChanged(position)
+            onCategorySelect(category, selectedCategoryPositions.contains(position))
+            return@setOnLongClickListener true
         }
     }
 
@@ -126,7 +126,7 @@ class CategoryAdapter(
 
     fun updateCategories(newCategories: List<Category?>) {
         categories = newCategories
-        selectedCategories.clear()
+        selectedCategoryPositions.clear()
         notifyDataSetChanged()
     }
 }

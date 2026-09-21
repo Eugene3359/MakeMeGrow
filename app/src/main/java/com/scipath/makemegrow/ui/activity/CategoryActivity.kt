@@ -38,12 +38,17 @@ class CategoryActivity : AppCompatActivity() {
         }
         categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java].apply {
             selectedCategoryIds.observe(this@CategoryActivity) { categoryIds ->
-                binding.buttonDelete.visibility =
-                    if (categoryIds.isEmpty()) View.GONE
-                    else View.VISIBLE
-                binding.buttonShare.visibility =
-                    if (categoryIds.isEmpty()) View.GONE
-                    else View.VISIBLE
+                if (categoryIds.isEmpty()) {
+                    binding.buttonShare.visibility = View.GONE
+                    binding.buttonDelete.visibility = View.GONE
+                } else {
+                    binding.buttonShare.visibility = View.VISIBLE
+                    if (null in categoryIds) {
+                        binding.buttonDelete.visibility = View.GONE
+                    } else {
+                        binding.buttonDelete.visibility = View.VISIBLE
+                    }
+                }
             }
         }
         val settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java].apply {
@@ -71,9 +76,9 @@ class CategoryActivity : AppCompatActivity() {
             },
             onCategorySelect = { category, isSelected ->
                 if (isSelected) {
-                    categoryViewModel.addSelectedCategory(category.id)
+                    categoryViewModel.addSelectedCategory(category?.id)
                 } else {
-                    categoryViewModel.removeSelectedCategory(category.id)
+                    categoryViewModel.removeSelectedCategory(category?.id)
                 }
             }
         )

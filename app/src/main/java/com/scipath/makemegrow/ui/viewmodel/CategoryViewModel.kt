@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class CategoryViewModel(private val repository: CategoryRepository) : ViewModel() {
 
-    private val _selectedCategoryIds = MutableStateFlow<Set<Int>>(emptySet())
+    private val _selectedCategoryIds = MutableStateFlow<Set<Int?>>(emptySet())
     val allCategories = repository.allCategories.asLiveData()
     val selectedCategoryId = repository.selectedCategoryId.asLiveData()
     val selectedCategoryIds = _selectedCategoryIds.asLiveData()
@@ -38,11 +38,11 @@ class CategoryViewModel(private val repository: CategoryRepository) : ViewModel(
         repository.setSelectedCategory(categoryId)
     }
 
-    fun addSelectedCategory(id: Int) {
+    fun addSelectedCategory(id: Int?) {
         _selectedCategoryIds.value += id
     }
 
-    fun removeSelectedCategory(id: Int) {
+    fun removeSelectedCategory(id: Int?) {
         _selectedCategoryIds.value -= id
     }
 
