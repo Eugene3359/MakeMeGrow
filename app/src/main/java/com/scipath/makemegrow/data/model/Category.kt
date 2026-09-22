@@ -17,11 +17,11 @@ data class Category(
 ) : Serializable {
     enum class Color(val key: String) {
         BLACK("gray"),
-        /*PURPLE("purple"),
+        PURPLE("purple"),
         BLUE("blue"),
-        GREEN("green"),*/
+        GREEN("green"),
         RED("red"),
-        /*ORANGE("orange"),
-        YELLOW("yellow")*/
+        ORANGE("orange"),
+        YELLOW("yellow")
     }
 }
