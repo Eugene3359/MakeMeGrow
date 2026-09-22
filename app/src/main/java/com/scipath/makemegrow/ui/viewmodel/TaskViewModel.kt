@@ -61,8 +61,10 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
         if (task.repeatType == NO_REPEAT) {
             task.isCompleted = isCompleted
         } else {
-            task.deadlineDate = getNextDeadline(task)
-            task.isCompleted = false
+            if (isCompleted) {
+                task.isCompleted = false
+                task.deadlineDate = getNextDeadline(task)
+            }
         }
 
         updateTask(task)
