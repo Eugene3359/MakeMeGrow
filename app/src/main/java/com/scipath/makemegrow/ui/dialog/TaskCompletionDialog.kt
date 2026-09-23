@@ -5,7 +5,7 @@ import com.scipath.makemegrow.R
 class TaskCompletionDialog : ConfirmationDialog() {
 
     override val titleId: Int = R.string.complete_task
-    override val messageId: Int? = null
+    override val messageId: Int = R.string.complete_task_message
     override val confirmButtonTextId: Int = R.string.confirm
 
     override val requestKey: String = REQUEST_KEY
