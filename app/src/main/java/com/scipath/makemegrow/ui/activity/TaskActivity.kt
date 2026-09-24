@@ -16,7 +16,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
-import com.scipath.makemegrow.data.converter.TaskShareConverter
 import com.scipath.makemegrow.data.converter.TaskShareConverter.toShareString
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityTaskBinding
@@ -71,11 +70,13 @@ class TaskActivity : AppCompatActivity() {
                 count: Int
             ) {
                 if (bulletPointsOn &&
-                    before == 0 && count == 1 &&
-                    text?.get(start) == '\n') {
+                    before == 0 &&
+                    count == 1 &&
+                    text?.get(start) == '\n'
+                ) {
                     val bulletPoint: String = getString(R.string.bullet_point)
-                    var description = StringBuilder(text)
-                    description = description.insert(start + 1, bulletPoint)
+                    val description = StringBuilder(text)
+                        .insert(start + 1, bulletPoint)
                     binding.inputDescription.setText(description)
                     binding.inputDescription.setSelection(start + bulletPoint.length + 1)
                 }
