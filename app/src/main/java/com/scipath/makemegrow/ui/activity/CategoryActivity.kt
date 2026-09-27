@@ -3,6 +3,7 @@ package com.scipath.makemegrow.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -117,8 +118,20 @@ class CategoryActivity : AppCompatActivity() {
 
         // Button Back
         binding.buttonBack.setOnClickListener {
-            finish()
+            onBackPressedDispatcher.onBackPressed()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (categoryViewModel.selectedCategoryIds.value?.isEmpty() == false) {
+                    categoryViewModel.clearSelectedCategories()
+                    adapter.deselectCategories()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
 
         setupDialogListeners()
     }

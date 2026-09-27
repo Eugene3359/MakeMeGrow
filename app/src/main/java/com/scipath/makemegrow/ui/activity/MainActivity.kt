@@ -2,6 +2,7 @@ package com.scipath.makemegrow.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.app.MakeMeGrowApp
@@ -85,11 +86,23 @@ class MainActivity : AppCompatActivity() {
 
         taskBarManager.setupTaskbar()
         taskSectionManager.setupSections()
-        setupDialogListeners()
 
         binding.buttonNewTask.setOnClickListener {
             startActivity(Intent(this, TaskActivity::class.java))
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!selectedTasksViewModel.isEmpty()) {
+                    deselectTasks()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
+
+        setupDialogListeners()
     }
 
     private fun onTaskClick(task: Task) {

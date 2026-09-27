@@ -11,7 +11,6 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.common.CategoryIds.ALL
 import com.scipath.makemegrow.data.common.CategoryIds.DEFAULT
 import com.scipath.makemegrow.data.converter.TaskShareConverter.toShareString
-import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityMainBinding
 import com.scipath.makemegrow.ui.activity.CategoryActivity
 import com.scipath.makemegrow.ui.activity.SettingsActivity

@@ -1,5 +1,6 @@
 package com.scipath.makemegrow.ui.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +20,7 @@ class CategoryAdapter(
     private val onCategoryLongClick: (category: Category?, isSelected: Boolean) -> Unit
 ) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
 
-    private var selectedCategoryPositions: MutableList<Int?> = mutableListOf()
+    private var selectedCategoryPositions: MutableList<Int> = mutableListOf()
 
     class ViewHolder(val binding: LayoutCategoryBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -124,9 +125,18 @@ class CategoryAdapter(
         return categories.size
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateCategories(newCategories: List<Category?>) {
         categories = newCategories
         selectedCategoryPositions.clear()
         notifyDataSetChanged()
+    }
+
+    fun deselectCategories() {
+        while (!selectedCategoryPositions.isEmpty()) {
+            val position = selectedCategoryPositions.first()
+            selectedCategoryPositions.remove(position)
+            notifyItemChanged(position)
+        }
     }
 }

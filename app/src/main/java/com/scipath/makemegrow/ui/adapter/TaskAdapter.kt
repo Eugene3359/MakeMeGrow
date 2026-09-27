@@ -159,6 +159,7 @@ class TaskAdapter(
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun updateCategories(newCategories: List<Category>) {
         categories = newCategories
         notifyDataSetChanged()
