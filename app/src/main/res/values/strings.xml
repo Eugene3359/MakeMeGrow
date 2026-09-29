@@ -31,7 +31,6 @@
     <string name="yesterday">Yesterday</string>
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
-    <string name="date_format">dd MMM yyyy</string>
     <string name="time_format_12">h:mm a</string>
     <string name="time_format_24">HH:mm</string>
     <string name="date_time_formatting">%s, %s</string>

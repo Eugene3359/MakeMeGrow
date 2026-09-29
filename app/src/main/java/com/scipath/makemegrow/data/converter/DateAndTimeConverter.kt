@@ -33,6 +33,7 @@ class DateAndTimeConverter {
         }
 
         fun dateToString(date: LocalDate?, context: Context, relativeFormatting: Boolean = true): String {
+            if (date == null) return ""
             val currentDate: LocalDate = LocalDate.now()
             if (relativeFormatting) {
                 if (date == currentDate.minusDays(1))
@@ -43,18 +44,19 @@ class DateAndTimeConverter {
                     return context.getString(R.string.tomorrow)
             }
             val formatter = DateTimeFormatter.ofPattern(
-                context.getString(R.string.date_format),
+                format(date, currentDate, relativeFormatting),
                 Locale.getDefault())
-            return date?.format(formatter) ?: ""
+            return date.format(formatter)
         }
 
         fun timeToString(time: LocalTime?, isTimeFormat24: Boolean, context: Context): String {
+            if (time == null) return ""
             val formatter = DateTimeFormatter.ofPattern(
                 context.getString(
                     if (isTimeFormat24) R.string.time_format_24
                     else R.string.time_format_12),
                 Locale.getDefault())
-            return time?.format(formatter) ?: ""
+            return time.format(formatter)
         }
 
         fun dateAndTimeToString(
@@ -68,6 +70,14 @@ class DateAndTimeConverter {
             return context.getString(R.string.date_time_formatting).format(
                 dateToString(date, context),
                 timeToString(time, isTimeFormat24, context))
+        }
+
+        private fun format(date: LocalDate, currentDate: LocalDate, relativeFormatting: Boolean): String {
+            var format = ""
+            if (relativeFormatting) format += "E, "
+            format += "d MMM"
+            if (date.year != currentDate.year) format += " yyyy"
+            return format
         }
     }
 }

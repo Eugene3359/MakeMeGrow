@@ -21,10 +21,6 @@ import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 
 class MainActivity : AppCompatActivity() {
 
-    companion object {
-        private const val DEV_MODE = true
-    }
-
     private lateinit var taskViewModel: TaskViewModel
     private lateinit var selectedTasksViewModel: SelectedTasksViewModel
     private lateinit var categoryViewModel: CategoryViewModel
@@ -58,7 +54,8 @@ class MainActivity : AppCompatActivity() {
             timeFormat24.observe(this@MainActivity) {}
         }
 
-        if (DEV_MODE && savedInstanceState == null) {
+        if (false && savedInstanceState == null) {
+            // Clear and seed DB
             categoryViewModel.seedDatabase()
             taskViewModel.seedDatabase()
         }
