@@ -9,8 +9,8 @@
         <item name="colorSecondary">@color/dark_gray</item> <!-- Dialogue Header Background and Selected Date/Time -->
         <item name="colorSecondaryVariant">@color/dark_gray</item>
         <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/black</item>
         <!-- Customize your theme here. -->
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
     </style>
 </resources>
