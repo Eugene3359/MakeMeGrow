@@ -9,6 +9,234 @@
     android:background="@color/black"
     tools:context=".ui.activity.TaskActivity">
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:paddingTop="45dp"
+            android:paddingBottom="50dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/layout_task"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/layout_taskbar"
+                android:layout_marginVertical="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/task"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_medium"/>
+
+                <EditText
+                    android:id="@+id/input_task"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/light_gray"
+                    android:hint="@string/enter_task_here"
+                    android:importantForAutofill="no"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:textColorHint="@color/light_gray"
+                    android:textColor="@color/light_gray"
+                    android:textSize="@dimen/text_medium"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/layout_task"
+                android:layout_marginVertical="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/description"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_medium"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <EditText
+                        android:id="@+id/input_description"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/light_gray"
+                        android:hint="@string/enter_description"
+                        android:importantForAutofill="no"
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:textColorHint="@color/light_gray"
+                        android:textColor="@color/light_gray"
+                        android:textSize="@dimen/text_medium"/>
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/button_bullet_point"
+                        android:layout_width="@dimen/button_icon"
+                        android:layout_height="@dimen/button_icon"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/shape_round"
+                        android:text="@string/bullet_point_sign"
+                        android:textColor="@color/white"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_deadline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/layout_description"
+                android:layout_marginVertical="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/deadline"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_medium"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <EditText
+                        android:id="@+id/input_date"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/light_gray"
+                        android:hint="@string/date_not_set"
+                        android:importantForAutofill="no"
+                        android:inputType="date"
+                        android:textColorHint="@color/light_gray"
+                        android:textColor="@color/light_gray"
+                        android:textSize="@dimen/text_medium"
+                        android:focusable="false"
+                        android:clickable="true"/>
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/button_clear_date"
+                        android:layout_width="@dimen/button_icon"
+                        android:layout_height="@dimen/button_icon"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/shape_round"
+                        android:foreground="@drawable/ic_cross"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_time_selection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:visibility="gone">
+
+                    <EditText
+                        android:id="@+id/input_time"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/light_gray"
+                        android:hint="@string/time_not_set"
+                        android:importantForAutofill="no"
+                        android:inputType="time"
+                        android:textColorHint="@color/light_gray"
+                        android:textColor="@color/light_gray"
+                        android:textSize="@dimen/text_medium"
+                        android:focusable="false"
+                        android:clickable="true"/>
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/button_clear_time"
+                        android:layout_width="@dimen/button_icon"
+                        android:layout_height="@dimen/button_icon"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/shape_round"
+                        android:foreground="@drawable/ic_cross"
+                        android:visibility="gone"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_repeat_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/layout_deadline"
+                android:layout_marginVertical="10dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/repeat"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_medium"/>
+
+                <Spinner
+                    android:id="@+id/spinner_repeat_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="5dp"
+                    android:backgroundTint="@color/white"
+                    android:popupBackground="@color/dark_gray"
+                    tools:listitem="@layout/spinner_item_small"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/layout_repeat_type"
+                android:layout_marginVertical="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/category"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_medium"/>
+
+                <Spinner
+                    android:id="@+id/spinner_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="5dp"
+                    android:backgroundTint="@color/white"
+                    android:popupBackground="@color/dark_gray"
+                    tools:listitem="@layout/spinner_item_small"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
     <LinearLayout
         android:id="@+id/layout_taskbar"
         android:layout_width="match_parent"
@@ -55,218 +283,6 @@
             android:background="@android:color/transparent"
             android:foreground="@drawable/ic_bin"
             android:visibility="gone"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_task"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/layout_taskbar"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/task"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_medium"/>
-
-        <EditText
-            android:id="@+id/input_task"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/light_gray"
-            android:hint="@string/enter_task_here"
-            android:importantForAutofill="no"
-            android:inputType="textCapSentences|textMultiLine"
-            android:textColorHint="@color/light_gray"
-            android:textColor="@color/light_gray"
-            android:textSize="@dimen/text_medium"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/layout_task"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/description"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_medium"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <EditText
-                android:id="@+id/input_description"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="@color/light_gray"
-                android:hint="@string/enter_description"
-                android:importantForAutofill="no"
-                android:inputType="textCapSentences|textMultiLine"
-                android:textColorHint="@color/light_gray"
-                android:textColor="@color/light_gray"
-                android:textSize="@dimen/text_medium"/>
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/button_bullet_point"
-                android:layout_width="@dimen/button_icon"
-                android:layout_height="@dimen/button_icon"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/shape_round"
-                android:text="@string/bullet_point_sign"
-                android:textColor="@color/white"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_deadline"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/layout_description"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/deadline"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_medium"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <EditText
-                android:id="@+id/input_date"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="@color/light_gray"
-                android:hint="@string/date_not_set"
-                android:importantForAutofill="no"
-                android:inputType="date"
-                android:textColorHint="@color/light_gray"
-                android:textColor="@color/light_gray"
-                android:textSize="@dimen/text_medium"
-                android:focusable="false"
-                android:clickable="true"/>
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/button_clear_date"
-                android:layout_width="@dimen/button_icon"
-                android:layout_height="@dimen/button_icon"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/shape_round"
-                android:foreground="@drawable/ic_cross"
-                android:visibility="gone"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/layout_time_selection"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:visibility="gone">
-
-            <EditText
-                android:id="@+id/input_time"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="@color/light_gray"
-                android:hint="@string/time_not_set"
-                android:importantForAutofill="no"
-                android:inputType="time"
-                android:textColorHint="@color/light_gray"
-                android:textColor="@color/light_gray"
-                android:textSize="@dimen/text_medium"
-                android:focusable="false"
-                android:clickable="true"/>
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/button_clear_time"
-                android:layout_width="@dimen/button_icon"
-                android:layout_height="@dimen/button_icon"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/shape_round"
-                android:foreground="@drawable/ic_cross"
-                android:visibility="gone"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_repeat_type"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/layout_deadline"
-        android:layout_margin="10dp"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/repeat"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_medium"/>
-
-        <Spinner
-            android:id="@+id/spinner_repeat_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="5dp"
-            android:backgroundTint="@color/white"
-            android:popupBackground="@color/dark_gray"
-            tools:listitem="@layout/spinner_item_small"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_category"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/layout_repeat_type"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/category"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_medium"/>
-
-        <Spinner
-            android:id="@+id/spinner_category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="5dp"
-            android:backgroundTint="@color/white"
-            android:popupBackground="@color/dark_gray"
-            tools:listitem="@layout/spinner_item_small"/>
 
     </LinearLayout>
 

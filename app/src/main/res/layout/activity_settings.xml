@@ -9,6 +9,149 @@
     android:background="@color/black"
     tools:context=".ui.activity.SettingsActivity">
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:paddingTop="45dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                style="@style/SettingSection.Container">
+
+                <TextView
+                    style="@style/SettingSection.Name"
+                    android:text="@string/general"/>
+
+                <LinearLayout
+                    style="@style/SettingItem.Container"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/SettingItem.Name"
+                            android:text="@string/confirm_task_completion"/>
+
+                        <TextView
+                            android:id="@+id/text_confirm_completing"
+                            style="@style/SettingItem.Value"
+                            android:text="@string/enabled"/>
+
+                    </LinearLayout>
+
+                    <CheckBox
+                        android:id="@+id/checkbox_confirm_completing"
+                        style="@style/SettingItem.Checkbox"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/container_first_day_of_week"
+                    style="@style/SettingItem.Container"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/SettingItem.Name"
+                        android:text="@string/first_day_of_week"/>
+
+                    <TextView
+                        android:id="@+id/text_day_of_week"
+                        style="@style/SettingItem.Value"
+                        android:text="@string/placeholder"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/container_time_format"
+                    style="@style/SettingItem.Container"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/SettingItem.Name"
+                        android:text="@string/time_format"/>
+
+                    <TextView
+                        android:id="@+id/text_time_format"
+                        style="@style/SettingItem.Value"
+                        android:text="@string/twenty_four_hour_format"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/SettingSection.Container">
+
+                <TextView
+                    style="@style/SettingSection.Name"
+                    android:text="@string/notifications"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/SettingSection.Container">
+
+                <TextView
+                    style="@style/SettingSection.Name"
+                    android:text="@string/export_and_import"/>
+
+                <LinearLayout
+                    style="@style/SettingItem.Container"
+                    android:gravity="center_vertical">
+
+                    <Button
+                        android:id="@+id/button_export"
+                        style="@style/SettingItem.Button"
+                        android:text="@string/exp"/>
+
+                    <Button
+                        android:id="@+id/button_import"
+                        style="@style/SettingItem.Button"
+                        android:layout_marginHorizontal="10dp"
+                        android:text="@string/imp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/SettingSection.Container">
+
+                <TextView
+                    style="@style/SettingSection.Name"
+                    android:text="@string/about"/>
+
+                <LinearLayout
+                    style="@style/SettingItem.Container"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/text_app_name"
+                        style="@style/SettingItem.Name"
+                        android:text="@string/app" />
+
+                    <TextView
+                        android:id="@+id/text_app_version"
+                        style="@style/SettingItem.Value"
+                        android:text="@string/version"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
     <LinearLayout
         android:id="@+id/layout_taskbar"
         android:layout_width="match_parent"
@@ -33,143 +176,6 @@
             android:textColor="@color/white"
             android:textSize="@dimen/taskbar_text"
             android:textStyle="bold" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/layout_taskbar"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
-
-        <LinearLayout
-            style="@style/SettingSection.Container">
-
-            <TextView
-                style="@style/SettingSection.Name"
-                android:text="@string/general"/>
-
-            <LinearLayout
-                style="@style/SettingItem.Container"
-                android:gravity="center_vertical">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/SettingItem.Name"
-                        android:text="@string/confirm_task_completion"/>
-
-                    <TextView
-                        android:id="@+id/text_confirm_completing"
-                        style="@style/SettingItem.Value"
-                        android:text="@string/enabled"/>
-
-                </LinearLayout>
-
-                <CheckBox
-                    android:id="@+id/checkbox_confirm_completing"
-                    style="@style/SettingItem.Checkbox"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/container_first_day_of_week"
-                style="@style/SettingItem.Container"
-                android:orientation="vertical">
-
-                <TextView
-                    style="@style/SettingItem.Name"
-                    android:text="@string/first_day_of_week"/>
-
-                <TextView
-                    android:id="@+id/text_day_of_week"
-                    style="@style/SettingItem.Value"
-                    android:text="@string/placeholder"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/container_time_format"
-                style="@style/SettingItem.Container"
-                android:orientation="vertical">
-
-                <TextView
-                    style="@style/SettingItem.Name"
-                    android:text="@string/time_format"/>
-
-                <TextView
-                    android:id="@+id/text_time_format"
-                    style="@style/SettingItem.Value"
-                    android:text="@string/twenty_four_hour_format"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/SettingSection.Container">
-
-            <TextView
-                style="@style/SettingSection.Name"
-                android:text="@string/notifications"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/SettingSection.Container">
-
-            <TextView
-                style="@style/SettingSection.Name"
-                android:text="@string/export_and_import"/>
-
-            <LinearLayout
-                style="@style/SettingItem.Container"
-                android:gravity="center_vertical">
-
-                <Button
-                    android:id="@+id/button_export"
-                    style="@style/SettingItem.Button"
-                    android:text="@string/exp"/>
-
-                <Button
-                    android:id="@+id/button_import"
-                    style="@style/SettingItem.Button"
-                    android:layout_marginHorizontal="10dp"
-                    android:text="@string/imp"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            style="@style/SettingSection.Container">
-
-            <TextView
-                style="@style/SettingSection.Name"
-                android:text="@string/about"/>
-
-            <LinearLayout
-                style="@style/SettingItem.Container"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/text_app_name"
-                    style="@style/SettingItem.Name"
-                    android:text="@string/app" />
-
-                <TextView
-                    android:id="@+id/text_app_version"
-                    style="@style/SettingItem.Value"
-                    android:text="@string/version"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
 
     </LinearLayout>
 

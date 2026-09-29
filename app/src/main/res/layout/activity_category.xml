@@ -9,6 +9,27 @@
     android:background="@color/black"
     tools:context=".ui.activity.CategoryActivity">
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:paddingTop="45dp"
+            android:paddingBottom="50dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/view_categories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"/>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
     <LinearLayout
         android:id="@+id/layout_taskbar"
         android:layout_width="match_parent"
@@ -54,15 +75,6 @@
             android:visibility="gone"/>
 
     </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/view_categories"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="65dp"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginBottom="10dp"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_new_category"
