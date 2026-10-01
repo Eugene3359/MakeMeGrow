@@ -2,6 +2,8 @@ package com.scipath.makemegrow.app
 
 import android.app.Application
 import com.scipath.makemegrow.data.local.AppDatabase
+import com.scipath.makemegrow.data.notification.NotificationScheduler
+import com.scipath.makemegrow.data.notification.TaskNotificationManager
 import com.scipath.makemegrow.data.repository.SettingsRepository
 import com.scipath.makemegrow.data.repository.CategoryRepository
 import com.scipath.makemegrow.data.repository.TaskRepository
@@ -16,8 +18,11 @@ class MakeMeGrowApp : Application() {
         AppDatabase.getDatabase(this)
     }
 
+    lateinit var notificationScheduler: NotificationScheduler
+        private set
+
     val taskRepository by lazy {
-        TaskRepository(database.taskDao())
+        TaskRepository(database.taskDao(), notificationScheduler)
     }
 
     val categoryRepository by lazy {
@@ -38,5 +43,11 @@ class MakeMeGrowApp : Application() {
 
     val settingsFactory by lazy {
         SettingsViewModelFactory(settingsRepository)
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        notificationScheduler = NotificationScheduler(this)
+        TaskNotificationManager(this).createChannel()
     }
 }

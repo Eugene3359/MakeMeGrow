@@ -1,9 +1,16 @@
 package com.scipath.makemegrow.ui.activity
 
+import android.Manifest
+import android.app.AlarmManager
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.model.Category
@@ -18,6 +25,7 @@ import com.scipath.makemegrow.ui.viewmodel.SelectedTasksViewModel
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
+import androidx.core.net.toUri
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +38,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var taskSectionManager: TaskSectionManager
     private var pendingTask: Task? = null
     private var onTaskCompletionCancel: (() -> Unit)? = null
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +71,31 @@ class MainActivity : AppCompatActivity() {
             // Clear and seed DB
             categoryViewModel.seedDatabase()
             taskViewModel.seedDatabase()
+        }
+
+        // Notification permission
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        }
+
+        // Alarm exact schedule permission
+        val alarmManager = getSystemService(AlarmManager::class.java)
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            !alarmManager.canScheduleExactAlarms()
+        ) {
+            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                data = "package:$packageName".toUri()
+            }
+            startActivity(intent)
         }
 
         taskBarManager = MainTaskBarManager(

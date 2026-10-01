@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/button_icon"
+    android:height="@dimen/button_icon"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <group
+        android:scaleX="1"
+        android:scaleY="1"
+        android:translateX="0"
+        android:translateY="0">
+
+        <path
+            android:pathData="
+                M20,55 L40,75
+                M40,75 L75,30"
+            android:strokeColor="@color/white"
+            android:strokeWidth="6"
+            android:strokeLineCap="round"/>
+
+        <path
+            android:pathData="
+                M50,5 L50,5
+                M72.5,11 L72.5,11
+                M89,27.5 L89,27.5
+                M95,50 L95,50
+                M89,72.5 L89,72.5
+                M72.5,89 L72.5,89
+                M50,95 L50,95
+                M27.5,89 L27.5,89
+                M11,72.5 L11,72.5
+                M5,50 L5,50
+                M11,27.5 L11,27.5
+                M27.5,11 L27.5,11"
+            android:strokeColor="@color/white"
+            android:strokeWidth="8"
+            android:strokeLineCap="round"/>
+
+    </group>
+</vector>

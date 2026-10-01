@@ -20,7 +20,7 @@ interface TaskDao {
     fun getAll(): Flow<List<Task>>
 
     @Query("SELECT * FROM tasks WHERE id IS (:id)")
-    fun getById(id: Int): Task
+    fun getById(id: Int): Task?
 
     @Query("SELECT * " +
             "FROM tasks " +
@@ -64,13 +64,13 @@ interface TaskDao {
     fun getBetweenDeadlines(startDate: Long, startTime: Int, endDate: Long, endTime: Int): Flow<List<Task>>
 
     @Insert
-    suspend fun insert(task: Task)
+    suspend fun insert(task: Task): Long
 
     @Update
     suspend fun updateTask(task: Task)
 
     @Upsert
-    suspend fun upsertTask(task: Task)
+    suspend fun upsertTask(task: Task): Long
 
     @Delete
     suspend fun delete(task: Task)

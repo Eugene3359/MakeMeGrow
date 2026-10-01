@@ -3,13 +3,18 @@ package com.scipath.makemegrow.data.repository
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.dao.TaskDao
 import com.scipath.makemegrow.data.model.Task
+import com.scipath.makemegrow.data.notification.NotificationScheduler
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 
-class TaskRepository(private val taskDao: TaskDao) {
+class TaskRepository(
+    private val taskDao: TaskDao,
+    private val notificationScheduler: NotificationScheduler
+) {
 
     val allTasks: Flow<List<Task>> = taskDao.getAll()
     val overdueTasks: Flow<List<Task>> = taskDao.getBeforeDeadline(
@@ -50,31 +55,45 @@ class TaskRepository(private val taskDao: TaskDao) {
         DateAndTimeConverter.dateToSeconds(endOfNextMonth()),
         DateAndTimeConverter.NO_TIME)
 
-    fun getById(id: Int): Task {
+    fun getById(id: Int): Task? {
         return taskDao.getById(id)
     }
 
     suspend fun addTask(task: Task) {
-        taskDao.insert(task)
+        val id = taskDao.insert(task)
+        val savedTask = task.copy(id = id.toInt())
+        notificationScheduler.schedule(savedTask)
     }
 
     suspend fun updateTask(task: Task) {
+        notificationScheduler.cancel(task.id)
         taskDao.updateTask(task)
+        notificationScheduler.schedule(task)
     }
 
     suspend fun upsertTask(task: Task) {
-        taskDao.upsertTask(task)
+        notificationScheduler.cancel(task.id)
+        val id = taskDao.upsertTask(task)
+        val savedTask = task.copy(id = id.toInt())
+        notificationScheduler.schedule(savedTask)
     }
 
     suspend fun deleteTask(task: Task) {
+        notificationScheduler.cancel(task.id)
         taskDao.delete(task)
     }
 
     suspend fun deleteTasks(tasks: List<Task>) {
+        tasks.forEach {
+            notificationScheduler.cancel(it.id)
+        }
         taskDao.delete(tasks)
     }
 
     suspend fun clear() {
+        allTasks.first().forEach {
+            notificationScheduler.cancel(it.id)
+        }
         taskDao.clear()
     }
 
