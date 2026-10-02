@@ -14,12 +14,15 @@ import kotlin.getValue
 
 class MakeMeGrowApp : Application() {
 
-    val database by lazy {
-        AppDatabase.getDatabase(this)
-    }
+    lateinit var notificationManager: TaskNotificationManager
+        private set
 
     lateinit var notificationScheduler: NotificationScheduler
         private set
+
+    val database by lazy {
+        AppDatabase.getDatabase(this)
+    }
 
     val taskRepository by lazy {
         TaskRepository(database.taskDao(), notificationScheduler)
@@ -47,7 +50,8 @@ class MakeMeGrowApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        notificationManager = TaskNotificationManager(this)
         notificationScheduler = NotificationScheduler(this)
-        TaskNotificationManager(this).createChannel()
+        notificationManager.createChannel()
     }
 }
