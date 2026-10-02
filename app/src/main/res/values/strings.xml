@@ -93,6 +93,7 @@
     <string name="twelve_hour_format">12-hour</string>
     <string name="twenty_four_hour_format">24-hour</string>
     <string name="notifications">Notifications</string>
+    <string name="task_deadline_notifications">Notifications for upcoming task deadlines</string>
     <string name="export_and_import">Export &amp; Import</string>
     <string name="exp">Export</string>
     <string name="imp">Import</string>
