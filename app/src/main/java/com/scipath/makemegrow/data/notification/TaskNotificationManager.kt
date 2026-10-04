@@ -49,6 +49,7 @@ class TaskNotificationManager(private val context: Context) {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or
                     Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(MainActivity.EXTRA_TASK_ID, task.id)
         }
 
         val pendingIntent = PendingIntent.getActivity(

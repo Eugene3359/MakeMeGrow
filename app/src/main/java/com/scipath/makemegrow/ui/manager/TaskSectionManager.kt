@@ -3,9 +3,13 @@ package com.scipath.makemegrow.ui.manager
 import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityMainBinding
 import com.scipath.makemegrow.ui.adapter.TaskAdapter
@@ -13,6 +17,8 @@ import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.SelectedTasksViewModel
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class TaskSectionManager(
     private val activity: AppCompatActivity,
@@ -163,6 +169,36 @@ class TaskSectionManager(
     fun deselectTasks() {
         taskSections.forEach { section ->
             section.adapter.deselectTasks()
+        }
+    }
+
+    fun focusTask(taskId: Int) {
+        (0..1).forEach { index ->
+            val taskSection = taskSections[index]
+            taskSection.liveData.observe(activity, object: Observer<List<Task>> {
+                override fun onChanged(value: List<Task>) {
+                    taskSection.liveData.removeObserver(this)
+                    val position = value.indexOfFirst { it.id == taskId }
+                    if (position == -1) return
+
+                    taskSection.recyclerView.scrollToPosition(position)
+                    taskSection.recyclerView.doOnPreDraw {
+                        val viewHolder = taskSection.recyclerView
+                            .findViewHolderForAdapterPosition(position)
+                        viewHolder?.let { blinkItem(it.itemView) }
+                    }
+                }
+            })
+        }
+    }
+
+    private fun blinkItem(itemView: View) {
+        val delayTime = 500L
+        activity.lifecycleScope.launch {
+            delay(delayTime)
+            itemView.setBackgroundColor(activity.getColor(R.color.white))
+            delay(delayTime)
+            itemView.setBackgroundColor(activity.getColor(R.color.dark_gray))
         }
     }
 }

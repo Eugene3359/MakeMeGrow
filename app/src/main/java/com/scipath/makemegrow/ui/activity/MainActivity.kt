@@ -29,6 +29,10 @@ import androidx.core.net.toUri
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_TASK_ID = "task_id"
+    }
+
     private lateinit var taskViewModel: TaskViewModel
     private lateinit var selectedTasksViewModel: SelectedTasksViewModel
     private lateinit var categoryViewModel: CategoryViewModel
@@ -138,6 +142,20 @@ class MainActivity : AppCompatActivity() {
         })
 
         setupDialogListeners()
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent) {
+        val taskId = intent.getIntExtra(EXTRA_TASK_ID, -1)
+        if (taskId == -1) return
+
+        taskSectionManager.focusTask(taskId)
     }
 
     private fun onTaskClick(task: Task) {
