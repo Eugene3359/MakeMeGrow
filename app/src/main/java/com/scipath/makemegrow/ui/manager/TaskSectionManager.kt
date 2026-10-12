@@ -1,5 +1,6 @@
 package com.scipath.makemegrow.ui.manager
 
+import android.graphics.Color
 import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +20,7 @@ import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class TaskSectionManager(
     private val activity: AppCompatActivity,
@@ -193,11 +195,27 @@ class TaskSectionManager(
     }
 
     private fun blinkItem(itemView: View) {
-        val delayTime = 500L
+        val delayTime = 50L // 50ms
+
         activity.lifecycleScope.launch {
-            delay(delayTime)
-            itemView.setBackgroundColor(activity.getColor(R.color.white))
-            delay(delayTime)
+            repeat(2) { // 2000ms
+                for (i in 1..10) { // 500ms
+                    delay(delayTime)
+                    val chanelValue = (i * 25.5).roundToInt()
+                    itemView.setBackgroundColor(
+                        Color.rgb(chanelValue, chanelValue, chanelValue)
+                    )
+                }
+
+                for (i in 10 downTo 1) { // 500ms
+                    delay(delayTime)
+                    val chanelValue = (i * 25.5).roundToInt()
+                    itemView.setBackgroundColor(
+                        Color.rgb(chanelValue, chanelValue, chanelValue)
+                    )
+                }
+            }
+
             itemView.setBackgroundColor(activity.getColor(R.color.dark_gray))
         }
     }
