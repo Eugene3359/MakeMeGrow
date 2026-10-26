@@ -112,8 +112,8 @@ class SettingsActivity : AppCompatActivity() {
         // Time Format
         settingsViewModel.timeFormat24.observe(this) { timeFormat24 ->
             binding.textTimeFormat.setText(
-                if (timeFormat24) R.string.twenty_four_hour_format
-                else R.string.twelve_hour_format
+                if (timeFormat24) R.string.time_format_24_option
+                else R.string.time_format_12_option
             )
         }
 

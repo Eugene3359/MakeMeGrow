@@ -11,6 +11,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.R
@@ -43,6 +44,11 @@ class TaskActivity : AppCompatActivity() {
         // Load Data
         if (intent.hasExtra("task")) {
             task = intent.getSerializableExtra("task") as Task
+        }
+        if (intent.getBooleanExtra("cancel_notification", false)) {
+            task?.let {
+                NotificationManagerCompat.from(this).cancel(it.id)
+            }
         }
 
         val app = application as MakeMeGrowApp
@@ -288,7 +294,7 @@ class TaskActivity : AppCompatActivity() {
             if (taskName.isBlank()) {
                 Toast.makeText(
                     this,
-                    getString(R.string.enter_task_first),
+                    getString(R.string.enter_task_request),
                     Toast.LENGTH_LONG
                 ).show()
             } else {

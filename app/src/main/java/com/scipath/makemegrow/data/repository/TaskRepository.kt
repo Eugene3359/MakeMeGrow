@@ -3,6 +3,13 @@ package com.scipath.makemegrow.data.repository
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.dao.TaskDao
 import com.scipath.makemegrow.data.model.Task
+import com.scipath.makemegrow.data.model.Task.RepeatType.NO_REPEAT
+import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_DAY
+import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_MONTH
+import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_WEEK
+import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_YEAR
+import com.scipath.makemegrow.data.model.Task.RepeatType.ON_WEEKDAYS
+import com.scipath.makemegrow.data.model.Task.RepeatType.ON_WEEKENDS
 import com.scipath.makemegrow.data.notification.NotificationScheduler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -68,14 +75,30 @@ class TaskRepository(
     suspend fun updateTask(task: Task) {
         notificationScheduler.cancel(task.id)
         taskDao.updateTask(task)
-        notificationScheduler.schedule(task)
+        if (!task.isCompleted) {
+            notificationScheduler.schedule(task)
+        }
+    }
+
+    suspend fun completeTask(task: Task, isCompleted: Boolean) {
+        if (task.repeatType == NO_REPEAT) {
+            task.isCompleted = isCompleted
+        } else {
+            if (isCompleted) {
+                task.isCompleted = false
+                task.deadlineDate = getNextDeadline(task)
+            }
+        }
+        updateTask(task)
     }
 
     suspend fun upsertTask(task: Task) {
         notificationScheduler.cancel(task.id)
         val id = taskDao.upsertTask(task)
         val savedTask = task.copy(id = id.toInt())
-        notificationScheduler.schedule(savedTask)
+        if (!savedTask.isCompleted) {
+            notificationScheduler.schedule(savedTask)
+        }
     }
 
     suspend fun deleteTask(task: Task) {
@@ -101,6 +124,30 @@ class TaskRepository(
         return tasks.map { list ->
             list.filter { it.isCompleted == isCompleted }
         }
+    }
+
+    private fun getNextDeadline(task: Task): Long {
+        val deadlineDate: LocalDate = DateAndTimeConverter.secondsToDate(task.deadlineDate)
+            ?: return task.deadlineDate
+
+        val nextDate = when (task.repeatType) {
+            NO_REPEAT -> deadlineDate
+            ONCE_A_DAY -> deadlineDate.plusDays(1)
+            ON_WEEKDAYS -> deadlineDate.plusDays(
+                if (deadlineDate.dayOfWeek.value < 5) 1
+                else 8L - deadlineDate.dayOfWeek.value
+            )
+            ON_WEEKENDS -> deadlineDate.plusDays(
+                if (deadlineDate.dayOfWeek.value == 6) 1
+                else if (deadlineDate.dayOfWeek.value == 7) 6
+                else 6L - deadlineDate.dayOfWeek.value
+            )
+            ONCE_A_WEEK -> deadlineDate.plusWeeks(1)
+            ONCE_A_MONTH -> deadlineDate.plusMonths(1)
+            ONCE_A_YEAR -> deadlineDate.plusYears(1)
+        }
+
+        return DateAndTimeConverter.dateToSeconds(nextDate)
     }
 
     private fun currentDate(): LocalDate {

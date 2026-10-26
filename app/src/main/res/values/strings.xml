@@ -3,30 +3,6 @@
     <string name="placeholder">Placeholder</string>
     <string name="empty_string" />
 
-    <!-- Task Groups -->
-    <string name="overdue">Overdue</string>
-    <string name="this_week">This Week</string>
-    <string name="next_week">Next Week</string>
-    <string name="this_month">This Month</string>
-    <string name="next_month">Next Month</string>
-    <string name="later">Later</string>
-    <string name="completed">Completed</string>
-
-    <!-- New/Modify Task -->
-    <string name="new_task">New Task</string>
-    <string name="task">Task</string>
-    <string name="enter_task_here">Enter task here</string>
-    <string name="description">Description</string>
-    <string name="enter_description">Enter task description if needed</string>
-    <string name="bullet_point_sign">•</string>
-    <string name="bullet_point">•\&#32;</string>
-    <string name="deadline">Deadline</string>
-    <string name="date_not_set">Date not set</string>
-    <string name="time_not_set">Time not set</string>
-    <string name="enter_task_first">Enter Task First</string>
-    <string name="unfold_sign">v</string>
-    <string name="fold_sign">—</string>
-
     <!-- Date and Time Formating -->
     <string name="yesterday">Yesterday</string>
     <string name="today">Today</string>
@@ -35,7 +11,39 @@
     <string name="time_format_24">HH:mm</string>
     <string name="date_time_formatting">%s, %s</string>
 
-    <!-- Repeat Types -->
+    <!-- Categories -->
+    <string name="category">Category</string>
+    <string name="all_tasks">All Tasks</string>
+    <string name="default_category">Default</string>
+    <string name="add_category">Add Category</string>
+
+    <!-- Main Screen -->
+    <!-- Menu -->
+    <string name="task_categories">Task Categories</string>
+    <string name="settings">Settings</string>
+    <!-- Task Groups -->
+    <string name="overdue">Overdue</string>
+    <string name="this_week">This Week</string>
+    <string name="next_week">Next Week</string>
+    <string name="this_month">This Month</string>
+    <string name="next_month">Next Month</string>
+    <string name="later">Later</string>
+    <string name="completed">Completed</string>
+    <!-- Task Item -->
+    <string name="unfold_sign">v</string>
+    <string name="fold_sign">—</string>
+
+    <!-- Task Screen -->
+    <string name="new_task">New Task</string>
+    <string name="task">Task</string>
+    <string name="task_hint">Enter task here</string>
+    <string name="description">Description</string>
+    <string name="description_hint">Enter task description if needed</string>
+    <string name="bullet_point_sign">•</string>
+    <string name="bullet_point">•\&#32;</string>
+    <string name="deadline">Deadline</string>
+    <string name="date_not_set">Date not set</string>
+    <string name="time_not_set">Time not set</string>
     <string name="repeat">Repeat</string>
     <string-array name="repeat_types">
         <item>No Repeat</item>
@@ -46,15 +54,30 @@
         <item>Once a Month</item>
         <item>Once a Year</item>
     </string-array>
+    <string name="enter_task_request">Enter Task First</string>
 
-    <!-- Categories -->
-    <string name="category">Category</string>
-    <string name="all_tasks">All Tasks</string>
-    <string name="default_category">Default</string>
-    <string name="add_category">Add Category</string>
-    <!-- Category layout -->
+    <!-- Category Screen -->
+    <!-- Category item -->
     <string name="task_number">Tasks: %d</string>
     <string name="overdue_task_number">(%d overdue)</string>
+
+    <!-- Setting Screen -->
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="general">General</string>
+    <string name="confirm_task_completion">Confirm task completion</string>
+    <string name="first_day_of_week">First day of week</string>
+    <string name="time_format">Time format</string>
+    <string name="time_format_12_option">12-hour</string>
+    <string name="time_format_24_option">24-hour</string>
+    <string name="notifications">Notifications</string>
+    <string name="task_deadline_notifications">Notifications for upcoming task deadlines</string>
+    <string name="export_and_import">Export &amp; Import</string>
+    <string name="exp">Export</string>
+    <string name="imp">Import</string>
+    <string name="about">About</string>
+    <string name="app">App: %s</string>
+    <string name="version">Version: %s</string>
 
     <!-- Dialog -->
     <string name="cancel">Cancel</string>
@@ -79,26 +102,8 @@
     <string name="delete_categories">Delete Categories</string>
     <string name="delete_categories_message">Are you sure you want to delete the selected categories?</string>
 
-    <!-- Menu -->
-    <string name="task_categories">Task Categories</string>
-    <string name="settings">Settings</string>
-
-    <!-- Setting -->
-    <string name="general">General</string>
-    <string name="confirm_task_completion">Confirm task completion</string>
-    <string name="enabled">Enabled</string>
-    <string name="disabled">Disabled</string>
-    <string name="first_day_of_week">First day of week</string>
-    <string name="time_format">Time format</string>
-    <string name="twelve_hour_format">12-hour</string>
-    <string name="twenty_four_hour_format">24-hour</string>
-    <string name="notifications">Notifications</string>
-    <string name="task_deadline_notifications">Notifications for upcoming task deadlines</string>
-    <string name="export_and_import">Export &amp; Import</string>
-    <string name="exp">Export</string>
-    <string name="imp">Import</string>
-    <string name="about">About</string>
-    <string name="app">App: %s</string>
-    <string name="version">Version: %s</string>
+    <!-- Notification -->
+    <string name="edit">Edit</string>
+    <string name="complete">Complete</string>
 
 </resources>

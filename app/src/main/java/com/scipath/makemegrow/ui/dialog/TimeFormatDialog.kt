@@ -9,8 +9,8 @@ class TimeFormatDialog : SelectionDialog<Boolean>() {
     override val messageId: Int? = null
     override val options by lazy {
         listOf(
-            Option(getString(R.string.twelve_hour_format), false),
-            Option(getString(R.string.twenty_four_hour_format), true)
+            Option(getString(R.string.time_format_12_option), false),
+            Option(getString(R.string.time_format_24_option), true)
         )
     }
 

@@ -82,7 +82,7 @@
                     <TextView
                         android:id="@+id/text_time_format"
                         style="@style/SettingItem.Value"
-                        android:text="@string/twenty_four_hour_format"/>
+                        android:text="@string/time_format_24_option"/>
 
                 </LinearLayout>
 

@@ -33,6 +33,9 @@
         </activity>
 
         <receiver
+            android:name=".data.notification.TaskNotificationActionReceiver"
+            android:exported="false" />
+        <receiver
             android:name=".data.notification.TaskNotificationReceiver"
             android:exported="false" />
     </application>

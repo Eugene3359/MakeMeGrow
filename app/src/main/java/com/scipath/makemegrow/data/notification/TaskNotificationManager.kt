@@ -15,6 +15,7 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.ui.activity.MainActivity
+import com.scipath.makemegrow.ui.activity.TaskActivity
 
 class TaskNotificationManager(private val context: Context) {
 
@@ -46,16 +47,40 @@ class TaskNotificationManager(private val context: Context) {
             return
         }
 
-        val intent = Intent(context, MainActivity::class.java).apply {
+        val openIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or
                     Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra(MainActivity.EXTRA_TASK_ID, task.id)
         }
 
-        val pendingIntent = PendingIntent.getActivity(
+        val openPendingIntent = PendingIntent.getActivity(
             context,
             task.id,
-            intent,
+            openIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val editIntent = Intent(context, TaskActivity::class.java).apply {
+            putExtra("task", task)
+            putExtra("cancel_notification", true)
+        }
+
+        val editPendingIntent = PendingIntent.getActivity(
+            context,
+            task.id + 100_000,
+            editIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val completeIntent = Intent(context, TaskNotificationActionReceiver::class.java).apply {
+            action = TaskNotificationActionReceiver.ACTION_COMPLETE
+            putExtra(TaskNotificationActionReceiver.EXTRA_TASK_ID, task.id)
+        }
+
+        val completePendingIntent = PendingIntent.getBroadcast(
+            context,
+            task.id + 100_000_000,
+            completeIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -73,7 +98,17 @@ class TaskNotificationManager(private val context: Context) {
                     context
                 )
             )
-            .setContentIntent(pendingIntent)
+            .setContentIntent(openPendingIntent)
+            .addAction(
+                0,
+                context.getString(R.string.edit),
+                editPendingIntent
+            )
+            .addAction(
+                0,
+                context.getString(R.string.complete),
+                completePendingIntent
+            )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
