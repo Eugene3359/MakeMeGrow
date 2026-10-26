@@ -21,6 +21,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.activity.TaskActivity"
+            android:parentActivityName=".ui.activity.MainActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity

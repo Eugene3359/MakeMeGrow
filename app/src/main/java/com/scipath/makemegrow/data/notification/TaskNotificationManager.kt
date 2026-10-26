@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
@@ -65,12 +66,13 @@ class TaskNotificationManager(private val context: Context) {
             putExtra("cancel_notification", true)
         }
 
-        val editPendingIntent = PendingIntent.getActivity(
-            context,
-            task.id + 100_000,
-            editIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val editPendingIntent = TaskStackBuilder.create(context).run {
+            addNextIntentWithParentStack(editIntent)
+            getPendingIntent(
+                task.id + 100_000,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
 
         val completeIntent = Intent(context, TaskNotificationActionReceiver::class.java).apply {
             action = TaskNotificationActionReceiver.ACTION_COMPLETE
