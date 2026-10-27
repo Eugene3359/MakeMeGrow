@@ -20,6 +20,7 @@ import java.time.LocalTime
 
 class TaskRepository(
     private val taskDao: TaskDao,
+    private val settingsRepository: SettingsRepository,
     private val notificationScheduler: NotificationScheduler
 ) {
 
@@ -69,15 +70,41 @@ class TaskRepository(
     suspend fun addTask(task: Task) {
         val id = taskDao.insert(task)
         val savedTask = task.copy(id = id.toInt())
-        notificationScheduler.schedule(savedTask)
+        scheduleDeadlineNotification(savedTask)
     }
 
     suspend fun updateTask(task: Task) {
-        notificationScheduler.cancel(task.id)
+        cancelDeadlineNotification(task)
         taskDao.updateTask(task)
         if (!task.isCompleted) {
-            notificationScheduler.schedule(task)
+            scheduleDeadlineNotification(task)
         }
+    }
+
+    suspend fun upsertTask(task: Task) {
+        cancelDeadlineNotification(task)
+        val id = taskDao.upsertTask(task)
+        val savedTask = task.copy(id = id.toInt())
+        if (!savedTask.isCompleted) {
+            scheduleDeadlineNotification(savedTask)
+        }
+    }
+
+    suspend fun deleteTask(task: Task) {
+        cancelDeadlineNotification(task)
+        taskDao.delete(task)
+    }
+
+    suspend fun deleteTasks(tasks: List<Task>) {
+        tasks.forEach {
+            cancelDeadlineNotification(it)
+        }
+        taskDao.delete(tasks)
+    }
+
+    suspend fun clear() {
+        cancelAllDeadlineNotifications()
+        taskDao.clear()
     }
 
     suspend fun completeTask(task: Task, isCompleted: Boolean) {
@@ -92,37 +119,31 @@ class TaskRepository(
         updateTask(task)
     }
 
-    suspend fun upsertTask(task: Task) {
-        notificationScheduler.cancel(task.id)
-        val id = taskDao.upsertTask(task)
-        val savedTask = task.copy(id = id.toInt())
-        if (!savedTask.isCompleted) {
-            notificationScheduler.schedule(savedTask)
-        }
-    }
-
-    suspend fun deleteTask(task: Task) {
-        notificationScheduler.cancel(task.id)
-        taskDao.delete(task)
-    }
-
-    suspend fun deleteTasks(tasks: List<Task>) {
-        tasks.forEach {
-            notificationScheduler.cancel(it.id)
-        }
-        taskDao.delete(tasks)
-    }
-
-    suspend fun clear() {
-        allTasks.first().forEach {
-            notificationScheduler.cancel(it.id)
-        }
-        taskDao.clear()
-    }
-
     fun filterByCompletion(tasks: Flow<List<Task>>, isCompleted: Boolean): Flow<List<Task>> {
         return tasks.map { list ->
             list.filter { it.isCompleted == isCompleted }
+        }
+    }
+
+    private suspend fun scheduleDeadlineNotification(task: Task) {
+        if (settingsRepository.deadlineNotifications.first()) {
+            notificationScheduler.schedule(task)
+        }
+    }
+
+    private fun cancelDeadlineNotification(task: Task) {
+        notificationScheduler.cancel(task.id)
+    }
+
+    suspend fun scheduleAllDeadlineNotifications() {
+        allTasks.first().forEach { task ->
+            scheduleDeadlineNotification(task)
+        }
+    }
+
+    suspend fun cancelAllDeadlineNotifications() {
+        allTasks.first().forEach { task ->
+            cancelDeadlineNotification(task)
         }
     }
 

@@ -95,6 +95,33 @@
                     style="@style/SettingSection.Name"
                     android:text="@string/notifications"/>
 
+                <LinearLayout
+                    style="@style/SettingItem.Container"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/SettingItem.Name"
+                            android:text="@string/deadline_notifications"/>
+
+                        <TextView
+                            android:id="@+id/text_deadline_notifications"
+                            style="@style/SettingItem.Value"
+                            android:text="@string/enabled"/>
+
+                    </LinearLayout>
+
+                    <CheckBox
+                        android:id="@+id/checkbox_deadline_notifications"
+                        style="@style/SettingItem.Checkbox"/>
+
+                </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout

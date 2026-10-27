@@ -130,6 +130,20 @@ class SettingsActivity : AppCompatActivity() {
             settingsViewModel.setTimeFormat24(timeFormat24)
         }
 
+        // Notifications
+        // Deadline Notifications
+        settingsViewModel.deadlineNotifications.observe(this) { enabled ->
+            binding.textDeadlineNotifications.setText(
+                if (enabled) R.string.enabled
+                else R.string.disabled
+            )
+            binding.checkboxDeadlineNotifications.isChecked = enabled
+        }
+
+        binding.checkboxDeadlineNotifications.setOnCheckedChangeListener { _, isChecked ->
+            settingsViewModel.setDeadlineNotifications(isChecked)
+        }
+
         // Export/Import
         binding.buttonExport.setOnClickListener {
             val dateTime = LocalDateTime.now()

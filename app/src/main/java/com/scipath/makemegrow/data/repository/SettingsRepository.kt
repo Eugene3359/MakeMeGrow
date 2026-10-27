@@ -19,11 +19,13 @@ class SettingsRepository (private val context: Context) {
         const val DEFAULT_CONFIRMATION_OF_COMPLETION = true
         val DEFAULT_FIRST_DAY_OF_WEEK = DayOfWeek.MONDAY
         const val DEFAULT_TIME_FORMAT_24 = true
+        const val DEFAULT_DEADLINE_NOTIFICATIONS = true
 
         // Keys
         private val CONFIRMATION_OF_COMPLETION_KEY = booleanPreferencesKey("confirmation_of_completion")
         private val FIRST_DAY_OF_A_WEEK_KEY = intPreferencesKey("first_day_of_week")
         private val TIME_FORMAT_24_KEY = booleanPreferencesKey("time_format_24")
+        private val DEADLINE_NOTIFICATIONS_KEY = booleanPreferencesKey("deadline_notifications")
     }
 
     val confirmationOfCompletion: Flow<Boolean> = context.dataStore.data.map { settings ->
@@ -36,6 +38,10 @@ class SettingsRepository (private val context: Context) {
 
     val timeFormat24: Flow<Boolean> = context.dataStore.data.map { settings ->
         settings[TIME_FORMAT_24_KEY] ?: DEFAULT_TIME_FORMAT_24
+    }
+
+    val deadlineNotifications: Flow<Boolean> = context.dataStore.data.map { settings ->
+        settings[DEADLINE_NOTIFICATIONS_KEY] ?: DEFAULT_DEADLINE_NOTIFICATIONS
     }
 
     suspend fun setConfirmationOfCompletion(enabled: Boolean) {
@@ -53,6 +59,12 @@ class SettingsRepository (private val context: Context) {
     suspend fun setTimeFormat24(timeFormat24: Boolean) {
         context.dataStore.edit { settings ->
             settings[TIME_FORMAT_24_KEY] = timeFormat24
+        }
+    }
+
+    suspend fun setDeadlineNotifications(enabled: Boolean) {
+        context.dataStore.edit { settings ->
+            settings[DEADLINE_NOTIFICATIONS_KEY] = enabled
         }
     }
 }

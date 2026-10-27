@@ -30,7 +30,7 @@ class TaskNotificationManager(private val context: Context) {
             context.getString(R.string.deadline),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = context.getString(R.string.task_deadline_notifications)
+            description = context.getString(R.string.deadline_notifications)
         }
 
         context.getSystemService(NotificationManager::class.java)

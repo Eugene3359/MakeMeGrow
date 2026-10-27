@@ -19,7 +19,6 @@ class NotificationScheduler(private val context: Context) {
     fun schedule(task: Task) {
         if (task.isCompleted) return
 
-
         val triggerAtMillis = getTriggerAtMillis(task)
         if (triggerAtMillis <= System.currentTimeMillis()) return
 

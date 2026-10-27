@@ -3,15 +3,17 @@ package com.scipath.makemegrow.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.data.repository.SettingsRepository
+import com.scipath.makemegrow.data.repository.TaskRepository
 
 class SettingsViewModelFactory(
+    private val taskRepository: TaskRepository,
     private val settingsRepository: SettingsRepository
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass == SettingsViewModel::class.java) {
             @Suppress("UNCHECKED_CAST")
-            return SettingsViewModel(settingsRepository) as T
+            return SettingsViewModel(taskRepository, settingsRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

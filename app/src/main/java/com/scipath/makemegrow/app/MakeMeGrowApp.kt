@@ -24,16 +24,20 @@ class MakeMeGrowApp : Application() {
         AppDatabase.getDatabase(this)
     }
 
+    val settingsRepository by lazy {
+        SettingsRepository(this)
+    }
+
     val taskRepository by lazy {
-        TaskRepository(database.taskDao(), notificationScheduler)
+        TaskRepository(database.taskDao(), settingsRepository, notificationScheduler)
     }
 
     val categoryRepository by lazy {
         CategoryRepository(database.categoryDao())
     }
 
-    val settingsRepository by lazy {
-        SettingsRepository(this)
+    val settingsFactory by lazy {
+        SettingsViewModelFactory(taskRepository, settingsRepository)
     }
 
     val taskFactory by lazy {
@@ -42,10 +46,6 @@ class MakeMeGrowApp : Application() {
 
     val categoryFactory by lazy {
         CategoryViewModelFactory(categoryRepository)
-    }
-
-    val settingsFactory by lazy {
-        SettingsViewModelFactory(settingsRepository)
     }
 
     override fun onCreate() {
