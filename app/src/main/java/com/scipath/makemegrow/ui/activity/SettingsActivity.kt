@@ -1,6 +1,8 @@
 package com.scipath.makemegrow.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -9,6 +11,8 @@ import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.converter.JsonConverter
 import com.scipath.makemegrow.data.handler.ExceptionHandlerToast
+import com.scipath.makemegrow.data.notification.TaskNotificationManager
+import com.scipath.makemegrow.data.notification.TaskNotificationManager.Companion.CHANNEL_ID
 import com.scipath.makemegrow.databinding.ActivitySettingsBinding
 import com.scipath.makemegrow.ui.dialog.FirstDayOfWeekDialog
 import com.scipath.makemegrow.ui.dialog.TimeFormatDialog
@@ -23,6 +27,7 @@ import java.util.Locale
 
 class SettingsActivity : AppCompatActivity() {
 
+    private lateinit var taskNotificationManager: TaskNotificationManager
     private lateinit var jsonConverter: JsonConverter
     private lateinit var binding: ActivitySettingsBinding
 
@@ -70,6 +75,7 @@ class SettingsActivity : AppCompatActivity() {
         val packageInfo = packageManager.getPackageInfo(packageName, 0)
         val app = application as MakeMeGrowApp
         val settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
+        taskNotificationManager = app.notificationManager
         jsonConverter = JsonConverter(app.taskRepository, app.categoryRepository)
 
         // General
@@ -144,6 +150,15 @@ class SettingsActivity : AppCompatActivity() {
             settingsViewModel.setDeadlineNotifications(isChecked)
         }
 
+        // Notifications Sound and Vibration
+        binding.containerNotificationsSound.setOnClickListener {
+            openNotificationSettings()
+        }
+
+        binding.containerNotificationsVibration.setOnClickListener {
+            openNotificationSettings()
+        }
+
         // Export/Import
         binding.buttonExport.setOnClickListener {
             val dateTime = LocalDateTime.now()
@@ -170,5 +185,35 @@ class SettingsActivity : AppCompatActivity() {
         binding.buttonBack.setOnClickListener {
             finish()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // Notifications Sound and Vibration
+        val soundEnabled = taskNotificationManager.isNotificationSoundEnabled()
+        val vibrationEnabled = taskNotificationManager.isNotificationVibrationEnabled()
+        updateUI(soundEnabled, vibrationEnabled)
+    }
+
+    private fun openNotificationSettings() {
+        val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            putExtra(Settings.EXTRA_CHANNEL_ID, CHANNEL_ID)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
+    }
+
+    private fun updateUI(soundEnabled: Boolean, vibrationEnabled: Boolean) {
+        binding.textNotificationsSound.setText(
+            if (soundEnabled) R.string.enabled
+            else R.string.disabled
+        )
+
+        binding.textNotificationsVibration.setText(
+            if (vibrationEnabled) R.string.enabled
+            else R.string.disabled
+        )
     }
 }

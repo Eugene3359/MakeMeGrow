@@ -72,6 +72,8 @@
     <string name="time_format_24_option">24-hour</string>
     <string name="notifications">Notifications</string>
     <string name="deadline_notifications">Deadline notifications</string>
+    <string name="sound">Sound</string>
+    <string name="vibration">Vibration</string>
     <string name="export_and_import">Export &amp; Import</string>
     <string name="exp">Export</string>
     <string name="imp">Import</string>

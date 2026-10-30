@@ -119,4 +119,18 @@ class TaskNotificationManager(private val context: Context) {
             .from(context)
             .notify(task.id, notification)
     }
+
+    fun isNotificationSoundEnabled(): Boolean {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val channel = manager.getNotificationChannel(CHANNEL_ID)
+        return channel?.sound != null &&
+                channel.importance >= NotificationManager.IMPORTANCE_DEFAULT
+    }
+
+    fun isNotificationVibrationEnabled(): Boolean {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val channel = manager.getNotificationChannel(CHANNEL_ID)
+        return channel?.shouldVibrate() == true &&
+                channel.importance >= NotificationManager.IMPORTANCE_DEFAULT
+    }
 }

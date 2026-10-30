@@ -122,6 +122,38 @@
 
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/container_notifications_sound"
+                    style="@style/SettingItem.Container"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/SettingItem.Name"
+                        android:text="@string/sound"/>
+
+                    <TextView
+                        android:id="@+id/text_notifications_sound"
+                        style="@style/SettingItem.Value"
+                        android:text="@string/enabled"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/container_notifications_vibration"
+                    style="@style/SettingItem.Container"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/SettingItem.Name"
+                        android:text="@string/vibration"/>
+
+                    <TextView
+                        android:id="@+id/text_notifications_vibration"
+                        style="@style/SettingItem.Value"
+                        android:text="@string/disabled"/>
+
+                </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout
