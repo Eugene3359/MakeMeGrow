@@ -3,6 +3,7 @@ package com.scipath.makemegrow.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -27,6 +28,7 @@ import java.util.Locale
 
 class SettingsActivity : AppCompatActivity() {
 
+    private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var taskNotificationManager: TaskNotificationManager
     private lateinit var jsonConverter: JsonConverter
     private lateinit var binding: ActivitySettingsBinding
@@ -74,7 +76,7 @@ class SettingsActivity : AppCompatActivity() {
 
         val packageInfo = packageManager.getPackageInfo(packageName, 0)
         val app = application as MakeMeGrowApp
-        val settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
+        settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
         taskNotificationManager = app.notificationManager
         jsonConverter = JsonConverter(app.taskRepository, app.categoryRepository)
 
@@ -144,6 +146,16 @@ class SettingsActivity : AppCompatActivity() {
                 else R.string.disabled
             )
             binding.checkboxDeadlineNotifications.isChecked = enabled
+
+            if (settingsViewModel.isDeadlineNotificationsEnabled() &&
+                !taskNotificationManager.isNotificationsPermitted()) {
+                settingsViewModel.setDeadlineNotifications(false)
+                Toast.makeText(
+                    this,
+                    getString(R.string.missing_notifications_permission),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
 
         binding.checkboxDeadlineNotifications.setOnCheckedChangeListener { _, isChecked ->
@@ -193,19 +205,7 @@ class SettingsActivity : AppCompatActivity() {
         // Notifications Sound and Vibration
         val soundEnabled = taskNotificationManager.isNotificationSoundEnabled()
         val vibrationEnabled = taskNotificationManager.isNotificationVibrationEnabled()
-        updateUI(soundEnabled, vibrationEnabled)
-    }
 
-    private fun openNotificationSettings() {
-        val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
-            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-            putExtra(Settings.EXTRA_CHANNEL_ID, CHANNEL_ID)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        startActivity(intent)
-    }
-
-    private fun updateUI(soundEnabled: Boolean, vibrationEnabled: Boolean) {
         binding.textNotificationsSound.setText(
             if (soundEnabled) R.string.enabled
             else R.string.disabled
@@ -215,5 +215,14 @@ class SettingsActivity : AppCompatActivity() {
             if (vibrationEnabled) R.string.enabled
             else R.string.disabled
         )
+    }
+
+    private fun openNotificationSettings() {
+        val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            putExtra(Settings.EXTRA_CHANNEL_ID, CHANNEL_ID)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
     }
 }

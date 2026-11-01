@@ -27,7 +27,7 @@ class TaskNotificationManager(private val context: Context) {
     fun createChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            context.getString(R.string.deadline),
+            context.getString(R.string.deadline_notifications),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
             description = context.getString(R.string.deadline_notifications)
@@ -38,15 +38,7 @@ class TaskNotificationManager(private val context: Context) {
     }
 
     fun showTaskNotification(task: Task) {
-        if (
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
+        if (!isNotificationsPermitted()) return
 
         val openIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or
@@ -115,9 +107,21 @@ class TaskNotificationManager(private val context: Context) {
             .setAutoCancel(true)
             .build()
 
-        NotificationManagerCompat
-            .from(context)
-            .notify(task.id, notification)
+        try {
+            NotificationManagerCompat
+                .from(context)
+                .notify(task.id, notification)
+        } catch (_: SecurityException) {}
+    }
+
+    fun isNotificationsPermitted(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+            return true
+
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     fun isNotificationSoundEnabled(): Boolean {

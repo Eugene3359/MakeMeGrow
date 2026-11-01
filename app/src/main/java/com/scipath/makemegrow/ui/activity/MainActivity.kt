@@ -3,14 +3,12 @@ package com.scipath.makemegrow.ui.activity
 import android.Manifest
 import android.app.AlarmManager
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.app.MakeMeGrowApp
 import com.scipath.makemegrow.data.model.Category
@@ -78,13 +76,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Notification permission
-        if (
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (!app.notificationManager.isNotificationsPermitted()) {
             notificationPermissionLauncher.launch(
                 Manifest.permission.POST_NOTIFICATIONS
             )

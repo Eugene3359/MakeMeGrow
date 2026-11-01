@@ -34,6 +34,10 @@ class SettingsViewModel(
         return timeFormat24.value ?: DEFAULT_TIME_FORMAT_24
     }
 
+    fun isDeadlineNotificationsEnabled(): Boolean {
+        return deadlineNotifications.value ?: DEFAULT_DEADLINE_NOTIFICATIONS
+    }
+
     fun setConfirmationOfCompletion(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setConfirmationOfCompletion(enabled)
