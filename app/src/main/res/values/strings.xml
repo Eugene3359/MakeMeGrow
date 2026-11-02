@@ -29,9 +29,6 @@
     <string name="next_month">Next Month</string>
     <string name="later">Later</string>
     <string name="completed">Completed</string>
-    <!-- Task Item -->
-    <string name="unfold_sign">v</string>
-    <string name="fold_sign">—</string>
 
     <!-- Task Screen -->
     <string name="new_task">New Task</string>

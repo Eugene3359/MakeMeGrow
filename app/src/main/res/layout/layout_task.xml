@@ -80,7 +80,7 @@
             android:layout_marginVertical="3dp"
             android:layout_marginHorizontal="15dp"
             android:background="@drawable/shape_rounded_square"
-            android:text="@string/unfold_sign"
+            android:foreground="@drawable/ic_unfold"
             android:textColor="@color/white"
             android:textSize="@dimen/text_medium"/>
 

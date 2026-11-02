@@ -5,6 +5,7 @@ import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.converter.DateAndTimeConverter
@@ -34,7 +35,17 @@ class TaskAdapter(
     private var isTimeFormat24: Boolean = DEFAULT_TIME_FORMAT_24
 
     class ViewHolder(val binding: LayoutTaskBinding) :
-        RecyclerView.ViewHolder(binding.root)
+        RecyclerView.ViewHolder(binding.root) {
+        val iconFold = AppCompatResources.getDrawable(
+            itemView.context,
+            R.drawable.ic_fold
+        )
+
+        val iconUnfold = AppCompatResources.getDrawable(
+            itemView.context,
+            R.drawable.ic_unfold
+        )
+    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -64,7 +75,7 @@ class TaskAdapter(
 
         // Description
         holder.binding.textDescription.visibility = View.GONE
-        holder.binding.buttonDescription.setText(R.string.unfold_sign)
+        holder.binding.buttonDescription.foreground = holder.iconUnfold
         if (task.description.isEmpty()) {
             holder.binding.buttonDescription.visibility = View.GONE
         } else {
@@ -73,10 +84,10 @@ class TaskAdapter(
             holder.binding.buttonDescription.setOnClickListener {
                 if (holder.binding.textDescription.isVisible) {
                     holder.binding.textDescription.visibility = View.GONE
-                    holder.binding.buttonDescription.setText(R.string.unfold_sign)
+                    holder.binding.buttonDescription.foreground = holder.iconUnfold
                 } else {
                     holder.binding.textDescription.visibility = View.VISIBLE
-                    holder.binding.buttonDescription.setText(R.string.fold_sign)
+                    holder.binding.buttonDescription.foreground = holder.iconFold
                 }
             }
         }
