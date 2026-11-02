@@ -12,7 +12,6 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.app.MakeMeGrowApp
@@ -29,10 +28,9 @@ import java.time.LocalTime
 
 class TaskActivity : AppCompatActivity() {
 
-    private var task: Task? = null
+    private lateinit var originalTask: Task
     private var selectedDate: LocalDate? = null
     private var selectedTime: LocalTime? = null
-    private var repeatTypePosition = 0
     private var selectedCategoryId: Int? = null
     private lateinit var binding: ActivityTaskBinding
 
@@ -41,26 +39,81 @@ class TaskActivity : AppCompatActivity() {
         binding = ActivityTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Load Data
-        if (intent.hasExtra("task")) {
-            task = intent.getSerializableExtra("task") as Task
-        }
-        if (intent.getBooleanExtra("cancel_notification", false)) {
-            task?.let {
-                NotificationManagerCompat.from(this).cancel(it.id)
-            }
-        }
-
         val app = application as MakeMeGrowApp
         val taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java]
         val categoryViewModel = ViewModelProvider(this, app.categoryFactory)[CategoryViewModel::class.java]
-        val settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java]
-        settingsViewModel.firstDayOfWeek.observe(this) {}
-        settingsViewModel.timeFormat24.observe(this) {}
+        val settingsViewModel = ViewModelProvider(this, app.settingsFactory)[SettingsViewModel::class.java].apply {
+            firstDayOfWeek.observe(this@TaskActivity) {}
+            timeFormat24.observe(this@TaskActivity) {}
+        }
+
+        // Load Data
+        if (intent.hasExtra("task")) {
+            originalTask = intent.getSerializableExtra("task") as Task
+
+            // Cancel notification
+            if (intent.getBooleanExtra("cancel_notification", false)) {
+                NotificationManagerCompat.from(this).cancel(originalTask.id)
+            }
+        } else {
+            originalTask = Task()
+        }
+
+        // Setup Loaded Data
+        var bulletPointsOn = false
+        if (!originalTask.isEmpty()) {
+            binding.textTitle.text = originalTask.name
+            binding.inputTask.setText(originalTask.name)
+            binding.inputDescription.setText(originalTask.description)
+            if (originalTask.description.contains(getString(R.string.bullet_point))) {
+                bulletPointsOn = true
+                binding.buttonBulletPoint.text = ""
+            } else {
+                binding.buttonBulletPoint.setText(R.string.bullet_point_sign)
+            }
+            selectedDate = DateAndTimeConverter.secondsToDate(originalTask.deadlineDate)
+            onDateChanged()
+            selectedTime = DateAndTimeConverter.secondsToTime(originalTask.deadlineTime)
+            settingsViewModel.timeFormat24.observe(this) { timeFormat24 ->
+                onTimeChanged(timeFormat24)
+            }
+            selectedCategoryId = originalTask.categoryId
+
+            // Button Share
+            binding.buttonShare.visibility = View.VISIBLE
+            binding.buttonShare.setOnClickListener {
+                val text = originalTask.toShareString(settingsViewModel.isTimeFormat24(), this)
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, text)
+                }
+                val shareIntent = Intent.createChooser(sendIntent, null)
+                startActivity(shareIntent)
+            }
+
+            // Button Delete
+            binding.buttonDelete.visibility = View.VISIBLE
+            binding.buttonDelete.setOnClickListener {
+                DeleteTaskDialog().show(supportFragmentManager, "DeleteTaskDialog")
+            }
+
+            supportFragmentManager.setFragmentResultListener(
+                DeleteTaskDialog.REQUEST_KEY,
+                this,
+                { _, bundle ->
+                    val isConfirmed = bundle.getBoolean(DeleteTaskDialog.RESULT_KEY)
+                    if (isConfirmed) {
+                        taskViewModel.deleteTask(originalTask)
+                        finish()
+                    }
+                }
+            )
+        } else {
+            categoryViewModel.selectedCategoryId.observe(this) {}
+            selectedCategoryId = categoryViewModel.selectedCategoryId.value
+        }
 
         // Description
-        var bulletPointsOn = false
-
         binding.inputDescription.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(
                 text: CharSequence?,
@@ -109,32 +162,17 @@ class TaskActivity : AppCompatActivity() {
             val year: Int = selectedDate?.year ?: currentDate.year
             val month: Int = selectedDate?.month?.value?.minus(1) ?: (currentDate.month.value - 1)
             val dayOfMonth: Int = selectedDate?.dayOfMonth ?: currentDate.dayOfMonth
-            val dialog = DatePickerDialog(
-                this,
-                /*R.style.DatePickerDialog*/
+
+            DatePickerDialog(
+                this, /*R.style.DatePickerDialog*/
                 { _, year, month, day -> run {
                     selectedDate = LocalDate.of(year, month + 1, day)
-                    binding.inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
+                    onDateChanged()
                 }},
-                year,
-                month,
-                dayOfMonth)
-            dialog.datePicker.firstDayOfWeek = settingsViewModel.getFirstDayOfWeek().value + 1
-            dialog.show()
-        }
-
-        binding.inputDate.doAfterTextChanged { text ->
-            text?.let {
-                if (it.isBlank()) {
-                    binding.buttonClearDate.visibility = View.GONE
-                    binding.layoutTimeSelection.visibility = View.GONE
-                    binding.buttonClearTime.visibility = View.GONE
-                    binding.layoutRepeatType.visibility = View.GONE
-                } else {
-                    binding.buttonClearDate.visibility = View.VISIBLE
-                    binding.layoutTimeSelection.visibility = View.VISIBLE
-                    binding.layoutRepeatType.visibility = View.VISIBLE
-                }
+                year, month, dayOfMonth
+            ).apply {
+                datePicker.firstDayOfWeek = settingsViewModel.getFirstDayOfWeek().value + 1
+                show()
             }
         }
 
@@ -142,47 +180,32 @@ class TaskActivity : AppCompatActivity() {
         binding.buttonClearDate.setOnClickListener {
             selectedDate = null
             selectedTime = null
-            repeatTypePosition = 0
-            binding.inputDate.setText("")
-            binding.inputTime.setText("")
             binding.spinnerRepeatType.setSelection(0)
+            onDateChanged()
+            onTimeChanged(settingsViewModel.isTimeFormat24())
         }
 
         // Input Time
         binding.inputTime.setOnClickListener {
             val hourOfDay: Int = selectedTime?.hour ?: 12
             val minute: Int = selectedTime?.minute ?: 0
-            val dialog = TimePickerDialog(
-                this,
-                /*R.style.TimePickerDialog,*/
+
+            TimePickerDialog(
+                this, /*R.style.TimePickerDialog,*/
                 { _, hour, minute -> run {
                     selectedTime = LocalTime.of(hour, minute)
-                    binding.inputTime.setText(DateAndTimeConverter.timeToString(
-                        selectedTime,
-                        settingsViewModel.isTimeFormat24(),
-                        this)
-                    )
+                    onTimeChanged(settingsViewModel.isTimeFormat24())
                 }},
-                hourOfDay,
-                minute,
-                settingsViewModel.isTimeFormat24())
-            dialog.show()
-        }
-
-        binding.inputTime.doAfterTextChanged { text ->
-            text?.let {
-                if (it.isBlank()) {
-                    binding.buttonClearTime.visibility = View.GONE
-                } else {
-                    binding.buttonClearTime.visibility = View.VISIBLE
-                }
+                hourOfDay, minute, settingsViewModel.isTimeFormat24()
+            ).apply {
+                show()
             }
         }
 
         // Button Clear Time
         binding.buttonClearTime.setOnClickListener {
             selectedTime = null
-            binding.inputTime.setText("")
+            onTimeChanged(settingsViewModel.isTimeFormat24())
         }
 
         // Repeat Type Spinner
@@ -191,12 +214,7 @@ class TaskActivity : AppCompatActivity() {
             this,
             R.layout.spinner_item_small,
             repeatTypes)
-        binding.spinnerRepeatType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                repeatTypePosition = position
-            }
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
+        binding.spinnerRepeatType.setSelection(originalTask.repeatType.ordinal)
 
         // Category Spinner
         categoryViewModel.allCategories.observe(this) { categories ->
@@ -211,6 +229,11 @@ class TaskActivity : AppCompatActivity() {
                 categoryNames
             )
 
+            selectedCategoryId?.let { id ->
+                val index = categories.indexOfFirst { it.id == id }
+                binding.spinnerCategory.setSelection(index + 1)
+            }
+
             binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
                     selectedCategoryId =
@@ -219,73 +242,6 @@ class TaskActivity : AppCompatActivity() {
                 }
                 override fun onNothingSelected(parent: AdapterView<*>) {}
             }
-
-            if (task == null) { // New Task
-                categoryViewModel.selectedCategoryId.observe(this) {}
-                selectedCategoryId = categoryViewModel.selectedCategoryId.value
-            } else { // Modify Task
-                selectedCategoryId = task!!.categoryId
-            }
-            selectedCategoryId?.let { id ->
-                val index = categories.indexOfFirst { it.id == id }
-                binding.spinnerCategory.setSelection(index + 1)
-            }
-        }
-
-        // Setup Loaded Data
-        task?.let {
-            binding.textTitle.text = it.name
-            binding.inputTask.setText(it.name)
-            binding.inputDescription.setText(it.description)
-            if (it.description.contains(getString(R.string.bullet_point))) {
-                bulletPointsOn = true
-                binding.buttonBulletPoint.text = ""
-            }
-            selectedDate = DateAndTimeConverter.secondsToDate(it.deadlineDate)
-            binding.inputDate.setText(DateAndTimeConverter.dateToString(selectedDate, this))
-            selectedTime = DateAndTimeConverter.secondsToTime(it.deadlineTime)
-            settingsViewModel.timeFormat24.observe(this) { timeFormat24 ->
-                binding.inputTime.setText(DateAndTimeConverter.timeToString(
-                    selectedTime,
-                    timeFormat24,
-                    this)
-                )
-            }
-
-            repeatTypePosition = it.repeatType.ordinal
-            binding.spinnerRepeatType.setSelection(repeatTypePosition)
-
-            // Button Share
-            binding.buttonShare.visibility = View.VISIBLE
-            binding.buttonShare.setOnClickListener {
-                task?.let { task ->
-                    val text = task.toShareString(settingsViewModel.isTimeFormat24(), this)
-                    val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, text)
-                    }
-                    val shareIntent = Intent.createChooser(sendIntent, null)
-                    startActivity(shareIntent)
-                }
-            }
-
-            // Button Delete
-            binding.buttonDelete.visibility = View.VISIBLE
-            binding.buttonDelete.setOnClickListener {
-                DeleteTaskDialog().show(supportFragmentManager, "DeleteTaskDialog")
-            }
-
-            supportFragmentManager.setFragmentResultListener(
-                DeleteTaskDialog.REQUEST_KEY,
-                this,
-                { _, bundle ->
-                    val isConfirmed = bundle.getBoolean(DeleteTaskDialog.RESULT_KEY)
-                    if (isConfirmed) {
-                        taskViewModel.deleteTask(it)
-                        finish()
-                    }
-                }
-            )
         }
 
         // Button Confirm
@@ -298,33 +254,12 @@ class TaskActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
             } else {
-                val description: String = binding.inputDescription.text.trim().toString()
-                val deadlineDate: Long = DateAndTimeConverter.dateToSeconds(selectedDate)
-                val deadlineTime: Int = DateAndTimeConverter.timeToSeconds(selectedTime)
-                val repeatType: Task.RepeatType = Task.RepeatType.entries[repeatTypePosition]
-                if (task == null) {
-                    // Add new task
-                    taskViewModel.addTask(
-                        Task(
-                            name = taskName,
-                            description = description,
-                            deadlineDate = deadlineDate,
-                            deadlineTime = deadlineTime,
-                            repeatType = repeatType,
-                            categoryId = selectedCategoryId
-                        )
-                    )
-                } else {
-                    // Modify existing task
-                    task?.let{
-                        it.name = taskName
-                        it.description = description
-                        it.deadlineDate = deadlineDate
-                        it.deadlineTime = deadlineTime
-                        it.repeatType = repeatType
-                        it.categoryId = selectedCategoryId
-                        taskViewModel.updateTask(it)
-                    }
+                var resultTask = collectInput()
+                if (originalTask.isEmpty()) { // Add new task
+                    taskViewModel.addTask(resultTask)
+                } else { // Modify existing task
+                    resultTask = resultTask.copy(id = originalTask.id)
+                    taskViewModel.updateTask(resultTask)
                 }
                 finish()
             }
@@ -357,5 +292,43 @@ class TaskActivity : AppCompatActivity() {
         description = description.replace(bulletPoint, "")
         binding.inputDescription.setText(description)
         binding.inputDescription.setSelection(selection)
+    }
+
+    private fun onDateChanged() {
+        val text: String = DateAndTimeConverter.dateToString(selectedDate, this)
+        binding.inputDate.setText(text)
+
+        if (text.isBlank()) {
+            binding.buttonClearDate.visibility = View.GONE
+            binding.layoutTimeSelection.visibility = View.GONE
+            binding.buttonClearTime.visibility = View.GONE
+            binding.layoutRepeatType.visibility = View.GONE
+        } else {
+            binding.buttonClearDate.visibility = View.VISIBLE
+            binding.layoutTimeSelection.visibility = View.VISIBLE
+            binding.layoutRepeatType.visibility = View.VISIBLE
+        }
+    }
+
+    private fun onTimeChanged(timeFormat24: Boolean) {
+        val text: String = DateAndTimeConverter.timeToString(selectedTime, timeFormat24, this)
+        binding.inputTime.setText(text)
+
+        if (text.isBlank()) {
+            binding.buttonClearTime.visibility = View.GONE
+        } else {
+            binding.buttonClearTime.visibility = View.VISIBLE
+        }
+    }
+
+    private fun collectInput(): Task {
+        return Task(
+            name = binding.inputTask.text.trim().toString(),
+            description = binding.inputDescription.text.trim().toString(),
+            deadlineDate = DateAndTimeConverter.dateToSeconds(selectedDate),
+            deadlineTime = DateAndTimeConverter.timeToSeconds(selectedTime),
+            repeatType = Task.RepeatType.entries[binding.spinnerRepeatType.selectedItemPosition],
+            categoryId = selectedCategoryId
+        )
     }
 }

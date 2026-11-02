@@ -19,7 +19,8 @@ class DateAndTimeConverter {
         }
 
         fun timeToSeconds(time: LocalTime?): Int {
-            return time?.toSecondOfDay() ?: NO_TIME
+            if (time == null) return NO_TIME
+            return time.toSecondOfDay()
         }
 
         fun secondsToDate(seconds: Long): LocalDate? {
