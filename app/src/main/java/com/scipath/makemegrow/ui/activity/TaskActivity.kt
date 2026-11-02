@@ -20,6 +20,7 @@ import com.scipath.makemegrow.data.converter.TaskShareConverter.toShareString
 import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityTaskBinding
 import com.scipath.makemegrow.ui.dialog.DeleteTaskDialog
+import com.scipath.makemegrow.ui.dialog.QuitDialog
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
@@ -267,8 +268,15 @@ class TaskActivity : AppCompatActivity() {
 
         // Button Back
         binding.buttonBack.setOnClickListener {
-            finish()
+            val resultTask = collectInput()
+            if (originalTask.isEqual(resultTask)) {
+                finish()
+            } else {
+                QuitDialog().show(supportFragmentManager, "QuitDialog")
+            }
         }
+
+        setupDialogListeners()
     }
 
     private fun addBulletPoints() {
@@ -301,7 +309,6 @@ class TaskActivity : AppCompatActivity() {
         if (text.isBlank()) {
             binding.buttonClearDate.visibility = View.GONE
             binding.layoutTimeSelection.visibility = View.GONE
-            binding.buttonClearTime.visibility = View.GONE
             binding.layoutRepeatType.visibility = View.GONE
         } else {
             binding.buttonClearDate.visibility = View.VISIBLE
@@ -329,6 +336,18 @@ class TaskActivity : AppCompatActivity() {
             deadlineTime = DateAndTimeConverter.timeToSeconds(selectedTime),
             repeatType = Task.RepeatType.entries[binding.spinnerRepeatType.selectedItemPosition],
             categoryId = selectedCategoryId
+        )
+    }
+
+    private fun setupDialogListeners() {
+        // Quit without saving
+        supportFragmentManager.setFragmentResultListener(
+            QuitDialog.REQUEST_KEY,
+            this,
+            { _, bundle ->
+                val isConfirmed = bundle.getBoolean(QuitDialog.RESULT_KEY)
+                if (isConfirmed) finish()
+            }
         )
     }
 }
