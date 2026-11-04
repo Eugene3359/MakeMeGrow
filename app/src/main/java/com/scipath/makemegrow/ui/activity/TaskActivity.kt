@@ -165,7 +165,7 @@ class TaskActivity : AppCompatActivity() {
             val dayOfMonth: Int = selectedDate?.dayOfMonth ?: currentDate.dayOfMonth
 
             DatePickerDialog(
-                this, /*R.style.DatePickerDialog*/
+                this, R.style.DatePickerDialog,
                 { _, year, month, day -> run {
                     selectedDate = LocalDate.of(year, month + 1, day)
                     onDateChanged()
