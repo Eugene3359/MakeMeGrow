@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:text="@string/cancel"
-            android:textColor="@color/purple_200"
+            android:textColor="@color/purple"
             style="?android:attr/buttonBarButtonStyle"/>
 
         <Button
@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:text="@string/confirm"
-            android:textColor="@color/purple_200"
+            android:textColor="@color/purple"
             style="?android:attr/buttonBarButtonStyle"/>
 
     </LinearLayout>

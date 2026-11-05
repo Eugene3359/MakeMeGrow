@@ -76,10 +76,10 @@
 
     <!-- Date Picker-->
     <style name="DatePickerDialog" parent="ThemeOverlay.AppCompat.Dialog">
-        <!-- Header Background -->
-        <item name="colorSecondary">@color/dark_gray</item>
+        <item name="android:datePickerStyle">@style/CustomDatePickerWidget</item>
         <!-- Selected Date -->
         <item name="android:textColorPrimaryInverse">@color/white</item>
+        <item name="android:textColorSecondaryInverse">@color/white</item>
         <!-- Background -->
         <item name="android:windowBackground">@color/darker_gray</item>
         <!-- Years, Months and Dates -->
@@ -87,9 +87,15 @@
         <!-- Weekdays -->
         <item name="android:textColorSecondary">@color/white</item>
         <!-- Selector and Current Date -->
+        <item name="colorControlActivated">@color/purple</item>
         <item name="android:colorControlActivated">@color/purple</item>
         <!-- Buttons -->
-        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimary">@color/purple</item>
+    </style>
+
+    <style name="CustomDatePickerWidget" parent="@android:style/Widget.Material.DatePicker">
+        <!-- Header Background -->
+        <item name="android:headerBackground">@color/dark_gray</item>
     </style>
 
     <!-- ??? -->

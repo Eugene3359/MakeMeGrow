@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.MakeMeGrow" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item> <!-- Dialog Buttons -->
+        <item name="colorPrimary">@color/purple</item> <!-- Dialog Buttons -->
         <item name="colorPrimaryVariant">@color/black</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
