@@ -76,44 +76,54 @@
 
     <!-- Date Picker-->
     <style name="DatePickerDialog" parent="ThemeOverlay.AppCompat.Dialog">
-        <item name="android:datePickerStyle">@style/CustomDatePickerWidget</item>
-        <!-- Selected Date -->
-        <item name="android:textColorPrimaryInverse">@color/white</item>
-        <item name="android:textColorSecondaryInverse">@color/white</item>
+        <item name="android:datePickerStyle">@style/DatePicker</item>
         <!-- Background -->
         <item name="android:windowBackground">@color/darker_gray</item>
-        <!-- Years, Months and Dates -->
+        <!-- Header Active, Month and Dates -->
         <item name="android:textColorPrimary">@color/white</item>
-        <!-- Weekdays -->
-        <item name="android:textColorSecondary">@color/white</item>
+        <!-- Header Inactive and Weekdays -->
+        <item name="android:textColorSecondary">@color/purple</item>
         <!-- Selector and Current Date -->
-        <item name="colorControlActivated">@color/purple</item>
         <item name="android:colorControlActivated">@color/purple</item>
+        <!-- Selected Date -->
+        <item name="android:textColorPrimaryInverse">@color/white</item>
         <!-- Buttons -->
         <item name="colorPrimary">@color/purple</item>
     </style>
 
-    <style name="CustomDatePickerWidget" parent="@android:style/Widget.Material.DatePicker">
+    <style name="DatePicker" parent="@android:style/Widget.Material.DatePicker">
         <!-- Header Background -->
         <item name="android:headerBackground">@color/dark_gray</item>
     </style>
 
-    <!-- ??? -->
+    <!-- Time Picker -->
     <style name="TimePickerDialog" parent="ThemeOverlay.AppCompat.Dialog">
         <item name="android:timePickerStyle">@style/TimePicker</item>
-        <item name="android:textColor">@color/white</item> <!-- Header Time Color -->
-        <item name="android:textColorHint">@color/white</item> <!-- Spinner Digits Hint Color -->
-        <item name="android:textColorPrimary">@color/white</item> <!-- Spinner Digits Color -->
-        <item name="android:textColorSecondary">@color/light_blue</item> <!-- Change View Button -->
-        <item name="android:windowBackground">@color/black</item> <!-- Background -->
+        <!-- Background -->
+        <item name="android:windowBackground">@color/darker_gray</item>
+        <!-- Header Active and Time Input-->
+        <item name="android:textColorPrimary">@color/white</item>
+        <!-- Header Inactive and Change View Button -->
+        <item name="android:textColorSecondary">@color/purple</item>
+        <!-- Text -->
+        <item name="android:textColor">@color/white</item>
+        <!-- Time Hint -->
+        <item name="android:textColorHint">@color/light_gray</item>
+        <!-- Buttons -->
+        <item name="colorPrimary">@color/purple</item>
     </style>
 
-    <style name="TimePicker">
+    <style name="TimePicker" parent="@android:style/Widget.Material.TimePicker">
         <item name="android:timePickerMode">clock</item>
-        <item name="android:headerBackground">@color/dark_gray</item> <!-- Header -->
-        <item name="android:numbersBackgroundColor">@color/dark_gray</item> <!-- Dial -->
-        <item name="android:numbersSelectorColor">@color/purple</item> <!-- Selector -->
-        <item name="android:numbersTextColor">@color/light_blue</item> <!-- Outer Numbers -->
-        <item name="android:numbersInnerTextColor">@color/light_blue</item> <!-- Inner Numbers -->
+        <!-- Header Background -->
+        <item name="android:headerBackground">@color/dark_gray</item>
+        <!-- Dial -->
+        <item name="android:numbersBackgroundColor">@color/dark_gray</item>
+        <!-- Selector -->
+        <item name="android:numbersSelectorColor">@color/purple</item>
+        <!-- Outer Numbers -->
+        <item name="android:numbersTextColor">@color/white</item>
+        <!-- Inner Numbers -->
+        <item name="android:numbersInnerTextColor">@color/light_gray</item>
     </style>
 </resources>

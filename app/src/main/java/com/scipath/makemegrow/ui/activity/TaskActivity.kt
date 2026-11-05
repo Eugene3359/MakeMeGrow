@@ -192,7 +192,7 @@ class TaskActivity : AppCompatActivity() {
             val minute: Int = selectedTime?.minute ?: 0
 
             TimePickerDialog(
-                this, /*R.style.TimePickerDialog,*/
+                this, R.style.TimePickerDialog,
                 { _, hour, minute -> run {
                     selectedTime = LocalTime.of(hour, minute)
                     onTimeChanged(settingsViewModel.isTimeFormat24())
