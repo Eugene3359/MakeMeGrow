@@ -38,15 +38,11 @@
 
                 <EditText
                     android:id="@+id/input_task"
+                    style="@style/EditText"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="@color/light_gray"
                     android:hint="@string/task_hint"
                     android:importantForAutofill="no"
-                    android:inputType="textCapSentences|textMultiLine"
-                    android:textColorHint="@color/light_gray"
-                    android:textColor="@color/light_gray"
-                    android:textSize="@dimen/text_medium"/>
+                    android:inputType="textCapSentences|textMultiLine"/>
 
             </LinearLayout>
 
@@ -73,16 +69,12 @@
 
                     <EditText
                         android:id="@+id/input_description"
+                        style="@style/EditText"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:backgroundTint="@color/light_gray"
                         android:hint="@string/description_hint"
                         android:importantForAutofill="no"
-                        android:inputType="textCapSentences|textMultiLine"
-                        android:textColorHint="@color/light_gray"
-                        android:textColor="@color/light_gray"
-                        android:textSize="@dimen/text_medium"/>
+                        android:inputType="textCapSentences|textMultiLine"/>
 
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/button_bullet_point"
@@ -120,16 +112,12 @@
 
                     <EditText
                         android:id="@+id/input_date"
+                        style="@style/EditText"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:backgroundTint="@color/light_gray"
                         android:hint="@string/date_not_set"
                         android:importantForAutofill="no"
                         android:inputType="date"
-                        android:textColorHint="@color/light_gray"
-                        android:textColor="@color/light_gray"
-                        android:textSize="@dimen/text_medium"
                         android:focusable="false"
                         android:clickable="true"/>
 
@@ -154,16 +142,12 @@
 
                     <EditText
                         android:id="@+id/input_time"
+                        style="@style/EditText"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:backgroundTint="@color/light_gray"
                         android:hint="@string/time_not_set"
                         android:importantForAutofill="no"
                         android:inputType="time"
-                        android:textColorHint="@color/light_gray"
-                        android:textColor="@color/light_gray"
-                        android:textSize="@dimen/text_medium"
                         android:focusable="false"
                         android:clickable="true"/>
 
