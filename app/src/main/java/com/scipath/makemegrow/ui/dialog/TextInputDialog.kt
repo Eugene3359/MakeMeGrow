@@ -24,7 +24,8 @@ abstract class TextInputDialog : BaseDialog() {
         } else {
             AppToast.makeText(
                 requireActivity(),
-                getString(inputHintId ?: R.string.empty_string)
+                getString(inputHintId ?: R.string.empty_string),
+                requireDialog().window!!.decorView
             ).show()
         }
     }
