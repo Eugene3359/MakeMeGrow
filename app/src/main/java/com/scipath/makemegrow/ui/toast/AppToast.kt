@@ -13,6 +13,8 @@ import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.annotation.MainThread
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.scipath.makemegrow.R
 
 class AppToast private constructor(
@@ -22,7 +24,7 @@ class AppToast private constructor(
 
     companion object {
         private const val DISPLAY_DURATION_MS = 3750L
-        private const val BOTTOM_OFFSET_DP  = 116
+        private const val BOTTOM_OFFSET_DP  = 40
 
         fun makeText(activity: Activity, message: String): AppToast {
             return AppToast(activity, message)
@@ -52,11 +54,17 @@ class AppToast private constructor(
         val rootView = activity.window.decorView
         if (!rootView.isAttachedToWindow) return
 
+        val insets = ViewCompat.getRootWindowInsets(rootView)
+        val bottomInset = insets?.getInsets(
+            WindowInsetsCompat.Type.systemBars()
+        )?.bottom ?: 0
+        val offset = bottomInset + activity.dpToPx(BOTTOM_OFFSET_DP)
+
         popupWindow.showAtLocation(
             rootView,
             Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL,
             0,
-            activity.dpToPx(BOTTOM_OFFSET_DP)
+            offset
         )
 
         val enterAnimation = AnimationUtils.loadAnimation(
