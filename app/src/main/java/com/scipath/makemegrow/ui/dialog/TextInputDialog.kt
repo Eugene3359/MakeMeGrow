@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.StringRes
 import com.scipath.makemegrow.R
+import com.scipath.makemegrow.ui.toast.AppToast
 
 abstract class TextInputDialog : BaseDialog() {
 
@@ -22,10 +22,9 @@ abstract class TextInputDialog : BaseDialog() {
             }
             dismiss()
         } else {
-            Toast.makeText(
-                requireContext(),
-                inputHintId ?: R.string.empty_string,
-                Toast.LENGTH_LONG
+            AppToast.makeText(
+                requireActivity(),
+                getString(inputHintId ?: R.string.empty_string)
             ).show()
         }
     }

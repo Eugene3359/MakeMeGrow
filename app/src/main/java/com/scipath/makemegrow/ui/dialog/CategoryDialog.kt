@@ -8,10 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout.HORIZONTAL
 import android.widget.RadioButton
-import android.widget.Toast
 import com.scipath.makemegrow.R
 import com.scipath.makemegrow.data.model.Category
 import com.scipath.makemegrow.ui.mapper.CategoryColorMapper.toResourceId
+import com.scipath.makemegrow.ui.toast.AppToast
 
 abstract class CategoryDialog : TextInputDialog() {
 
@@ -34,10 +34,9 @@ abstract class CategoryDialog : TextInputDialog() {
             }
             dismiss()
         } else {
-            Toast.makeText(
-                requireContext(),
-                inputHintId ?: R.string.empty_string,
-                Toast.LENGTH_LONG
+            AppToast.makeText(
+                requireActivity(),
+                getString(inputHintId ?: R.string.empty_string)
             ).show()
         }
     }

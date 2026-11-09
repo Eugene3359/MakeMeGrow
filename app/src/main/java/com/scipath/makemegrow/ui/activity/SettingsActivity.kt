@@ -3,7 +3,6 @@ package com.scipath.makemegrow.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -17,6 +16,7 @@ import com.scipath.makemegrow.data.notification.TaskNotificationManager.Companio
 import com.scipath.makemegrow.databinding.ActivitySettingsBinding
 import com.scipath.makemegrow.ui.dialog.FirstDayOfWeekDialog
 import com.scipath.makemegrow.ui.dialog.TimeFormatDialog
+import com.scipath.makemegrow.ui.toast.AppToast
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -150,10 +150,9 @@ class SettingsActivity : AppCompatActivity() {
             if (settingsViewModel.isDeadlineNotificationsEnabled() &&
                 !taskNotificationManager.isNotificationsPermitted()) {
                 settingsViewModel.setDeadlineNotifications(false)
-                Toast.makeText(
+                AppToast.makeText(
                     this,
                     getString(R.string.missing_notifications_permission),
-                    Toast.LENGTH_LONG
                 ).show()
             }
         }

@@ -99,6 +99,7 @@
     <!-- Time Picker -->
     <style name="TimePickerDialog" parent="ThemeOverlay.AppCompat.Dialog">
         <item name="android:timePickerStyle">@style/TimePicker</item>
+        <item name="android:spinnerStyle">@style/TimePickerAmPmSpinner</item>
         <!-- Background -->
         <item name="android:windowBackground">@color/darker_gray</item>
         <!-- Header Active and Time Input-->
@@ -125,5 +126,10 @@
         <item name="android:numbersTextColor">@color/white</item>
         <!-- Inner Numbers -->
         <item name="android:numbersInnerTextColor">@color/light_gray</item>
+    </style>
+
+    <style name="TimePickerAmPmSpinner" parent="@android:style/Widget.Material.Spinner">
+        <!-- TimePicker AmPm Spinner Background -->
+        <item name="android:popupBackground">@color/dark_gray</item>
     </style>
 </resources>

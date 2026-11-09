@@ -25,6 +25,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:minHeight="43dp"
+            android:layout_marginEnd="15dp"
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center_vertical">
@@ -78,7 +79,7 @@
             android:layout_width="@dimen/button_icon"
             android:layout_height="@dimen/button_icon"
             android:layout_marginVertical="3dp"
-            android:layout_marginHorizontal="15dp"
+            android:layout_marginEnd="15dp"
             android:background="@drawable/shape_rounded_square"
             android:foreground="@drawable/ic_unfold"
             android:textColor="@color/white"

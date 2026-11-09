@@ -3,7 +3,8 @@
     android:width="@dimen/button_icon"
     android:height="@dimen/button_icon"
     android:viewportWidth="100"
-    android:viewportHeight="100">
+    android:viewportHeight="100"
+    android:autoMirrored="true">
 
     <group
         android:scaleX="1"

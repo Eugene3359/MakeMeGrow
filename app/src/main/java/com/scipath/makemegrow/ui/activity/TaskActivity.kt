@@ -9,7 +9,6 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +20,7 @@ import com.scipath.makemegrow.data.model.Task
 import com.scipath.makemegrow.databinding.ActivityTaskBinding
 import com.scipath.makemegrow.ui.dialog.DeleteTaskDialog
 import com.scipath.makemegrow.ui.dialog.QuitDialog
+import com.scipath.makemegrow.ui.toast.AppToast
 import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
@@ -249,10 +249,9 @@ class TaskActivity : AppCompatActivity() {
         binding.buttonConfirm.setOnClickListener {
             val taskName: String = binding.inputTask.text.trim().toString()
             if (taskName.isBlank()) {
-                Toast.makeText(
+                AppToast.makeText(
                     this,
-                    getString(R.string.enter_task_request),
-                    Toast.LENGTH_LONG
+                    getString(R.string.enter_task_request)
                 ).show()
             } else {
                 var resultTask = collectInput()
