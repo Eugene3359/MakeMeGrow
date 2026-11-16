@@ -331,6 +331,7 @@ class TaskActivity : AppCompatActivity() {
         return Task(
             name = binding.inputTask.text.trim().toString(),
             description = binding.inputDescription.text.trim().toString(),
+            isCompleted = originalTask.isCompleted,
             deadlineDate = DateAndTimeConverter.dateToSeconds(selectedDate),
             deadlineTime = DateAndTimeConverter.timeToSeconds(selectedTime),
             repeatType = Task.RepeatType.entries[binding.spinnerRepeatType.selectedItemPosition],
