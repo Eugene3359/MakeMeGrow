@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:paddingVertical="5dp"
     android:paddingHorizontal="10dp"
+    android:textAlignment="viewStart"
     android:textColor="@color/white"
     android:textSize="@dimen/taskbar_text"
     android:textStyle="bold"

@@ -12,19 +12,21 @@
 
     <TextView
         android:id="@+id/text_title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         android:text="@string/placeholder"
+        android:textAlignment="textStart"
         android:textColor="@color/white"
         android:textSize="@dimen/text_large"
         android:textStyle="bold"/>
 
     <TextView
         android:id="@+id/text_message"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/placeholder"
+        android:textAlignment="textStart"
         android:textColor="@color/white"
         android:textSize="@dimen/text_medium"/>
 
@@ -33,6 +35,7 @@
         style="@style/EditText"
         android:layout_width="match_parent"
         android:hint="@string/placeholder"
+        android:textAlignment="textStart"
         android:importantForAutofill="no"
         android:inputType="textCapSentences"/>
 

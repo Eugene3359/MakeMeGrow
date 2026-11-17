@@ -41,6 +41,7 @@
                     style="@style/EditText"
                     android:layout_width="match_parent"
                     android:hint="@string/task_hint"
+                    android:textAlignment="viewStart"
                     android:importantForAutofill="no"
                     android:inputType="textCapSentences|textMultiLine"/>
 
@@ -73,6 +74,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:hint="@string/description_hint"
+                        android:textAlignment="viewStart"
                         android:importantForAutofill="no"
                         android:inputType="textCapSentences|textMultiLine"/>
 
@@ -116,6 +118,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:hint="@string/date_not_set"
+                        android:textAlignment="viewStart"
                         android:importantForAutofill="no"
                         android:inputType="date"
                         android:focusable="false"
@@ -146,6 +149,7 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:hint="@string/time_not_set"
+                        android:textAlignment="viewStart"
                         android:importantForAutofill="no"
                         android:inputType="time"
                         android:focusable="false"
@@ -245,6 +249,7 @@
             android:layout_weight="1"
             android:layout_marginHorizontal="20dp"
             android:text="@string/new_task"
+            android:textAlignment="viewStart"
             android:textColor="@color/white"
             android:textSize="@dimen/taskbar_text"
             android:textStyle="bold"

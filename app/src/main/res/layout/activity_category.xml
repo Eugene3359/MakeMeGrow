@@ -53,6 +53,7 @@
             android:layout_weight="1"
             android:layout_marginHorizontal="20dp"
             android:text="@string/task_categories"
+            android:textAlignment="viewStart"
             android:textColor="@color/white"
             android:textSize="@dimen/taskbar_text"
             android:textStyle="bold"/>

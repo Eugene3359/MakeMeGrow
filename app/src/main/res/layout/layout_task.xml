@@ -35,6 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/placeholder"
+                android:textAlignment="viewStart"
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_medium"/>
 
@@ -44,6 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
                 android:text="@string/placeholder"
+                android:textAlignment="textStart"
                 android:textColor="@color/light_gray"
                 android:textSize="@dimen/text_medium_small"
                 android:visibility="gone"/>
