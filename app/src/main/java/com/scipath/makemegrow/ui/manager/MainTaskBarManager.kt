@@ -117,26 +117,23 @@ class MainTaskBarManager(
 
     fun updateCategorySpinner() {
         val selectedPosition = binding.spinnerCategory.selectedItemPosition
-        when (categoryViewModel.selectedCategoryId.value) {
-            ALL -> {
-                if (selectedPosition != ALL + SPINNER_SKIP)
-                    binding.spinnerCategory.setSelection(0)
-            }
-            DEFAULT -> {
-                if (selectedPosition != DEFAULT + SPINNER_SKIP)
-                    binding.spinnerCategory.setSelection(1)
-            }
+
+        val newPosition = when (categoryViewModel.selectedCategoryId.value) {
+            ALL -> 0
+            DEFAULT -> 1
             else -> {
                 val categoryIndex: Int = categoryViewModel.allCategories.value
                     ?.indexOfFirst { it.id == categoryViewModel.selectedCategoryId.value }
-                    ?.apply { if (this == -1) ALL }
+                    ?.takeIf { it >= 0 }
                     ?: ALL
-                val newPosition = categoryIndex + SPINNER_SKIP
-                if (selectedPosition != newPosition) {
-                    binding.spinnerCategory.setSelection(newPosition)
-                }
+                categoryIndex + SPINNER_SKIP
             }
         }
+
+        if (selectedPosition != newPosition) {
+            binding.spinnerCategory.setSelection(newPosition)
+        }
+        categoryAdapter.selectedPosition = newPosition
     }
 
     private fun showMenu(anchor: View) {

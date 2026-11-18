@@ -14,8 +14,14 @@ class CategoryArrayAdapter(
 ) : ArrayAdapter<String>(context, 0, items) {
 
     var selectedPosition = 0
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyDataSetChanged()
+            }
+        }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+    fun getBinding(convertView: View?, parent: ViewGroup): SpinnerItemLargeBinding {
         val binding = if (convertView == null) {
             SpinnerItemLargeBinding.inflate(
                 LayoutInflater.from(parent.context),
@@ -26,28 +32,26 @@ class CategoryArrayAdapter(
             SpinnerItemLargeBinding.bind(convertView)
         }
 
-        binding.text.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+        return binding
+    }
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val binding = getBinding(convertView, parent)
+
+        binding.text.setTypeface(null, Typeface.BOLD)
         binding.text.text = items[position]
 
         return binding.root
     }
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val binding = if (convertView == null) {
-            SpinnerItemLargeBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
-            )
-        } else {
-            SpinnerItemLargeBinding.bind(convertView)
-        }
+        val binding = getBinding(convertView, parent)
 
         binding.text.text = items[position]
         if (position == selectedPosition) {
-            binding.text.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+            binding.text.setTypeface(null, Typeface.BOLD)
         } else {
-            binding.text.typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+            binding.text.setTypeface(null, Typeface.NORMAL)
         }
 
         return binding.root
