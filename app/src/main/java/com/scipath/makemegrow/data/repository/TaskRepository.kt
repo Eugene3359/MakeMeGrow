@@ -37,28 +37,20 @@ class TaskRepository(
         DateAndTimeConverter.dateToSeconds(tomorrowDate()))
     val thisWeekTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
         DateAndTimeConverter.dateToSeconds(tomorrowDate()),
-        DateAndTimeConverter.NO_TIME,
-        DateAndTimeConverter.dateToSeconds(endOfThisWeek()),
-        DateAndTimeConverter.NO_TIME)
+        DateAndTimeConverter.dateToSeconds(endOfThisWeek()))
     val nextWeekTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
-        DateAndTimeConverter.dateToSeconds(endOfThisWeek()),
-        DateAndTimeConverter.NO_TIME,
-        DateAndTimeConverter.dateToSeconds(endOfNextWeek()),
-        DateAndTimeConverter.NO_TIME)
+        DateAndTimeConverter.dateToSeconds(
+            if (endOfThisWeek().isAfter(tomorrowDate())) endOfThisWeek()
+            else tomorrowDate()),
+        DateAndTimeConverter.dateToSeconds(endOfNextWeek()))
     val thisMonthTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
         DateAndTimeConverter.dateToSeconds(endOfNextWeek()),
-        DateAndTimeConverter.NO_TIME,
-        DateAndTimeConverter.dateToSeconds(endOfThisMonth()),
-        DateAndTimeConverter.NO_TIME)
+        DateAndTimeConverter.dateToSeconds(endOfThisMonth()))
     val nextMonthTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
         DateAndTimeConverter.dateToSeconds(
-            if (endOfThisMonth().isAfter(endOfNextWeek()))
-                endOfThisMonth()
-            else
-                endOfNextWeek()),
-        DateAndTimeConverter.NO_TIME,
-        DateAndTimeConverter.dateToSeconds(endOfNextMonth()),
-        DateAndTimeConverter.NO_TIME)
+            if (endOfThisMonth().isAfter(endOfNextWeek())) endOfThisMonth()
+            else endOfNextWeek()),
+        DateAndTimeConverter.dateToSeconds(endOfNextMonth()))
     val laterTasks: Flow<List<Task>> = taskDao.getAfterDeadline(
         DateAndTimeConverter.dateToSeconds(endOfNextMonth()),
         DateAndTimeConverter.NO_TIME)

@@ -22,6 +22,9 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE id IS (:id)")
     fun getById(id: Int): Task?
 
+    /**
+     * [[date; date]]
+     */
     @Query("SELECT * " +
             "FROM tasks " +
             "WHERE deadline_date IS (:date) " +
@@ -30,38 +33,55 @@ interface TaskDao {
             "name ASC")
     fun getByDeadlineDate(date: Long): Flow<List<Task>>
 
+    /**
+     * (∞; date/time)
+     */
     @Query("SELECT * " +
             "FROM tasks " +
             "WHERE deadline_date < (:date) " +
-            "OR deadline_date IS (:date) " +
-            "AND deadline_time < (:time) " +
+            "OR (deadline_date IS (:date) AND deadline_time < (:time)) " +
             "ORDER BY deadline_date ASC, " +
             "deadline_time ASC, " +
             "name ASC")
     fun getBeforeDeadline(date: Long, time: Int): Flow<List<Task>>
 
+    /**
+     * (date/time; ∞)
+     */
     @Query("SELECT * " +
             "FROM tasks " +
             "WHERE deadline_date > (:date) " +
-            "OR deadline_date IS (:date) " +
-            "AND deadline_time > (:time) " +
+            "OR (deadline_date IS (:date) AND deadline_time > (:time)) " +
             "ORDER BY deadline_date ASC, " +
             "deadline_time ASC, " +
             "name ASC")
     fun getAfterDeadline(date: Long, time: Int): Flow<List<Task>>
 
+    /**
+     * (start date/time; end date/time]
+     */
     @Query("SELECT * " +
             "FROM tasks " +
             "WHERE (deadline_date > (:startDate) " +
-            "OR deadline_date IS (:startDate) " +
-            "AND deadline_time > (:startTime)) " +
+            "OR (deadline_date IS (:startDate) AND deadline_time > (:startTime))) " +
             "AND (deadline_date < (:endDate) " +
-            "OR deadline_date IS (:endDate) " +
-            "AND deadline_time <= (:endTime)) " +
+            "OR (deadline_date IS (:endDate) AND deadline_time <= (:endTime))) " +
             "ORDER BY deadline_date ASC, " +
             "deadline_time ASC, " +
             "name ASC")
     fun getBetweenDeadlines(startDate: Long, startTime: Int, endDate: Long, endTime: Int): Flow<List<Task>>
+
+    /**
+     * (start date; end date]
+     */
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "WHERE (deadline_date > (:startDate)) " +
+            "AND (deadline_date <= (:endDate)) " +
+            "ORDER BY deadline_date ASC, " +
+            "deadline_time ASC, " +
+            "name ASC")
+    fun getBetweenDeadlines(startDate: Long, endDate: Long): Flow<List<Task>>
 
     @Insert
     suspend fun insert(task: Task): Long
