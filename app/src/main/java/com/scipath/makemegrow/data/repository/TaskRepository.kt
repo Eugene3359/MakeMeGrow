@@ -14,6 +14,7 @@ import com.scipath.makemegrow.data.notification.NotificationScheduler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -51,36 +52,70 @@ class TaskRepository(
             DateAndTimeConverter.dateToSeconds(tomorrowDate(today))
         )
     }
-    val thisWeekTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+    val thisWeekTasks: Flow<List<Task>> = combine(
+        currentDateTime,
+        settingsRepository.firstDayOfWeek
+    ) { now, firstDayOfWeek ->
         val today = now.toLocalDate()
+        Pair(
+            tomorrowDate(today),
+            endOfThisWeek(today, firstDayOfWeek)
+        )
+    }.flatMapLatest { (tomorrowDate, endOfThisWeek) ->
         taskDao.getBetweenDeadlines(
-            DateAndTimeConverter.dateToSeconds(tomorrowDate(today)),
-            DateAndTimeConverter.dateToSeconds(endOfThisWeek(today))
+            DateAndTimeConverter.dateToSeconds(tomorrowDate),
+            DateAndTimeConverter.dateToSeconds(endOfThisWeek)
         )
     }
-    val nextWeekTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+    val nextWeekTasks: Flow<List<Task>> = combine(
+        currentDateTime,
+        settingsRepository.firstDayOfWeek
+    ) { now, firstDayOfWeek ->
         val today = now.toLocalDate()
+        Triple(
+            today,
+            endOfThisWeek(today, firstDayOfWeek),
+            endOfNextWeek(today, firstDayOfWeek)
+        )
+    }.flatMapLatest { (today, endOfThisWeek, endOfNextWeek) ->
         taskDao.getBetweenDeadlines(
             DateAndTimeConverter.dateToSeconds(
-                maxOf(tomorrowDate(today), endOfThisWeek(today))
+                maxOf(tomorrowDate(today), endOfThisWeek)
             ),
-            DateAndTimeConverter.dateToSeconds(endOfNextWeek(today))
+            DateAndTimeConverter.dateToSeconds(endOfNextWeek)
         )
     }
-    val thisMonthTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+    val thisMonthTasks: Flow<List<Task>> = combine(
+        currentDateTime,
+        settingsRepository.firstDayOfWeek
+    ) { now, firstDayOfWeek ->
         val today = now.toLocalDate()
+        Pair(
+            endOfNextWeek(today, firstDayOfWeek),
+            endOfThisMonth(today)
+        )
+    }.flatMapLatest { (endOfNextWeek, endOfThisMonth) ->
         taskDao.getBetweenDeadlines(
-            DateAndTimeConverter.dateToSeconds(endOfNextWeek(today)),
-            DateAndTimeConverter.dateToSeconds(endOfThisMonth(today))
+            DateAndTimeConverter.dateToSeconds(endOfNextWeek),
+            DateAndTimeConverter.dateToSeconds(endOfThisMonth)
         )
     }
-    val nextMonthTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+    val nextMonthTasks: Flow<List<Task>> = combine(
+        currentDateTime,
+        settingsRepository.firstDayOfWeek
+    ) { now, firstDayOfWeek ->
         val today = now.toLocalDate()
+        Triple(
+            endOfNextWeek(today, firstDayOfWeek),
+            endOfThisMonth(today),
+            endOfNextMonth(today)
+        )
+    }.flatMapLatest { (endOfNextWeek, endOfThisMonth, endOfNextMonth) ->
         taskDao.getBetweenDeadlines(
             DateAndTimeConverter.dateToSeconds(
-                maxOf(endOfNextWeek(today), endOfThisMonth(today))
+                maxOf(endOfNextWeek, endOfThisMonth)
             ),
-            DateAndTimeConverter.dateToSeconds(endOfNextMonth(today))
+            DateAndTimeConverter.dateToSeconds(endOfNextMonth)
         )
     }
     val laterTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
@@ -213,14 +248,14 @@ class TaskRepository(
         return today.plusDays(1)
     }
 
-    private fun endOfThisWeek(today: LocalDate): LocalDate {
-        return today.plusDays(
-            (DayOfWeek.SUNDAY.value - today.dayOfWeek.value).toLong()
-        )
+    private fun endOfThisWeek(today: LocalDate, firstDayOfWeek: DayOfWeek): LocalDate {
+        val lastDayOfWeek = firstDayOfWeek.minus(1)
+        val daysUntilLastDayOfWeek = (lastDayOfWeek.value - today.dayOfWeek.value + 7) % 7
+        return today.plusDays(daysUntilLastDayOfWeek.toLong())
     }
 
-    private fun endOfNextWeek(today: LocalDate): LocalDate {
-        return endOfThisWeek(today).plusWeeks(1)
+    private fun endOfNextWeek(today: LocalDate, firstDayOfWeek: DayOfWeek): LocalDate {
+        return endOfThisWeek(today, firstDayOfWeek).plusWeeks(1)
     }
 
     private fun endOfThisMonth(today: LocalDate): LocalDate {
