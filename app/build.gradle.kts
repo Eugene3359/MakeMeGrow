@@ -14,8 +14,8 @@ android {
         applicationId = "com.scipath.makemegrow"
         minSdk = 26
         targetSdk = 36
-        versionCode = 111
-        versionName = "0.8.26"
+        versionCode = 112
+        versionName = "0.8.27"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
