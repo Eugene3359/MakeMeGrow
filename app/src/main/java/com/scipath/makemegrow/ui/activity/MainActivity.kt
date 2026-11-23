@@ -58,7 +58,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val app = application as MakeMeGrowApp
-        taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java]
+        taskViewModel = ViewModelProvider(this, app.taskFactory)[TaskViewModel::class.java].apply {
+            refreshTasks()
+        }
         selectedTasksViewModel = ViewModelProvider(this)[SelectedTasksViewModel::class.java].apply {
             selectedTasks.observe(this@MainActivity) {
                 taskBarManager.updateVisibilities(!selectedTasksViewModel.isEmpty())

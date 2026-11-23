@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TaskRepository(
@@ -29,7 +30,9 @@ class TaskRepository(
     private val notificationScheduler: NotificationScheduler
 ) {
 
-    private val currentDateTime = MutableStateFlow(LocalDateTime.now())
+    private val currentDateTime = MutableStateFlow(
+        LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+    )
 
     val allTasks: Flow<List<Task>> = taskDao.getAll()
     val overdueTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
@@ -173,7 +176,7 @@ class TaskRepository(
 
     // Refresh
     fun refreshTasks() {
-        currentDateTime.value = LocalDateTime.now()
+        currentDateTime.value = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
     }
 
     // Complete
