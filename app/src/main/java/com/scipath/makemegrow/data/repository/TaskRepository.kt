@@ -11,50 +11,87 @@ import com.scipath.makemegrow.data.model.Task.RepeatType.ONCE_A_YEAR
 import com.scipath.makemegrow.data.model.Task.RepeatType.ON_WEEKDAYS
 import com.scipath.makemegrow.data.model.Task.RepeatType.ON_WEEKENDS
 import com.scipath.makemegrow.data.notification.NotificationScheduler
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalTime
+import java.time.LocalDateTime
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class TaskRepository(
     private val taskDao: TaskDao,
     private val settingsRepository: SettingsRepository,
     private val notificationScheduler: NotificationScheduler
 ) {
 
-    val allTasks: Flow<List<Task>> = taskDao.getAll()
-    val overdueTasks: Flow<List<Task>> = taskDao.getBeforeDeadline(
-        DateAndTimeConverter.dateToSeconds(currentDate()),
-        DateAndTimeConverter.timeToSeconds(currentTime()))
-    val todayTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
-        DateAndTimeConverter.dateToSeconds(currentDate()),
-        DateAndTimeConverter.timeToSeconds(currentTime().minusSeconds(1)),
-        DateAndTimeConverter.dateToSeconds(currentDate()),
-        DateAndTimeConverter.NO_TIME)
-    val tomorrowTasks: Flow<List<Task>> = taskDao.getByDeadlineDate(
-        DateAndTimeConverter.dateToSeconds(tomorrowDate()))
-    val thisWeekTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
-        DateAndTimeConverter.dateToSeconds(tomorrowDate()),
-        DateAndTimeConverter.dateToSeconds(endOfThisWeek()))
-    val nextWeekTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
-        DateAndTimeConverter.dateToSeconds(
-            if (endOfThisWeek().isAfter(tomorrowDate())) endOfThisWeek()
-            else tomorrowDate()),
-        DateAndTimeConverter.dateToSeconds(endOfNextWeek()))
-    val thisMonthTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
-        DateAndTimeConverter.dateToSeconds(endOfNextWeek()),
-        DateAndTimeConverter.dateToSeconds(endOfThisMonth()))
-    val nextMonthTasks: Flow<List<Task>> = taskDao.getBetweenDeadlines(
-        DateAndTimeConverter.dateToSeconds(
-            if (endOfThisMonth().isAfter(endOfNextWeek())) endOfThisMonth()
-            else endOfNextWeek()),
-        DateAndTimeConverter.dateToSeconds(endOfNextMonth()))
-    val laterTasks: Flow<List<Task>> = taskDao.getAfterDeadline(
-        DateAndTimeConverter.dateToSeconds(endOfNextMonth()),
-        DateAndTimeConverter.NO_TIME)
+    private val currentDateTime = MutableStateFlow(LocalDateTime.now())
 
+    val allTasks: Flow<List<Task>> = taskDao.getAll()
+    val overdueTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+        taskDao.getBeforeDeadline(
+            DateAndTimeConverter.dateToSeconds(now.toLocalDate()),
+            DateAndTimeConverter.timeToSeconds(now.toLocalTime())
+        )
+    }
+    val todayTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+        taskDao.getBetweenDeadlines(
+            DateAndTimeConverter.dateToSeconds(now.toLocalDate()),
+            DateAndTimeConverter.timeToSeconds(now.toLocalTime()),
+            DateAndTimeConverter.dateToSeconds(now.toLocalDate()),
+            DateAndTimeConverter.NO_TIME
+        )
+    }
+    val tomorrowTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+        val today = now.toLocalDate()
+        taskDao.getByDeadlineDate(
+            DateAndTimeConverter.dateToSeconds(tomorrowDate(today))
+        )
+    }
+    val thisWeekTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+        val today = now.toLocalDate()
+        taskDao.getBetweenDeadlines(
+            DateAndTimeConverter.dateToSeconds(tomorrowDate(today)),
+            DateAndTimeConverter.dateToSeconds(endOfThisWeek(today))
+        )
+    }
+    val nextWeekTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+        val today = now.toLocalDate()
+        taskDao.getBetweenDeadlines(
+            DateAndTimeConverter.dateToSeconds(
+                maxOf(tomorrowDate(today), endOfThisWeek(today))
+            ),
+            DateAndTimeConverter.dateToSeconds(endOfNextWeek(today))
+        )
+    }
+    val thisMonthTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+        val today = now.toLocalDate()
+        taskDao.getBetweenDeadlines(
+            DateAndTimeConverter.dateToSeconds(endOfNextWeek(today)),
+            DateAndTimeConverter.dateToSeconds(endOfThisMonth(today))
+        )
+    }
+    val nextMonthTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+        val today = now.toLocalDate()
+        taskDao.getBetweenDeadlines(
+            DateAndTimeConverter.dateToSeconds(
+                maxOf(endOfNextWeek(today), endOfThisMonth(today))
+            ),
+            DateAndTimeConverter.dateToSeconds(endOfNextMonth(today))
+        )
+    }
+    val laterTasks: Flow<List<Task>> = currentDateTime.flatMapLatest { now ->
+        val today = now.toLocalDate()
+        taskDao.getAfterDeadline(
+            DateAndTimeConverter.dateToSeconds(endOfNextMonth(today)),
+            DateAndTimeConverter.NO_TIME
+        )
+    }
+
+    // CRUD
     fun getById(id: Int): Task? {
         return taskDao.getById(id)
     }
@@ -99,6 +136,12 @@ class TaskRepository(
         taskDao.clear()
     }
 
+    // Refresh
+    fun refreshTasks() {
+        currentDateTime.value = LocalDateTime.now()
+    }
+
+    // Complete
     suspend fun completeTask(task: Task, isCompleted: Boolean) {
         if (task.repeatType == NO_REPEAT) {
             task.isCompleted = isCompleted
@@ -109,34 +152,6 @@ class TaskRepository(
             }
         }
         updateTask(task)
-    }
-
-    fun filterByCompletion(tasks: Flow<List<Task>>, isCompleted: Boolean): Flow<List<Task>> {
-        return tasks.map { list ->
-            list.filter { it.isCompleted == isCompleted }
-        }
-    }
-
-    private suspend fun scheduleDeadlineNotification(task: Task) {
-        if (settingsRepository.deadlineNotifications.first()) {
-            notificationScheduler.schedule(task)
-        }
-    }
-
-    private fun cancelDeadlineNotification(task: Task) {
-        notificationScheduler.cancel(task.id)
-    }
-
-    suspend fun scheduleAllDeadlineNotifications() {
-        allTasks.first().forEach { task ->
-            scheduleDeadlineNotification(task)
-        }
-    }
-
-    suspend fun cancelAllDeadlineNotifications() {
-        allTasks.first().forEach { task ->
-            cancelDeadlineNotification(task)
-        }
     }
 
     private fun getNextDeadline(task: Task): Long {
@@ -163,36 +178,57 @@ class TaskRepository(
         return DateAndTimeConverter.dateToSeconds(nextDate)
     }
 
-    private fun currentDate(): LocalDate {
-        return LocalDate.now()
+    // Filter
+    fun filterByCompletion(tasks: Flow<List<Task>>, isCompleted: Boolean): Flow<List<Task>> {
+        return tasks.map { list ->
+            list.filter { it.isCompleted == isCompleted }
+        }
     }
 
-    private fun currentTime(): LocalTime {
-        return LocalTime.now()
+    // Notifications
+    private suspend fun scheduleDeadlineNotification(task: Task) {
+        if (settingsRepository.deadlineNotifications.first()) {
+            notificationScheduler.schedule(task)
+        }
     }
 
-    private fun tomorrowDate(): LocalDate {
-        return currentDate().plusDays(1)
+    private fun cancelDeadlineNotification(task: Task) {
+        notificationScheduler.cancel(task.id)
     }
 
-    private fun endOfThisWeek(): LocalDate {
-        return currentDate().plusDays(
-            (DayOfWeek.SUNDAY.value - currentDate().dayOfWeek.value).toLong()
+    suspend fun scheduleAllDeadlineNotifications() {
+        allTasks.first().forEach { task ->
+            scheduleDeadlineNotification(task)
+        }
+    }
+
+    suspend fun cancelAllDeadlineNotifications() {
+        allTasks.first().forEach { task ->
+            cancelDeadlineNotification(task)
+        }
+    }
+
+    // Dates
+    private fun tomorrowDate(today: LocalDate): LocalDate {
+        return today.plusDays(1)
+    }
+
+    private fun endOfThisWeek(today: LocalDate): LocalDate {
+        return today.plusDays(
+            (DayOfWeek.SUNDAY.value - today.dayOfWeek.value).toLong()
         )
     }
 
-    private fun endOfNextWeek(): LocalDate {
-        return endOfThisWeek().plusWeeks(1)
+    private fun endOfNextWeek(today: LocalDate): LocalDate {
+        return endOfThisWeek(today).plusWeeks(1)
     }
 
-    private fun endOfThisMonth(): LocalDate {
-        return currentDate()
-            .withDayOfMonth(currentDate().month.length(currentDate().isLeapYear))
+    private fun endOfThisMonth(today: LocalDate): LocalDate {
+        return today.withDayOfMonth(today.month.length(today.isLeapYear))
     }
 
-    private fun endOfNextMonth(): LocalDate {
-        val nextMonth: LocalDate = currentDate().plusMonths(1)
-        return nextMonth
-            .withDayOfMonth(nextMonth.month.length(nextMonth.isLeapYear))
+    private fun endOfNextMonth(today: LocalDate): LocalDate {
+        val nextMonth: LocalDate = today.plusMonths(1)
+        return nextMonth.withDayOfMonth(nextMonth.month.length(nextMonth.isLeapYear))
     }
 }

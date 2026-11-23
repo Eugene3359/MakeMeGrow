@@ -24,6 +24,11 @@ import com.scipath.makemegrow.ui.viewmodel.CategoryViewModel
 import com.scipath.makemegrow.ui.viewmodel.SettingsViewModel
 import com.scipath.makemegrow.ui.viewmodel.TaskViewModel
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var taskSectionManager: TaskSectionManager
     private var pendingTask: Task? = null
     private var onTaskCompletionCancel: (() -> Unit)? = null
+    private var hasResumedBefore = false
 
     private val notificationPermissionLauncher =
         registerForActivityResult(
@@ -135,6 +141,32 @@ class MainActivity : AppCompatActivity() {
 
         setupDialogListeners()
         handleIntent(intent)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    val currentTime = System.currentTimeMillis()
+                    val millisIntoMinute = currentTime % 60_000L
+                    val delayLength = if (millisIntoMinute < 1_000L) {
+                        1_000L - millisIntoMinute
+                    } else {
+                        61_000L - millisIntoMinute
+                    }
+                    delay(delayLength)
+                    taskViewModel.refreshTasks()
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (hasResumedBefore) {
+            taskViewModel.refreshTasks()
+        }
+
+        hasResumedBefore = true
     }
 
     override fun onNewIntent(intent: Intent) {

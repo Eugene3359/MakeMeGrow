@@ -24,6 +24,7 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     val laterTasks = repository.filterByCompletion(repository.laterTasks, false).asLiveData()
     val completedTasks = repository.filterByCompletion(repository.allTasks, true).asLiveData()
 
+    // CRUD
     fun addTask(task: Task) {
         viewModelScope.launch {
             repository.addTask(task)
@@ -48,12 +49,19 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
         }
     }
 
+    // Refresh
+    fun refreshTasks() {
+        repository.refreshTasks()
+    }
+
+    // Complete
     fun completeTask(task: Task, isCompleted: Boolean) {
         viewModelScope.launch {
             repository.completeTask(task, isCompleted)
         }
     }
 
+    // Filter
     fun filterTasksByCategory(tasks: LiveData<List<Task>>, categoryId: Int?) : List<Task> {
         val result = when (categoryId) {
             ALL -> tasks.value
@@ -67,6 +75,7 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
         return result ?: emptyList()
     }
 
+    // Seed
     fun seedDatabase() {
         viewModelScope.launch {
             repository.clear()
