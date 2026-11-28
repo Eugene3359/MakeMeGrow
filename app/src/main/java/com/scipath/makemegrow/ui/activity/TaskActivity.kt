@@ -231,12 +231,12 @@ class TaskActivity : AppCompatActivity() {
             )
 
             selectedCategoryId?.let { id ->
-                val index = categories.indexOfFirst { it.id == id }
-                binding.spinnerCategory.setSelection(index + 1)
+                val index = categories.indexOfFirst { it.id == id } + 1
+                binding.spinnerCategory.setSelection(index)
             }
 
             binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                     selectedCategoryId =
                         if (position == 0) null
                         else categories[position - 1].id
